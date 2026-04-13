@@ -156,10 +156,10 @@ onMounted(load)
           <CampaignStatusTransitionButton :current-status="campaign.status" @transition="onStatusChange" />
           <UDropdownMenu
             :items="[
-              { label: 'Edit', icon: 'i-lucide-pencil', click: startEdit, disabled: !campaign.isEditable },
-              { label: 'Clone', icon: 'i-lucide-copy', click: onClone },
+              { label: 'Edit', icon: 'i-lucide-pencil', onSelect: startEdit, disabled: !campaign.isEditable },
+              { label: 'Clone', icon: 'i-lucide-copy', onSelect: onClone },
               { type: 'separator' },
-              { label: 'Delete', icon: 'i-lucide-trash-2', click: () => { deleteDialogOpen = true } }
+              { label: 'Delete', icon: 'i-lucide-trash-2', onSelect: () => { deleteDialogOpen = true } }
             ]"
           >
             <UButton icon="i-lucide-more-horizontal" variant="ghost" color="neutral" />

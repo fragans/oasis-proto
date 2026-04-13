@@ -14,7 +14,7 @@ const transitions = computed(() => {
   return STATUS_TRANSITIONS[props.currentStatus].map(status => ({
     label: status.charAt(0).toUpperCase() + status.slice(1),
     icon: STATUS_ICONS[status],
-    click: () => emit('transition', status)
+    onSelect: () => emit('transition', status)
   }))
 })
 </script>

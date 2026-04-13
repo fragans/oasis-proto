@@ -70,10 +70,10 @@ function formatDate(date: string | null) {
 
 function getRowActions(campaign: Campaign) {
   return [
-    { label: 'View', icon: 'i-lucide-eye', click: () => router.push(`/campaigns/${campaign.id}`) },
-    { label: 'Clone', icon: 'i-lucide-copy', click: () => onClone(campaign.id) },
+    { label: 'View', icon: 'i-lucide-eye', onSelect() { router.push(`/campaigns/${campaign.id}`) } },
+    { label: 'Clone', icon: 'i-lucide-copy', onSelect() { onClone(campaign.id) } },
     { type: 'separator' as const },
-    { label: 'Delete', icon: 'i-lucide-trash-2', click: () => { deleteTarget.value = campaign } }
+    { label: 'Delete', icon: 'i-lucide-trash-2', onSelect() { deleteTarget.value = campaign } }
   ]
 }
 </script>

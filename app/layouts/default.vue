@@ -78,9 +78,9 @@ const breadcrumbs = computed(() => {
       </nav>
 
       <!-- Sidebar toggle -->
-      <div class="p-3 border-t border-zinc-200 dark:border-zinc-800">
+      <div class="flex justify-end p-3 border-t border-zinc-200 dark:border-zinc-800">
         <button
-          class="flex items-center justify-center w-full p-2 rounded-lg text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+          class="flex items-center justify-center p-2 rounded-lg text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
           @click="isSidebarOpen = !isSidebarOpen"
         >
           <UIcon :name="isSidebarOpen ? 'i-lucide-panel-left-close' : 'i-lucide-panel-left-open'" class="w-5 h-5" />

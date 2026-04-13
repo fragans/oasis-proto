@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { createCampaignSchema } from '~~/shared/types/campaign'
 
 definePageMeta({ layout: 'default' })
 
@@ -44,12 +43,17 @@ async function onSubmit(action: 'draft' | 'schedule') {
 
     // Add creatives to campaign
     if (uploadedCreatives.value.length > 0) {
-      for (const creative of uploadedCreatives.value) {
-        await $fetch(`/api/campaigns/${campaign.id}`, {
-          method: 'PUT',
-          body: {} // trigger update
+      await Promise.all(uploadedCreatives.value.map(creative =>
+        $fetch(`/api/campaigns/${campaign.id}/creatives`, {
+          method: 'POST',
+          body: {
+            fileUrl: creative.url,
+            fileName: creative.fileName,
+            fileSize: creative.fileSize,
+            mimeType: creative.mimeType
+          }
         })
-      }
+      ))
     }
 
     // If scheduling, transition status
