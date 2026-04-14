@@ -23,7 +23,10 @@ const navigation = [
     label: 'Journeys',
     icon: 'i-lucide-route',
     to: '/journeys',
-    disabled: true
+    children: [
+      { label: 'All Journeys', to: '/journeys', icon: 'i-lucide-route' },
+      { label: 'Email Templates', to: '/journeys/templates', icon: 'i-lucide-mail' }
+    ]
   },
   {
     label: 'Reports',
@@ -38,7 +41,7 @@ const navigation = [
   }
 ]
 
-const expandedSections = ref<string[]>(['Audiences'])
+const expandedSections = ref<string[]>(['Audiences', 'Journeys'])
 
 const isSidebarOpen = ref(true)
 

@@ -207,3 +207,150 @@ export const segmentContactsRelations = relations(segmentContacts, ({ one }) => 
   segment: one(segments, { fields: [segmentContacts.segmentId], references: [segments.id] }),
   contact: one(contacts, { fields: [segmentContacts.contactId], references: [contacts.id] })
 }))
+
+// ─── Journey Orchestration ─────────────────────────────────
+
+export const journeyStatusEnum = pgEnum('journey_status', [
+  'draft',
+  'active',
+  'paused',
+  'completed',
+  'archived'
+])
+
+export const journeyNodeTypeEnum = pgEnum('journey_node_type', [
+  'trigger',
+  'action_email',
+  'action_push',
+  'action_banner',
+  'action_webhook',
+  'condition',
+  'delay',
+  'split'
+])
+
+export const journeyEnrollmentStatusEnum = pgEnum('journey_enrollment_status', [
+  'active',
+  'completed',
+  'exited',
+  'failed'
+])
+
+export const journeyExecutionStatusEnum = pgEnum('journey_execution_status', [
+  'pending',
+  'executing',
+  'completed',
+  'failed',
+  'skipped'
+])
+
+export const emailTemplates = pgTable('email_templates', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: varchar('name', { length: 255 }).notNull(),
+  subject: varchar('subject', { length: 500 }).notNull(),
+  bodyHtml: text('body_html').notNull(),
+  bodyText: text('body_text'),
+  variables: jsonb('variables').$type<string[]>().default([]),
+  category: varchar('category', { length: 100 }).default('general'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull()
+})
+
+export const journeys = pgTable('journeys', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: varchar('name', { length: 255 }).notNull(),
+  description: text('description'),
+  status: journeyStatusEnum('status').default('draft').notNull(),
+  triggerType: varchar('trigger_type', { length: 50 }).notNull().default('event'),
+  triggerConfig: jsonb('trigger_config').$type<Record<string, unknown>>().default({}),
+  segmentId: uuid('segment_id').references(() => segments.id),
+  quietHoursStart: varchar('quiet_hours_start', { length: 5 }),
+  quietHoursEnd: varchar('quiet_hours_end', { length: 5 }),
+  rateLimitPerContact: integer('rate_limit_per_contact'),
+  rateLimitWindow: varchar('rate_limit_window', { length: 20 }),
+  enrollmentCount: integer('enrollment_count').default(0),
+  completedCount: integer('completed_count').default(0),
+  startedAt: timestamp('started_at', { withTimezone: true }),
+  completedAt: timestamp('completed_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull()
+})
+
+export const journeyNodes = pgTable('journey_nodes', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  journeyId: uuid('journey_id').references(() => journeys.id, { onDelete: 'cascade' }).notNull(),
+  type: journeyNodeTypeEnum('type').notNull(),
+  label: varchar('label', { length: 255 }),
+  config: jsonb('config').$type<Record<string, unknown>>().default({}),
+  positionX: integer('position_x').default(0).notNull(),
+  positionY: integer('position_y').default(0).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull()
+})
+
+export const journeyEdges = pgTable('journey_edges', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  journeyId: uuid('journey_id').references(() => journeys.id, { onDelete: 'cascade' }).notNull(),
+  sourceNodeId: uuid('source_node_id').references(() => journeyNodes.id, { onDelete: 'cascade' }).notNull(),
+  targetNodeId: uuid('target_node_id').references(() => journeyNodes.id, { onDelete: 'cascade' }).notNull(),
+  sourceHandle: varchar('source_handle', { length: 50 }),
+  label: varchar('label', { length: 100 }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull()
+})
+
+export const journeyEnrollments = pgTable('journey_enrollments', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  journeyId: uuid('journey_id').references(() => journeys.id, { onDelete: 'cascade' }).notNull(),
+  contactId: uuid('contact_id').references(() => contacts.id, { onDelete: 'cascade' }).notNull(),
+  status: journeyEnrollmentStatusEnum('status').default('active').notNull(),
+  currentNodeId: uuid('current_node_id').references(() => journeyNodes.id),
+  enrolledAt: timestamp('enrolled_at', { withTimezone: true }).defaultNow().notNull(),
+  completedAt: timestamp('completed_at', { withTimezone: true }),
+  exitedAt: timestamp('exited_at', { withTimezone: true }),
+  exitReason: varchar('exit_reason', { length: 255 }),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>().default({})
+})
+
+export const journeyExecutions = pgTable('journey_executions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  enrollmentId: uuid('enrollment_id').references(() => journeyEnrollments.id, { onDelete: 'cascade' }).notNull(),
+  nodeId: uuid('node_id').references(() => journeyNodes.id, { onDelete: 'cascade' }).notNull(),
+  status: journeyExecutionStatusEnum('status').default('pending').notNull(),
+  result: jsonb('result').$type<Record<string, unknown>>(),
+  error: text('error'),
+  scheduledAt: timestamp('scheduled_at', { withTimezone: true }).defaultNow().notNull(),
+  startedAt: timestamp('started_at', { withTimezone: true }),
+  completedAt: timestamp('completed_at', { withTimezone: true })
+})
+
+// ─── Journey Relations ─────────────────────────────────────
+
+export const journeysRelations = relations(journeys, ({ one, many }) => ({
+  segment: one(segments, { fields: [journeys.segmentId], references: [segments.id] }),
+  nodes: many(journeyNodes),
+  edges: many(journeyEdges),
+  enrollments: many(journeyEnrollments)
+}))
+
+export const journeyNodesRelations = relations(journeyNodes, ({ one, many }) => ({
+  journey: one(journeys, { fields: [journeyNodes.journeyId], references: [journeys.id] }),
+  outgoingEdges: many(journeyEdges),
+  executions: many(journeyExecutions)
+}))
+
+export const journeyEdgesRelations = relations(journeyEdges, ({ one }) => ({
+  journey: one(journeys, { fields: [journeyEdges.journeyId], references: [journeys.id] }),
+  sourceNode: one(journeyNodes, { fields: [journeyEdges.sourceNodeId], references: [journeyNodes.id] }),
+  targetNode: one(journeyNodes, { fields: [journeyEdges.targetNodeId], references: [journeyNodes.id] })
+}))
+
+export const journeyEnrollmentsRelations = relations(journeyEnrollments, ({ one, many }) => ({
+  journey: one(journeys, { fields: [journeyEnrollments.journeyId], references: [journeys.id] }),
+  contact: one(contacts, { fields: [journeyEnrollments.contactId], references: [contacts.id] }),
+  currentNode: one(journeyNodes, { fields: [journeyEnrollments.currentNodeId], references: [journeyNodes.id] }),
+  executions: many(journeyExecutions)
+}))
+
+export const journeyExecutionsRelations = relations(journeyExecutions, ({ one }) => ({
+  enrollment: one(journeyEnrollments, { fields: [journeyExecutions.enrollmentId], references: [journeyEnrollments.id] }),
+  node: one(journeyNodes, { fields: [journeyExecutions.nodeId], references: [journeyNodes.id] })
+}))

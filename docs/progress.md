@@ -317,24 +317,24 @@
 ### Milestone 3.1 — Email Sequences `~4 days`
 
 #### Story 3.1.1 — Drip Campaign Builder
-- [ ] Time-based email sequence configuration (delays, schedules)
-- [ ] Reusable email templates with dynamic personalization
-- [ ] Schedule options: immediate, delayed, specific date/time
+- [x] Time-based email sequence configuration (delays, schedules)
+- [x] Reusable email templates with dynamic personalization
+- [x] Schedule options: immediate, delayed, specific date/time
 
 ---
 
 ### Milestone 3.2 — Multi-Channel Journeys `~7 days`
 
 #### Story 3.2.1 — Journey Builder UI
-- [ ] Visual journey flow editor
-- [ ] Channel nodes: email, push, in-app banner, web banner (OASIS-DELIVERY)
-- [ ] Sequence + parallel channel coordination
-- [ ] Fallback logic (primary channel fails → fallback channel)
+- [x] Visual journey flow editor
+- [x] Channel nodes: email, push, in-app banner, web banner (OASIS-DELIVERY)
+- [x] Sequence + parallel channel coordination
+- [~] Fallback logic (primary channel fails → fallback channel)
 
 #### Story 3.2.2 — Trigger-Based Automations
-- [ ] Event triggers from Oval events with parameter filtering
-- [ ] Condition nodes: branching on profile attributes, segment membership, engagement
-- [ ] Rate limiting + quiet hours configuration
+- [x] Event triggers from Oval events with parameter filtering
+- [x] Condition nodes: branching on profile attributes, segment membership, engagement
+- [x] Rate limiting + quiet hours configuration
 
 ---
 
