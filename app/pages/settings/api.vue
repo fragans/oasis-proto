@@ -10,50 +10,74 @@ interface ApiToken {
   createdAt: string
 }
 
+const toast = useToast()
+
 const tokens = ref<ApiToken[]>([])
-const loading = ref(true)
-const showCreate = ref(false)
-const saving = ref(false)
+// const loading = ref(true)
+// const showCreate = ref(false)
+// const saving = ref(false)
 const deleteTarget = ref<ApiToken | null>(null)
 const deleting = ref(false)
 const newTokenValue = ref('')
 const tokenName = ref('')
 
+const {
+  data: dataGetTokens,
+  status: statusGetTokens,
+  execute: execGetTokens
+} = await useAsyncData<{ tokens: ApiToken[] }>(
+  'get-api-tokens',
+  () => $fetch('/api/tokens'),
+  { immediate: false }
+)
+
+const {
+  data: dataCreateToken,
+  status: statusCreateToken,
+  execute: execCreateToken
+} = await useAsyncData<{ token: string } & ApiToken>(
+  'create-api-token',
+  () => $fetch('/api/tokens', {
+    method: 'POST',
+    body: { name: unref(tokenName) }
+  }),
+  { immediate: false }
+)
+
+const {
+  status: statusDeleteToken,
+  execute: execDeleteToken
+} = await useAsyncData(
+  'delete-api-token',
+  () => $fetch(`/api/tokens/${deleteTarget.value?.id || ''}`,
+    {
+      method: 'DELETE',
+      body: { name: unref(tokenName) }
+    }
+  ),
+  { immediate: false }
+)
+
 async function load() {
-  loading.value = true
-  try {
-    const res = await $fetch<{ tokens: ApiToken[] }>('/api/tokens')
-    tokens.value = res.tokens
-  } finally {
-    loading.value = false
-  }
+  await execGetTokens()
+  tokens.value = dataGetTokens.value?.tokens || []
 }
 
 async function onCreate() {
-  saving.value = true
-  try {
-    const res = await $fetch<{ token: string } & ApiToken>('/api/tokens', {
-      method: 'POST',
-      body: { name: tokenName.value }
-    })
-    newTokenValue.value = res.token
-    tokenName.value = ''
-    await load()
-  } finally {
-    saving.value = false
-  }
+  if (!tokenName.value) return
+  await execCreateToken()
+  if (statusCreateToken.value === 'error') return
+  newTokenValue.value = dataCreateToken.value?.token || ''
+  tokenName.value = ''
+  await load()
 }
 
 async function onDelete() {
   if (!deleteTarget.value) return
-  deleting.value = true
-  try {
-    await $fetch(`/api/tokens/${deleteTarget.value.id}`, { method: 'DELETE' })
-    deleteTarget.value = null
-    await load()
-  } finally {
-    deleting.value = false
-  }
+  await execDeleteToken()
+  if (statusDeleteToken.value === 'error') return
+  deleteTarget.value = null
+  await load()
 }
 
 function copyToken() {
@@ -66,6 +90,28 @@ function formatDate(date: string | null) {
 }
 
 onMounted(load)
+
+watch(statusGetTokens, (newStatus) => {
+  if (newStatus === 'error') {
+    toast.add({ title: 'Error', description: 'Failed to load API tokens.' })
+  }
+})
+
+watch(statusCreateToken, (newStatus) => {
+  if (newStatus === 'error') {
+    toast.add({ title: 'Error', description: 'Failed to create API token.' })
+  } else if (newStatus === 'success') {
+    toast.add({ title: 'Success', description: 'Success created new API token' })
+  }
+})
+
+watch(statusDeleteToken, (newStatus) => {
+  if (newStatus === 'error') {
+    toast.add({ title: 'Error', description: 'Failed to delete API token' })
+  } else if (newStatus === 'success') {
+    toast.add({ title: 'Success', description: 'Success delete API token' })
+  }
+})
 </script>
 
 <template>
@@ -94,9 +140,7 @@ onMounted(load)
             Token created. Copy it now — it won't be shown again.
           </p>
           <div class="flex items-center gap-2 mt-2">
-            <code
-              class="flex-1 bg-white dark:bg-zinc-900 border border-emerald-200 dark:border-emerald-700 rounded-lg px-3 py-2 text-sm font-mono text-zinc-900 dark:text-white break-all"
-            >
+            <code class="flex-1 bg-white dark:bg-zinc-900 border border-emerald-200 dark:border-emerald-700 rounded-lg px-3 py-2 text-sm font-mono text-zinc-900 dark:text-white break-all">
               {{ newTokenValue }}
             </code>
             <UButton
@@ -130,7 +174,7 @@ onMounted(load)
         icon="i-lucide-plus"
         label="Generate Token"
         color="primary"
-        :loading="saving"
+        :loading="statusCreateToken === 'pending'"
         :disabled="!tokenName"
         @click="onCreate"
       />
@@ -138,7 +182,7 @@ onMounted(load)
 
     <!-- Token list -->
     <div
-      v-if="loading"
+      v-if="statusGetTokens === 'pending'"
       class="space-y-3"
     >
       <div

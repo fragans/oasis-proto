@@ -1,3 +1,4 @@
+// server/api/tokens/index.get.ts
 import { desc } from 'drizzle-orm'
 import { apiTokens } from '../../database/schema'
 

@@ -170,7 +170,7 @@ export const apiTokens = pgTable('api_tokens', {
   id: uuid('id').primaryKey().defaultRandom(),
   name: varchar('name', { length: 255 }).notNull(),
   tokenHash: varchar('token_hash', { length: 255 }).notNull(),
-  prefix: varchar('prefix', { length: 10 }).notNull(),
+  prefix: varchar('prefix', { length: 32 }).notNull(),
   lastUsedAt: timestamp('last_used_at', { withTimezone: true }),
   expiresAt: timestamp('expires_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull()
