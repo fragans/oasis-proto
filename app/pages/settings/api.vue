@@ -191,59 +191,59 @@ watch(statusDeleteToken, (newStatus) => {
         class="h-16 bg-zinc-100 dark:bg-zinc-800 rounded-xl animate-pulse"
       />
     </div>
-
-    <div
-      v-else-if="tokens.length === 0"
-      class="text-center py-12 border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-900"
-    >
-      <UIcon
-        name="i-lucide-key"
-        class="w-12 h-12 mx-auto mb-4 text-zinc-300 dark:text-zinc-700"
-      />
-      <p class="text-zinc-600 dark:text-zinc-400 font-medium">
-        No API tokens
-      </p>
-      <p class="text-sm text-zinc-400 mt-1">
-        Generate a token to start using the Ingest API
-      </p>
-    </div>
-
-    <div
-      v-else
-      class="border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden bg-white dark:bg-zinc-900 divide-y divide-zinc-100 dark:divide-zinc-800"
-    >
+    <template v-else-if="statusGetTokens === 'success'">
       <div
-        v-for="token in tokens"
-        :key="token.id"
-        class="flex items-center justify-between px-4 py-3"
+        v-if="tokens.length === 0"
+        class="text-center py-12 border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-900"
       >
-        <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-            <UIcon
-              name="i-lucide-key"
-              class="w-4 h-4 text-zinc-500"
-            />
-          </div>
-          <div>
-            <p class="text-sm font-medium text-zinc-900 dark:text-white">
-              {{ token.name }}
-            </p>
-            <p class="text-xs text-zinc-400">
-              <code class="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">{{ token.prefix }}••••••••</code>
-              &middot; Created {{ formatDate(token.createdAt) }}
-              <span v-if="token.lastUsedAt"> &middot; Last used {{ formatDate(token.lastUsedAt) }}</span>
-            </p>
-          </div>
-        </div>
-        <UButton
-          icon="i-lucide-trash-2"
-          variant="ghost"
-          color="error"
-          size="xs"
-          @click="deleteTarget = token"
+        <UIcon
+          name="i-lucide-key"
+          class="w-12 h-12 mx-auto mb-4 text-zinc-300 dark:text-zinc-700"
         />
+        <p class="text-zinc-600 dark:text-zinc-400 font-medium">
+          No API tokens
+        </p>
+        <p class="text-sm text-zinc-400 mt-1">
+          Generate a token to start using the Ingest API
+        </p>
       </div>
-    </div>
+      <div
+        v-else
+        class="border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden bg-white dark:bg-zinc-900 divide-y divide-zinc-100 dark:divide-zinc-800"
+      >
+        <div
+          v-for="token in tokens"
+          :key="token.id"
+          class="flex items-center justify-between px-4 py-3"
+        >
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+              <UIcon
+                name="i-lucide-key"
+                class="w-4 h-4 text-zinc-500"
+              />
+            </div>
+            <div>
+              <p class="text-sm font-medium text-zinc-900 dark:text-white">
+                {{ token.name }}
+              </p>
+              <p class="text-xs text-zinc-400">
+                <code class="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">{{ token.prefix }}••••••••</code>
+                &middot; Created {{ formatDate(token.createdAt) }}
+                <span v-if="token.lastUsedAt"> &middot; Last used {{ formatDate(token.lastUsedAt) }}</span>
+              </p>
+            </div>
+          </div>
+          <UButton
+            icon="i-lucide-trash-2"
+            variant="ghost"
+            color="error"
+            size="xs"
+            @click="deleteTarget = token"
+          />
+        </div>
+      </div>
+    </template>
 
     <UCard class="bg-primary-50/50 dark:bg-primary-950/10 border-primary-200 dark:border-primary-800">
       <div class="flex gap-4">
