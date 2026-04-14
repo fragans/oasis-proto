@@ -3,12 +3,11 @@ import type { EventType } from '~~/shared/types/contact'
 
 definePageMeta({ layout: 'default' })
 
+const toast = useToast()
+
 const eventTypes = ref<EventType[]>([])
-const loading = ref(true)
 const showCreate = ref(false)
-const saving = ref(false)
 const deleteTarget = ref<EventType | null>(null)
-const deleting = ref(false)
 
 const form = reactive({
   key: '',
@@ -18,14 +17,42 @@ const form = reactive({
   parameters: [] as { key: string, type: string, label: string }[]
 })
 
+const {
+  data: dataGetEventTypes,
+  status: statusGetEventTypes,
+  execute: execGetEventTypes
+} = await useAsyncData<{ eventTypes: EventType[] }>(
+  'get-event-types',
+  () => $fetch('/api/event-types'),
+  { immediate: false }
+)
+
+const {
+  status: statusCreateEventType,
+  execute: execCreateEventType
+} = await useAsyncData(
+  'create-event-type',
+  () => $fetch('/api/event-types', {
+    method: 'POST',
+    body: { ...form }
+  }),
+  { immediate: false }
+)
+
+const {
+  status: statusDeleteEventType,
+  execute: execDeleteEventType
+} = await useAsyncData(
+  'delete-event-type',
+  () => $fetch(`/api/event-types/${deleteTarget.value?.id || ''}`, {
+    method: 'DELETE'
+  }),
+  { immediate: false }
+)
+
 async function load() {
-  loading.value = true
-  try {
-    const res = await $fetch<{ eventTypes: EventType[] }>('/api/event-types')
-    eventTypes.value = res.eventTypes
-  } finally {
-    loading.value = false
-  }
+  await execGetEventTypes()
+  eventTypes.value = dataGetEventTypes.value?.eventTypes || []
 }
 
 const groupedEvents = computed(() => {
@@ -47,37 +74,46 @@ function removeParam(idx: number) {
 }
 
 async function onCreate() {
-  saving.value = true
-  try {
-    await $fetch('/api/event-types', { method: 'POST', body: form })
-    Object.assign(form, { key: '', label: '', category: 'custom', description: '', parameters: [] })
-    showCreate.value = false
-    await load()
-  } finally {
-    saving.value = false
-  }
+  await execCreateEventType()
+  if (statusCreateEventType.value === 'error') return
+  Object.assign(form, { key: '', label: '', category: 'custom', description: '', parameters: [] })
+  showCreate.value = false
+  await load()
 }
 
 async function onDelete() {
   if (!deleteTarget.value) return
-  deleting.value = true
-  try {
-    await $fetch(`/api/event-types/${deleteTarget.value.id}`, { method: 'DELETE' })
-    deleteTarget.value = null
-    await load()
-  } catch (err) {
-    const fetchError = err as any
-    if (fetchError?.data?.message) {
-      alert(fetchError.data.message)
-    }
-  } finally {
-    deleting.value = false
-  }
+  await execDeleteEventType()
+  if (statusDeleteEventType.value === 'error') return
+  deleteTarget.value = null
+  await load()
 }
 
 watch(() => form.label, (val) => {
   if (!form.key || form.key === form.label.replace(/\s+/g, '_').toLowerCase().slice(0, -1)) {
     form.key = val.replace(/\s+/g, '_').toLowerCase()
+  }
+})
+
+watch(statusGetEventTypes, (newStatus) => {
+  if (newStatus === 'error') {
+    toast.add({ title: 'Error', description: 'Failed to load event types.' })
+  }
+})
+
+watch(statusCreateEventType, (newStatus) => {
+  if (newStatus === 'error') {
+    toast.add({ title: 'Error', description: 'Failed to create event type.' })
+  } else if (newStatus === 'success') {
+    toast.add({ title: 'Success', description: 'Event type created successfully.' })
+  }
+})
+
+watch(statusDeleteEventType, (newStatus) => {
+  if (newStatus === 'error') {
+    toast.add({ title: 'Error', description: 'Failed to delete event type.' })
+  } else if (newStatus === 'success') {
+    toast.add({ title: 'Success', description: 'Event type deleted successfully.' })
   }
 })
 
@@ -88,9 +124,6 @@ onMounted(load)
   <div class="space-y-6">
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">
-          Event Types
-        </h1>
         <p class="text-sm text-zinc-500 mt-1">
           Define event types to track contact behaviors
         </p>
@@ -104,7 +137,7 @@ onMounted(load)
     </div>
 
     <div
-      v-if="loading"
+      v-if="statusGetEventTypes === 'pending'"
       class="space-y-4"
     >
       <div
@@ -307,7 +340,7 @@ onMounted(load)
           <UButton
             label="Create"
             color="primary"
-            :loading="saving"
+            :loading="statusCreateEventType === 'pending'"
             @click="onCreate"
           />
         </div>
@@ -321,7 +354,7 @@ onMounted(load)
       :description="`Delete '${deleteTarget?.label}'? This will fail if events of this type exist.`"
       confirm-label="Delete"
       confirm-color="error"
-      :loading="deleting"
+      :loading="statusDeleteEventType === 'pending'"
       @update:open="deleteTarget = null"
       @confirm="onDelete"
     />
