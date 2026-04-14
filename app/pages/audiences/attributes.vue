@@ -89,26 +89,55 @@ onMounted(load)
           Define custom attributes to enrich contact profiles
         </p>
       </div>
-      <UButton icon="i-lucide-plus" label="Add Attribute" color="primary" @click="showCreate = true" />
+      <UButton
+        icon="i-lucide-plus"
+        label="Add Attribute"
+        color="primary"
+        @click="showCreate = true"
+      />
     </div>
 
-    <div v-if="loading" class="space-y-4">
-      <div v-for="i in 3" :key="i" class="h-16 bg-zinc-100 dark:bg-zinc-800 rounded-xl animate-pulse" />
+    <div
+      v-if="loading"
+      class="space-y-4"
+    >
+      <div
+        v-for="i in 3"
+        :key="i"
+        class="h-16 bg-zinc-100 dark:bg-zinc-800 rounded-xl animate-pulse"
+      />
     </div>
 
-    <div v-else-if="attributes.length === 0" class="text-center py-16 border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-900">
-      <UIcon name="i-lucide-tag" class="w-12 h-12 mx-auto mb-4 text-zinc-300 dark:text-zinc-700" />
+    <div
+      v-else-if="attributes.length === 0"
+      class="text-center py-16 border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-900"
+    >
+      <UIcon
+        name="i-lucide-tag"
+        class="w-12 h-12 mx-auto mb-4 text-zinc-300 dark:text-zinc-700"
+      />
       <p class="text-zinc-600 dark:text-zinc-400 font-medium">
         No custom attributes defined
       </p>
       <p class="text-sm text-zinc-400 mt-1 mb-4">
         Create attributes to store additional data on contacts
       </p>
-      <UButton label="Add Attribute" color="primary" size="sm" @click="showCreate = true" />
+      <UButton
+        label="Add Attribute"
+        color="primary"
+        size="sm"
+        @click="showCreate = true"
+      />
     </div>
 
-    <div v-else class="space-y-6">
-      <div v-for="(attrs, category) in groupedAttributes" :key="category">
+    <div
+      v-else
+      class="space-y-6"
+    >
+      <div
+        v-for="(attrs, category) in groupedAttributes"
+        :key="category"
+      >
         <h3 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">
           {{ category }}
         </h3>
@@ -120,7 +149,10 @@ onMounted(load)
           >
             <div class="flex items-center gap-3">
               <div class="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center">
-                <UIcon name="i-lucide-tag" class="w-4 h-4 text-amber-500" />
+                <UIcon
+                  name="i-lucide-tag"
+                  class="w-4 h-4 text-amber-500"
+                />
               </div>
               <div>
                 <p class="text-sm font-medium text-zinc-900 dark:text-white">
@@ -130,7 +162,11 @@ onMounted(load)
                   <code class="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">{{ attr.key }}</code>
                   &middot; {{ attr.type }}
                   <span v-if="attr.isDefault">
-                    &middot; <UBadge color="neutral" variant="subtle" size="xs">Default</UBadge>
+                    &middot; <UBadge
+                      color="neutral"
+                      variant="subtle"
+                      size="xs"
+                    >Default</UBadge>
                   </span>
                 </p>
               </div>
@@ -149,35 +185,70 @@ onMounted(load)
     </div>
 
     <!-- Create Modal -->
-    <UModal :open="showCreate" @update:open="showCreate = $event">
+    <UModal
+      :open="showCreate"
+      @update:open="showCreate = $event"
+    >
       <template #header>
         <h3 class="text-lg font-semibold text-zinc-900 dark:text-white">
           Add Custom Attribute
         </h3>
       </template>
       <template #body>
-        <form class="space-y-4" @submit.prevent="onCreate">
+        <form
+          class="space-y-4"
+          @submit.prevent="onCreate"
+        >
           <UFormField label="Label">
-            <UInput v-model="form.label" placeholder="Subscription Plan" />
+            <UInput
+              v-model="form.label"
+              placeholder="Subscription Plan"
+            />
           </UFormField>
-          <UFormField label="Key" hint="Lowercase snake_case">
-            <UInput v-model="form.key" placeholder="subscription_plan" />
+          <UFormField
+            label="Key"
+            hint="Lowercase snake_case"
+          >
+            <UInput
+              v-model="form.key"
+              placeholder="subscription_plan"
+            />
           </UFormField>
           <UFormField label="Type">
-            <USelect v-model="form.type as any" :items="typeOptions" value-key="value" />
+            <USelect
+              v-model="form.type as any"
+              :items="typeOptions"
+              value-key="value"
+            />
           </UFormField>
           <UFormField label="Category">
-            <UInput v-model="form.category" placeholder="custom" />
+            <UInput
+              v-model="form.category"
+              placeholder="custom"
+            />
           </UFormField>
           <UFormField label="Description">
-            <UInput v-model="form.description" placeholder="Optional description" />
+            <UInput
+              v-model="form.description"
+              placeholder="Optional description"
+            />
           </UFormField>
         </form>
       </template>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <UButton variant="ghost" color="neutral" label="Cancel" @click="showCreate = false" />
-          <UButton label="Create" color="primary" :loading="saving" @click="onCreate" />
+          <UButton
+            variant="ghost"
+            color="neutral"
+            label="Cancel"
+            @click="showCreate = false"
+          />
+          <UButton
+            label="Create"
+            color="primary"
+            :loading="saving"
+            @click="onCreate"
+          />
         </div>
       </template>
     </UModal>

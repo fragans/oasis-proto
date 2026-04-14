@@ -7,7 +7,7 @@ const route = useRoute()
 const router = useRouter()
 
 const segment = ref<Segment | null>(null)
-const contacts = ref<any[]>([])
+const contacts = ref<Contact[]>([])
 const contactsTotal = ref(0)
 const loading = ref(true)
 const contactsLoading = ref(false)
@@ -46,7 +46,7 @@ function syncEditForm() {
 async function loadContacts() {
   contactsLoading.value = true
   try {
-    const res = await $fetch<{ contacts: any[], total: number }>(`/api/segments/${route.params.id}/contacts`, {
+    const res = await $fetch<{ contacts: Contact[], total: number }>(`/api/segments/${route.params.id}/contacts`, {
       query: { page: contactsPage.value, limit: 20 }
     })
     contacts.value = res.contacts
@@ -93,23 +93,38 @@ onMounted(load)
 </script>
 
 <template>
-  <div v-if="loading" class="space-y-4">
+  <div
+    v-if="loading"
+    class="space-y-4"
+  >
     <div class="h-8 w-48 bg-zinc-100 dark:bg-zinc-800 rounded animate-pulse" />
     <div class="h-64 bg-zinc-100 dark:bg-zinc-800 rounded-xl animate-pulse" />
   </div>
 
-  <div v-else-if="!segment" class="text-center py-16">
+  <div
+    v-else-if="!segment"
+    class="text-center py-16"
+  >
     <p class="text-zinc-500">
       Segment not found
     </p>
-    <UButton to="/audiences/segments" label="Back to Segments" variant="ghost" class="mt-4" />
+    <UButton
+      to="/audiences/segments"
+      label="Back to Segments"
+      variant="ghost"
+      class="mt-4"
+    />
   </div>
 
-  <div v-else class="space-y-6">
+  <div
+    v-else
+    class="space-y-6"
+  >
     <!-- Header -->
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <div class="w-12 h-12 rounded-lg flex items-center justify-center"
+        <div
+          class="w-12 h-12 rounded-lg flex items-center justify-center"
           :class="segment.type === 'dynamic' ? 'bg-violet-100 dark:bg-violet-900/50' : 'bg-indigo-100 dark:bg-indigo-900/50'"
         >
           <UIcon
@@ -123,20 +138,48 @@ onMounted(load)
             {{ segment.name }}
           </h1>
           <p class="text-sm text-zinc-500">
-            <UBadge :color="segment.type === 'dynamic' ? 'warning' : 'info'" variant="subtle" size="xs">{{ segment.type }}</UBadge>
+            <UBadge
+              :color="segment.type === 'dynamic' ? 'warning' : 'info'"
+              variant="subtle"
+              size="xs"
+            >
+              {{ segment.type
+              }}
+            </UBadge>
             &middot; {{ segment.contactCount.toLocaleString() }} contacts
           </p>
         </div>
       </div>
       <div class="flex gap-2">
-        <UButton v-if="!editing" icon="i-lucide-pencil" label="Edit" variant="outline" color="neutral" @click="editing = true" />
-        <UButton icon="i-lucide-trash-2" variant="outline" color="error" @click="deleteOpen = true" />
+        <UButton
+          v-if="!editing"
+          icon="i-lucide-pencil"
+          label="Edit"
+          variant="outline"
+          color="neutral"
+          @click="editing = true"
+        />
+        <UButton
+          icon="i-lucide-trash-2"
+          variant="outline"
+          color="error"
+          @click="deleteOpen = true"
+        />
       </div>
     </div>
 
     <!-- Tags -->
-    <div v-if="segment.tags.length > 0" class="flex gap-1.5 flex-wrap">
-      <UBadge v-for="tag in segment.tags" :key="tag" color="neutral" variant="subtle" size="sm">
+    <div
+      v-if="segment.tags.length > 0"
+      class="flex gap-1.5 flex-wrap"
+    >
+      <UBadge
+        v-for="tag in segment.tags"
+        :key="tag"
+        color="neutral"
+        variant="subtle"
+        size="sm"
+      >
         {{ tag }}
       </UBadge>
     </div>
@@ -149,48 +192,108 @@ onMounted(load)
             Details
           </h2>
 
-          <div v-if="editing" class="space-y-3">
-            <UFormField label="Name" size="sm">
-              <UInput v-model="editForm.name" size="sm" />
+          <div
+            v-if="editing"
+            class="space-y-3"
+          >
+            <UFormField
+              label="Name"
+              size="sm"
+            >
+              <UInput
+                v-model="editForm.name"
+                size="sm"
+              />
             </UFormField>
-            <UFormField label="Description" size="sm">
-              <UInput v-model="editForm.description" size="sm" />
+            <UFormField
+              label="Description"
+              size="sm"
+            >
+              <UInput
+                v-model="editForm.description"
+                size="sm"
+              />
             </UFormField>
-            <UFormField label="Tags" size="sm" hint="Comma-separated">
-              <UInput v-model="editForm.tags" size="sm" />
+            <UFormField
+              label="Tags"
+              size="sm"
+              hint="Comma-separated"
+            >
+              <UInput
+                v-model="editForm.tags"
+                size="sm"
+              />
             </UFormField>
             <div class="flex gap-2 pt-2">
-              <UButton label="Save" color="primary" size="sm" :loading="saving" @click="onSave" />
-              <UButton label="Cancel" variant="ghost" color="neutral" size="sm" @click="editing = false; syncEditForm()" />
+              <UButton
+                label="Save"
+                color="primary"
+                size="sm"
+                :loading="saving"
+                @click="onSave"
+              />
+              <UButton
+                label="Cancel"
+                variant="ghost"
+                color="neutral"
+                size="sm"
+                @click="editing = false; syncEditForm()"
+              />
             </div>
           </div>
 
-          <dl v-else class="space-y-3 text-sm">
+          <dl
+            v-else
+            class="space-y-3 text-sm"
+          >
             <div v-if="segment.description">
-              <dt class="text-zinc-500 mb-1">Description</dt>
-              <dd class="text-zinc-900 dark:text-white">{{ segment.description }}</dd>
+              <dt class="text-zinc-500 mb-1">
+                Description
+              </dt>
+              <dd class="text-zinc-900 dark:text-white">
+                {{ segment.description }}
+              </dd>
             </div>
             <div class="flex justify-between">
-              <dt class="text-zinc-500">Type</dt>
-              <dd class="text-zinc-900 dark:text-white capitalize">{{ segment.type }}</dd>
+              <dt class="text-zinc-500">
+                Type
+              </dt>
+              <dd class="text-zinc-900 dark:text-white capitalize">
+                {{ segment.type }}
+              </dd>
             </div>
             <div class="flex justify-between">
-              <dt class="text-zinc-500">Contacts</dt>
-              <dd class="text-zinc-900 dark:text-white">{{ segment.contactCount.toLocaleString() }}</dd>
+              <dt class="text-zinc-500">
+                Contacts
+              </dt>
+              <dd class="text-zinc-900 dark:text-white">
+                {{ segment.contactCount.toLocaleString() }}
+              </dd>
             </div>
             <div class="flex justify-between">
-              <dt class="text-zinc-500">Created</dt>
-              <dd class="text-zinc-900 dark:text-white">{{ formatDate(segment.createdAt) }}</dd>
+              <dt class="text-zinc-500">
+                Created
+              </dt>
+              <dd class="text-zinc-900 dark:text-white">
+                {{ formatDate(segment.createdAt) }}
+              </dd>
             </div>
             <div class="flex justify-between">
-              <dt class="text-zinc-500">Last Refreshed</dt>
-              <dd class="text-zinc-900 dark:text-white">{{ formatDate(segment.lastRefreshedAt) }}</dd>
+              <dt class="text-zinc-500">
+                Last Refreshed
+              </dt>
+              <dd class="text-zinc-900 dark:text-white">
+                {{ formatDate(segment.lastRefreshedAt) }}
+              </dd>
             </div>
           </dl>
         </div>
 
         <!-- Rules (for dynamic segments) -->
-        <div v-if="segment.type === 'dynamic' && segment.rules" class="border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 bg-white dark:bg-zinc-900">
+        <div
+          v-if="segment.type === 'dynamic' && segment.rules"
+          class="border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 bg-white dark:bg-zinc-900"
+        >
           <h2 class="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-4">
             Rules
           </h2>
@@ -223,24 +326,46 @@ onMounted(load)
                 </th>
               </tr>
             </thead>
-            <tbody v-if="contactsLoading" class="divide-y divide-zinc-100 dark:divide-zinc-800">
-              <tr v-for="i in 5" :key="i">
-                <td colspan="3" class="px-4 py-4">
+            <tbody
+              v-if="contactsLoading"
+              class="divide-y divide-zinc-100 dark:divide-zinc-800"
+            >
+              <tr
+                v-for="i in 5"
+                :key="i"
+              >
+                <td
+                  colspan="3"
+                  class="px-4 py-4"
+                >
                   <div class="h-4 bg-zinc-100 dark:bg-zinc-800 rounded animate-pulse" />
                 </td>
               </tr>
             </tbody>
             <tbody v-else-if="contacts.length === 0">
               <tr>
-                <td colspan="3" class="px-4 py-12 text-center text-zinc-400">
+                <td
+                  colspan="3"
+                  class="px-4 py-12 text-center text-zinc-400"
+                >
                   No contacts in this segment
                 </td>
               </tr>
             </tbody>
-            <tbody v-else class="divide-y divide-zinc-100 dark:divide-zinc-800">
-              <tr v-for="c in contacts" :key="c.id" class="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
+            <tbody
+              v-else
+              class="divide-y divide-zinc-100 dark:divide-zinc-800"
+            >
+              <tr
+                v-for="c in contacts"
+                :key="c.id"
+                class="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+              >
                 <td class="px-4 py-3">
-                  <NuxtLink :to="`/audiences/contacts/${c.id}`" class="font-medium text-zinc-900 dark:text-white hover:text-indigo-600">
+                  <NuxtLink
+                    :to="`/audiences/contacts/${c.id}`"
+                    class="font-medium text-zinc-900 dark:text-white hover:text-indigo-600"
+                  >
                     {{ [c.firstName, c.lastName].filter(Boolean).join(' ') || 'Unknown' }}
                   </NuxtLink>
                 </td>
@@ -248,14 +373,21 @@ onMounted(load)
                   {{ c.email || '—' }}
                 </td>
                 <td class="px-4 py-3 text-zinc-500">
-                  {{ formatDate(c.addedAt) }}
+                  {{ formatDate(c.updatedAt) }}
                 </td>
               </tr>
             </tbody>
           </table>
 
-          <div v-if="contactsTotal > 20" class="p-4 border-t border-zinc-200 dark:border-zinc-800">
-            <UPagination v-model="contactsPage" :total="contactsTotal" :items-per-page="20" />
+          <div
+            v-if="contactsTotal > 20"
+            class="p-4 border-t border-zinc-200 dark:border-zinc-800"
+          >
+            <UPagination
+              v-model="contactsPage"
+              :total="contactsTotal"
+              :items-per-page="20"
+            />
           </div>
         </div>
       </div>

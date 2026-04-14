@@ -2,7 +2,7 @@
 const props = defineProps<{ open: boolean }>()
 const emit = defineEmits<{
   'update:open': [open: boolean]
-  created: []
+  'created': []
 }>()
 
 const { createContact } = useContact()
@@ -39,7 +39,10 @@ async function onSubmit() {
 </script>
 
 <template>
-  <UModal :open="open" @update:open="emit('update:open', $event)">
+  <UModal
+    :open="open"
+    @update:open="emit('update:open', $event)"
+  >
     <template #header>
       <h3 class="text-lg font-semibold text-zinc-900 dark:text-white">
         Add Contact
@@ -47,42 +50,83 @@ async function onSubmit() {
     </template>
 
     <template #body>
-      <form class="space-y-4" @submit.prevent="onSubmit">
+      <form
+        class="space-y-4"
+        @submit.prevent="onSubmit"
+      >
         <div class="grid grid-cols-2 gap-3">
           <UFormField label="First Name">
-            <UInput v-model="form.firstName" placeholder="John" />
+            <UInput
+              v-model="form.firstName"
+              placeholder="John"
+            />
           </UFormField>
           <UFormField label="Last Name">
-            <UInput v-model="form.lastName" placeholder="Doe" />
+            <UInput
+              v-model="form.lastName"
+              placeholder="Doe"
+            />
           </UFormField>
         </div>
         <UFormField label="Email">
-          <UInput v-model="form.email" type="email" placeholder="john@example.com" />
+          <UInput
+            v-model="form.email"
+            type="email"
+            placeholder="john@example.com"
+          />
         </UFormField>
         <UFormField label="Phone">
-          <UInput v-model="form.phone" placeholder="+62..." />
+          <UInput
+            v-model="form.phone"
+            placeholder="+62..."
+          />
         </UFormField>
         <div class="grid grid-cols-2 gap-3">
           <UFormField label="City">
-            <UInput v-model="form.city" placeholder="Jakarta" />
+            <UInput
+              v-model="form.city"
+              placeholder="Jakarta"
+            />
           </UFormField>
           <UFormField label="Province">
-            <UInput v-model="form.province" placeholder="DKI Jakarta" />
+            <UInput
+              v-model="form.province"
+              placeholder="DKI Jakarta"
+            />
           </UFormField>
         </div>
         <UFormField label="Birthday">
-          <UInput v-model="form.birthday" type="date" />
+          <UInput
+            v-model="form.birthday"
+            type="date"
+          />
         </UFormField>
-        <UFormField label="Tags" hint="Comma-separated">
-          <UInput v-model="form.tags" placeholder="vip, subscriber" />
+        <UFormField
+          label="Tags"
+          hint="Comma-separated"
+        >
+          <UInput
+            v-model="form.tags"
+            placeholder="vip, subscriber"
+          />
         </UFormField>
       </form>
     </template>
 
     <template #footer>
       <div class="flex justify-end gap-2">
-        <UButton variant="ghost" color="neutral" label="Cancel" @click="emit('update:open', false)" />
-        <UButton label="Create Contact" color="primary" :loading="saving" @click="onSubmit" />
+        <UButton
+          variant="ghost"
+          color="neutral"
+          label="Cancel"
+          @click="emit('update:open', false)"
+        />
+        <UButton
+          label="Create Contact"
+          color="primary"
+          :loading="saving"
+          @click="onSubmit"
+        />
       </div>
     </template>
   </UModal>

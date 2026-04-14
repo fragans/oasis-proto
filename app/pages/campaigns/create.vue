@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 definePageMeta({ layout: 'default' })
 
 const router = useRouter()
@@ -86,7 +85,13 @@ const priorityOptions = [
     <!-- Header -->
     <div>
       <div class="flex items-center gap-2 mb-2">
-        <UButton icon="i-lucide-arrow-left" variant="ghost" color="neutral" size="sm" to="/campaigns" />
+        <UButton
+          icon="i-lucide-arrow-left"
+          variant="ghost"
+          color="neutral"
+          size="sm"
+          to="/campaigns"
+        />
         <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">
           New Campaign
         </h1>
@@ -105,31 +110,54 @@ const priorityOptions = [
       <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Name *</label>
-          <UInput v-model="form.name" placeholder="e.g. Summer Sale Banner" size="md" />
+          <UInput
+            v-model="form.name"
+            placeholder="e.g. Summer Sale Banner"
+            size="md"
+          />
         </div>
 
         <div>
           <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Description</label>
-          <UTextarea v-model="form.description" placeholder="Campaign description..." :rows="3" />
+          <UTextarea
+            v-model="form.description"
+            placeholder="Campaign description..."
+            :rows="3"
+          />
         </div>
 
         <div>
           <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Objective</label>
-          <UInput v-model="form.objective" placeholder="e.g. Drive subscriptions to Kompas.id" />
+          <UInput
+            v-model="form.objective"
+            placeholder="e.g. Drive subscriptions to Kompas.id"
+          />
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Priority</label>
-            <USelect v-model="form.priority" :items="priorityOptions" size="md" />
+            <USelect
+              v-model="form.priority"
+              :items="priorityOptions"
+              size="md"
+            />
           </div>
           <div>
             <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Start Date</label>
-            <UInput v-model="form.startDate" type="datetime-local" size="md" />
+            <UInput
+              v-model="form.startDate"
+              type="datetime-local"
+              size="md"
+            />
           </div>
           <div>
             <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">End Date</label>
-            <UInput v-model="form.endDate" type="datetime-local" size="md" />
+            <UInput
+              v-model="form.endDate"
+              type="datetime-local"
+              size="md"
+            />
           </div>
         </div>
       </div>
@@ -143,15 +171,36 @@ const priorityOptions = [
 
       <CampaignCreativeUploader @uploaded="onCreativeUploaded" />
 
-      <div v-if="uploadedCreatives.length > 0" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div v-for="(creative, i) in uploadedCreatives" :key="i" class="relative">
+      <div
+        v-if="uploadedCreatives.length > 0"
+        class="grid grid-cols-1 sm:grid-cols-2 gap-4"
+      >
+        <div
+          v-for="(creative, i) in uploadedCreatives"
+          :key="i"
+          class="relative"
+        >
           <div class="border border-zinc-200 dark:border-zinc-800 rounded-lg p-3 flex items-center gap-3">
-            <img :src="creative.url" :alt="creative.fileName" class="w-16 h-16 object-cover rounded" />
+            <img
+              :src="creative.url"
+              :alt="creative.fileName"
+              class="w-16 h-16 object-cover rounded"
+            >
             <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium truncate text-zinc-900 dark:text-white">{{ creative.fileName }}</p>
-              <p class="text-xs text-zinc-500">{{ creative.mimeType }}</p>
+              <p class="text-sm font-medium truncate text-zinc-900 dark:text-white">
+                {{ creative.fileName }}
+              </p>
+              <p class="text-xs text-zinc-500">
+                {{ creative.mimeType }}
+              </p>
             </div>
-            <UButton icon="i-lucide-x" variant="ghost" color="neutral" size="xs" @click="removeCreative(i)" />
+            <UButton
+              icon="i-lucide-x"
+              variant="ghost"
+              color="neutral"
+              size="xs"
+              @click="removeCreative(i)"
+            />
           </div>
         </div>
       </div>
@@ -159,7 +208,12 @@ const priorityOptions = [
 
     <!-- Actions -->
     <div class="flex items-center justify-end gap-3 pb-8">
-      <UButton variant="ghost" color="neutral" label="Cancel" to="/campaigns" />
+      <UButton
+        variant="ghost"
+        color="neutral"
+        label="Cancel"
+        to="/campaigns"
+      />
       <UButton
         label="Save as Draft"
         color="neutral"

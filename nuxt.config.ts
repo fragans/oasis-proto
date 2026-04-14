@@ -11,10 +11,6 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
-  routeRules: {
-    '/': { redirect: '/campaigns' }
-  },
-
   runtimeConfig: {
     databaseUrl: process.env.DATABASE_URL || '',
     redisHost: process.env.REDIS_HOST || 'localhost',
@@ -26,13 +22,17 @@ export default defineNuxtConfig({
     obsCdnUrl: process.env.OBS_CDN_URL || ''
   },
 
+  routeRules: {
+    '/': { redirect: '/campaigns' }
+  },
+
+  compatibilityDate: '2025-01-15',
+
   nitro: {
     experimental: {
       asyncContext: true
     }
   },
-
-  compatibilityDate: '2025-01-15',
 
   eslint: {
     config: {

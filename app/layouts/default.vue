@@ -64,13 +64,19 @@ const breadcrumbs = computed(() => {
           <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
             O
           </div>
-          <span v-if="isSidebarOpen" class="font-semibold text-zinc-900 dark:text-white">OASIS</span>
+          <span
+            v-if="isSidebarOpen"
+            class="font-semibold text-zinc-900 dark:text-white"
+          >OASIS</span>
         </div>
       </div>
 
       <!-- Navigation -->
       <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
-        <template v-for="item in navigation" :key="item.label">
+        <template
+          v-for="item in navigation"
+          :key="item.label"
+        >
           <!-- Item with children -->
           <div v-if="item.children && isSidebarOpen">
             <button
@@ -78,11 +84,20 @@ const breadcrumbs = computed(() => {
               :class="route.path.startsWith(item.to) ? 'text-indigo-700 dark:text-indigo-300' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'"
               @click="expandedSections.includes(item.label) ? expandedSections = expandedSections.filter(s => s !== item.label) : expandedSections.push(item.label)"
             >
-              <UIcon :name="item.icon" class="w-5 h-5 shrink-0" />
+              <UIcon
+                :name="item.icon"
+                class="w-5 h-5 shrink-0"
+              />
               <span class="flex-1 text-left">{{ item.label }}</span>
-              <UIcon :name="expandedSections.includes(item.label) ? 'i-lucide-chevron-down' : 'i-lucide-chevron-right'" class="w-4 h-4 text-zinc-400" />
+              <UIcon
+                :name="expandedSections.includes(item.label) ? 'i-lucide-chevron-down' : 'i-lucide-chevron-right'"
+                class="w-4 h-4 text-zinc-400"
+              />
             </button>
-            <div v-if="expandedSections.includes(item.label)" class="ml-4 mt-0.5 space-y-0.5">
+            <div
+              v-if="expandedSections.includes(item.label)"
+              class="ml-4 mt-0.5 space-y-0.5"
+            >
               <NuxtLink
                 v-for="child in item.children"
                 :key="child.to"
@@ -90,7 +105,10 @@ const breadcrumbs = computed(() => {
                 class="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-sm transition-colors"
                 :class="route.path === child.to ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 font-medium' : 'text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800'"
               >
-                <UIcon :name="child.icon" class="w-4 h-4 shrink-0" />
+                <UIcon
+                  :name="child.icon"
+                  class="w-4 h-4 shrink-0"
+                />
                 <span>{{ child.label }}</span>
               </NuxtLink>
             </div>
@@ -103,7 +121,10 @@ const breadcrumbs = computed(() => {
             class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
             :class="route.path.startsWith(item.to) ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300' : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800'"
           >
-            <UIcon :name="item.icon" class="w-5 h-5 shrink-0" />
+            <UIcon
+              :name="item.icon"
+              class="w-5 h-5 shrink-0"
+            />
           </NuxtLink>
 
           <!-- Simple item -->
@@ -116,9 +137,18 @@ const breadcrumbs = computed(() => {
               item.disabled ? 'opacity-40 cursor-not-allowed' : ''
             ]"
           >
-            <UIcon :name="item.icon" class="w-5 h-5 shrink-0" />
+            <UIcon
+              :name="item.icon"
+              class="w-5 h-5 shrink-0"
+            />
             <span v-if="isSidebarOpen">{{ item.label }}</span>
-            <UBadge v-if="item.disabled && isSidebarOpen" size="xs" color="neutral" variant="subtle" class="ml-auto">
+            <UBadge
+              v-if="item.disabled && isSidebarOpen"
+              size="xs"
+              color="neutral"
+              variant="subtle"
+              class="ml-auto"
+            >
               Soon
             </UBadge>
           </NuxtLink>
@@ -131,7 +161,10 @@ const breadcrumbs = computed(() => {
           class="flex items-center justify-center p-2 rounded-lg text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
           @click="isSidebarOpen = !isSidebarOpen"
         >
-          <UIcon :name="isSidebarOpen ? 'i-lucide-panel-left-close' : 'i-lucide-panel-left-open'" class="w-5 h-5" />
+          <UIcon
+            :name="isSidebarOpen ? 'i-lucide-panel-left-close' : 'i-lucide-panel-left-open'"
+            class="w-5 h-5"
+          />
         </button>
       </div>
     </aside>

@@ -66,7 +66,12 @@ function formatDate(date: string | null) {
           Group contacts into targetable audiences
         </p>
       </div>
-      <UButton icon="i-lucide-plus" label="New Segment" color="primary" @click="showCreate = true" />
+      <UButton
+        icon="i-lucide-plus"
+        label="New Segment"
+        color="primary"
+        @click="showCreate = true"
+      />
     </div>
 
     <!-- Filters -->
@@ -94,22 +99,43 @@ function formatDate(date: string | null) {
     </div>
 
     <!-- List -->
-    <div v-if="loading" class="space-y-3">
-      <div v-for="i in 4" :key="i" class="h-20 bg-zinc-100 dark:bg-zinc-800 rounded-xl animate-pulse" />
+    <div
+      v-if="loading"
+      class="space-y-3"
+    >
+      <div
+        v-for="i in 4"
+        :key="i"
+        class="h-20 bg-zinc-100 dark:bg-zinc-800 rounded-xl animate-pulse"
+      />
     </div>
 
-    <div v-else-if="segments.length === 0" class="text-center py-16 border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-900">
-      <UIcon name="i-lucide-layers" class="w-12 h-12 mx-auto mb-4 text-zinc-300 dark:text-zinc-700" />
+    <div
+      v-else-if="segments.length === 0"
+      class="text-center py-16 border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-900"
+    >
+      <UIcon
+        name="i-lucide-layers"
+        class="w-12 h-12 mx-auto mb-4 text-zinc-300 dark:text-zinc-700"
+      />
       <p class="text-zinc-600 dark:text-zinc-400 font-medium">
         No segments yet
       </p>
       <p class="text-sm text-zinc-400 mt-1 mb-4">
         Create your first segment to target specific audiences
       </p>
-      <UButton label="Create Segment" color="primary" size="sm" @click="showCreate = true" />
+      <UButton
+        label="Create Segment"
+        color="primary"
+        size="sm"
+        @click="showCreate = true"
+      />
     </div>
 
-    <div v-else class="space-y-3">
+    <div
+      v-else
+      class="space-y-3"
+    >
       <NuxtLink
         v-for="segment in segments"
         :key="segment.id"
@@ -117,7 +143,8 @@ function formatDate(date: string | null) {
         class="flex items-center justify-between p-4 border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-900 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all group"
       >
         <div class="flex items-center gap-4">
-          <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+          <div
+            class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
             :class="segment.type === 'dynamic' ? 'bg-violet-50 dark:bg-violet-900/20' : 'bg-indigo-50 dark:bg-indigo-900/20'"
           >
             <UIcon
@@ -132,10 +159,17 @@ function formatDate(date: string | null) {
             </p>
             <p class="text-sm text-zinc-500">
               {{ segment.contactCount.toLocaleString() }} contacts &middot;
-              <UBadge :color="segment.type === 'dynamic' ? 'warning' : 'info'" variant="subtle" size="xs">{{ segment.type }}</UBadge>
+              <UBadge
+                :color="segment.type === 'dynamic' ? 'warning' : 'info'"
+                variant="subtle"
+                size="xs"
+              >{{ segment.type }}</UBadge>
               <span v-if="segment.tags.length > 0">
                 &middot;
-                <span v-for="(tag, idx) in segment.tags.slice(0, 3)" :key="tag">
+                <span
+                  v-for="(tag, idx) in segment.tags.slice(0, 3)"
+                  :key="tag"
+                >
                   {{ tag }}{{ idx < Math.min(segment.tags.length, 3) - 1 ? ', ' : '' }}
                 </span>
               </span>
@@ -156,27 +190,46 @@ function formatDate(date: string | null) {
     </div>
 
     <!-- Pagination -->
-    <div v-if="totalPages > 1" class="flex items-center justify-between">
+    <div
+      v-if="totalPages > 1"
+      class="flex items-center justify-between"
+    >
       <p class="text-sm text-zinc-500">
         Showing {{ (filters.page - 1) * filters.limit + 1 }}–{{ Math.min(filters.page * filters.limit, total) }} of {{ total }}
       </p>
-      <UPagination v-model="filters.page" :total="total" :items-per-page="filters.limit" />
+      <UPagination
+        v-model="filters.page"
+        :total="total"
+        :items-per-page="filters.limit"
+      />
     </div>
 
     <!-- Create Modal -->
-    <UModal :open="showCreate" @update:open="showCreate = $event">
+    <UModal
+      :open="showCreate"
+      @update:open="showCreate = $event"
+    >
       <template #header>
         <h3 class="text-lg font-semibold text-zinc-900 dark:text-white">
           Create Segment
         </h3>
       </template>
       <template #body>
-        <form class="space-y-4" @submit.prevent="onCreate">
+        <form
+          class="space-y-4"
+          @submit.prevent="onCreate"
+        >
           <UFormField label="Name">
-            <UInput v-model="form.name" placeholder="VIP Subscribers" />
+            <UInput
+              v-model="form.name"
+              placeholder="VIP Subscribers"
+            />
           </UFormField>
           <UFormField label="Description">
-            <UInput v-model="form.description" placeholder="Optional description" />
+            <UInput
+              v-model="form.description"
+              placeholder="Optional description"
+            />
           </UFormField>
           <UFormField label="Type">
             <div class="flex gap-2">
@@ -196,15 +249,31 @@ function formatDate(date: string | null) {
               />
             </div>
           </UFormField>
-          <UFormField label="Tags" hint="Comma-separated">
-            <UInput v-model="form.tags" placeholder="premium, newsletter" />
+          <UFormField
+            label="Tags"
+            hint="Comma-separated"
+          >
+            <UInput
+              v-model="form.tags"
+              placeholder="premium, newsletter"
+            />
           </UFormField>
         </form>
       </template>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <UButton variant="ghost" color="neutral" label="Cancel" @click="showCreate = false" />
-          <UButton label="Create" color="primary" :loading="saving" @click="onCreate" />
+          <UButton
+            variant="ghost"
+            color="neutral"
+            label="Cancel"
+            @click="showCreate = false"
+          />
+          <UButton
+            label="Create"
+            color="primary"
+            :loading="saving"
+            @click="onCreate"
+          />
         </div>
       </template>
     </UModal>

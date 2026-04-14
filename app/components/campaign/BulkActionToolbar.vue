@@ -15,10 +15,38 @@ const emit = defineEmits<{
       {{ count }} selected
     </span>
     <div class="flex gap-1.5">
-      <UButton size="xs" color="warning" variant="soft" icon="i-lucide-pause" label="Pause" @click="emit('action', 'pause')" />
-      <UButton size="xs" color="primary" variant="soft" icon="i-lucide-play" label="Resume" @click="emit('action', 'resume')" />
-      <UButton size="xs" color="neutral" variant="soft" icon="i-lucide-archive" label="Archive" @click="emit('action', 'archive')" />
+      <UButton
+        size="xs"
+        color="warning"
+        variant="soft"
+        icon="i-lucide-pause"
+        label="Pause"
+        @click="emit('action', 'pause')"
+      />
+      <UButton
+        size="xs"
+        color="primary"
+        variant="soft"
+        icon="i-lucide-play"
+        label="Resume"
+        @click="emit('action', 'resume')"
+      />
+      <UButton
+        size="xs"
+        color="neutral"
+        variant="soft"
+        icon="i-lucide-archive"
+        label="Archive"
+        @click="emit('action', 'archive')"
+      />
     </div>
-    <UButton size="xs" variant="ghost" color="neutral" icon="i-lucide-x" class="ml-auto" @click="emit('clear')" />
+    <UButton
+      size="xs"
+      variant="ghost"
+      color="neutral"
+      icon="i-lucide-x"
+      class="ml-auto"
+      @click="emit('clear')"
+    />
   </div>
 </template>

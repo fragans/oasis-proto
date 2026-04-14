@@ -1,7 +1,7 @@
 import { migrate } from 'drizzle-orm/postgres-js/migrator'
 
 export default defineNitroPlugin(async () => {
-  if (process.dev) {
+  if (import.meta.dev) {
     try {
       const db = useDB()
       await migrate(db, { migrationsFolder: './server/database/migrations' })

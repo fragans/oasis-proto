@@ -10,12 +10,15 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update:open': [open: boolean]
-  confirm: []
+  'confirm': []
 }>()
 </script>
 
 <template>
-  <UModal :open="open" @update:open="emit('update:open', $event)">
+  <UModal
+    :open="open"
+    @update:open="emit('update:open', $event)"
+  >
     <template #header>
       <h3 class="text-lg font-semibold text-zinc-900 dark:text-white">
         {{ title }}
@@ -23,14 +26,22 @@ const emit = defineEmits<{
     </template>
 
     <template #body>
-      <p v-if="description" class="text-sm text-zinc-600 dark:text-zinc-400">
+      <p
+        v-if="description"
+        class="text-sm text-zinc-600 dark:text-zinc-400"
+      >
         {{ description }}
       </p>
     </template>
 
     <template #footer>
       <div class="flex justify-end gap-2">
-        <UButton variant="ghost" color="neutral" label="Cancel" @click="emit('update:open', false)" />
+        <UButton
+          variant="ghost"
+          color="neutral"
+          label="Cancel"
+          @click="emit('update:open', false)"
+        />
         <UButton
           :label="confirmLabel || 'Confirm'"
           :color="(confirmColor as any) || 'error'"

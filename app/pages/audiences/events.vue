@@ -94,35 +94,71 @@ onMounted(load)
           Define event types to track contact behaviors
         </p>
       </div>
-      <UButton icon="i-lucide-plus" label="Add Event Type" color="primary" @click="showCreate = true" />
+      <UButton
+        icon="i-lucide-plus"
+        label="Add Event Type"
+        color="primary"
+        @click="showCreate = true"
+      />
     </div>
 
-    <div v-if="loading" class="space-y-4">
-      <div v-for="i in 3" :key="i" class="h-16 bg-zinc-100 dark:bg-zinc-800 rounded-xl animate-pulse" />
+    <div
+      v-if="loading"
+      class="space-y-4"
+    >
+      <div
+        v-for="i in 3"
+        :key="i"
+        class="h-16 bg-zinc-100 dark:bg-zinc-800 rounded-xl animate-pulse"
+      />
     </div>
 
-    <div v-else-if="eventTypes.length === 0" class="text-center py-16 border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-900">
-      <UIcon name="i-lucide-zap" class="w-12 h-12 mx-auto mb-4 text-zinc-300 dark:text-zinc-700" />
+    <div
+      v-else-if="eventTypes.length === 0"
+      class="text-center py-16 border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-900"
+    >
+      <UIcon
+        name="i-lucide-zap"
+        class="w-12 h-12 mx-auto mb-4 text-zinc-300 dark:text-zinc-700"
+      />
       <p class="text-zinc-600 dark:text-zinc-400 font-medium">
         No event types defined
       </p>
       <p class="text-sm text-zinc-400 mt-1 mb-4">
         Create event types to start tracking contact behaviors
       </p>
-      <UButton label="Add Event Type" color="primary" size="sm" @click="showCreate = true" />
+      <UButton
+        label="Add Event Type"
+        color="primary"
+        size="sm"
+        @click="showCreate = true"
+      />
     </div>
 
-    <div v-else class="space-y-6">
-      <div v-for="(events, category) in groupedEvents" :key="category">
+    <div
+      v-else
+      class="space-y-6"
+    >
+      <div
+        v-for="(events, category) in groupedEvents"
+        :key="category"
+      >
         <h3 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">
           {{ category }}
         </h3>
         <div class="border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden bg-white dark:bg-zinc-900 divide-y divide-zinc-100 dark:divide-zinc-800">
-          <div v-for="et in events" :key="et.id" class="px-4 py-3">
+          <div
+            v-for="et in events"
+            :key="et.id"
+            class="px-4 py-3"
+          >
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-3">
                 <div class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center">
-                  <UIcon name="i-lucide-zap" class="w-4 h-4 text-emerald-500" />
+                  <UIcon
+                    name="i-lucide-zap"
+                    class="w-4 h-4 text-emerald-500"
+                  />
                 </div>
                 <div>
                   <p class="text-sm font-medium text-zinc-900 dark:text-white">
@@ -134,7 +170,11 @@ onMounted(load)
                       &middot; {{ et.parameters.length }} param{{ et.parameters.length > 1 ? 's' : '' }}
                     </span>
                     <span v-if="et.isDefault">
-                      &middot; <UBadge color="neutral" variant="subtle" size="xs">Default</UBadge>
+                      &middot; <UBadge
+                        color="neutral"
+                        variant="subtle"
+                        size="xs"
+                      >Default</UBadge>
                     </span>
                   </p>
                 </div>
@@ -148,8 +188,17 @@ onMounted(load)
                 @click="deleteTarget = et"
               />
             </div>
-            <div v-if="et.parameters.length > 0" class="ml-11 mt-2 flex gap-1.5 flex-wrap">
-              <UBadge v-for="p in et.parameters" :key="p.key" color="neutral" variant="subtle" size="xs">
+            <div
+              v-if="et.parameters.length > 0"
+              class="ml-11 mt-2 flex gap-1.5 flex-wrap"
+            >
+              <UBadge
+                v-for="p in et.parameters"
+                :key="p.key"
+                color="neutral"
+                variant="subtle"
+                size="xs"
+              >
                 {{ p.label }} ({{ p.type }})
               </UBadge>
             </div>
@@ -159,45 +208,107 @@ onMounted(load)
     </div>
 
     <!-- Create Modal -->
-    <UModal :open="showCreate" @update:open="showCreate = $event">
+    <UModal
+      :open="showCreate"
+      @update:open="showCreate = $event"
+    >
       <template #header>
         <h3 class="text-lg font-semibold text-zinc-900 dark:text-white">
           Add Event Type
         </h3>
       </template>
       <template #body>
-        <form class="space-y-4" @submit.prevent="onCreate">
+        <form
+          class="space-y-4"
+          @submit.prevent="onCreate"
+        >
           <UFormField label="Label">
-            <UInput v-model="form.label" placeholder="Page View" />
+            <UInput
+              v-model="form.label"
+              placeholder="Page View"
+            />
           </UFormField>
-          <UFormField label="Key" hint="Lowercase dot/snake notation">
-            <UInput v-model="form.key" placeholder="page_view" />
+          <UFormField
+            label="Key"
+            hint="Lowercase dot/snake notation"
+          >
+            <UInput
+              v-model="form.key"
+              placeholder="page_view"
+            />
           </UFormField>
           <UFormField label="Category">
-            <UInput v-model="form.category" placeholder="custom" />
+            <UInput
+              v-model="form.category"
+              placeholder="custom"
+            />
           </UFormField>
           <UFormField label="Description">
-            <UInput v-model="form.description" placeholder="Optional description" />
+            <UInput
+              v-model="form.description"
+              placeholder="Optional description"
+            />
           </UFormField>
 
           <div>
             <div class="flex items-center justify-between mb-2">
               <label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Parameters</label>
-              <UButton icon="i-lucide-plus" variant="ghost" size="xs" @click="addParam" />
+              <UButton
+                icon="i-lucide-plus"
+                variant="ghost"
+                size="xs"
+                @click="addParam"
+              />
             </div>
-            <div v-for="(param, idx) in form.parameters" :key="idx" class="flex gap-2 mb-2">
-              <UInput v-model="param.label" placeholder="Label" size="sm" class="flex-1" />
-              <UInput v-model="param.key" placeholder="key" size="sm" class="flex-1" />
-              <USelect v-model="param.type" :items="[{ label: 'String', value: 'string' }, { label: 'Number', value: 'number' }, { label: 'Boolean', value: 'boolean' }, { label: 'Date', value: 'date' }]" value-key="value" size="sm" class="w-28" />
-              <UButton icon="i-lucide-x" variant="ghost" color="error" size="xs" @click="removeParam(idx)" />
+            <div
+              v-for="(param, idx) in form.parameters"
+              :key="idx"
+              class="flex gap-2 mb-2"
+            >
+              <UInput
+                v-model="param.label"
+                placeholder="Label"
+                size="sm"
+                class="flex-1"
+              />
+              <UInput
+                v-model="param.key"
+                placeholder="key"
+                size="sm"
+                class="flex-1"
+              />
+              <USelect
+                v-model="param.type"
+                :items="[{ label: 'String', value: 'string' }, { label: 'Number', value: 'number' }, { label: 'Boolean', value: 'boolean' }, { label: 'Date', value: 'date' }]"
+                value-key="value"
+                size="sm"
+                class="w-28"
+              />
+              <UButton
+                icon="i-lucide-x"
+                variant="ghost"
+                color="error"
+                size="xs"
+                @click="removeParam(idx)"
+              />
             </div>
           </div>
         </form>
       </template>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <UButton variant="ghost" color="neutral" label="Cancel" @click="showCreate = false" />
-          <UButton label="Create" color="primary" :loading="saving" @click="onCreate" />
+          <UButton
+            variant="ghost"
+            color="neutral"
+            label="Cancel"
+            @click="showCreate = false"
+          />
+          <UButton
+            label="Create"
+            color="primary"
+            :loading="saving"
+            @click="onCreate"
+          />
         </div>
       </template>
     </UModal>

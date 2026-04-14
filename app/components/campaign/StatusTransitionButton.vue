@@ -20,7 +20,15 @@ const transitions = computed(() => {
 </script>
 
 <template>
-  <UDropdownMenu v-if="transitions.length > 0" :items="transitions">
-    <UButton icon="i-lucide-arrow-right-circle" label="Change Status" color="primary" variant="soft" />
+  <UDropdownMenu
+    v-if="transitions.length > 0"
+    :items="transitions"
+  >
+    <UButton
+      icon="i-lucide-arrow-right-circle"
+      label="Change Status"
+      color="primary"
+      variant="soft"
+    />
   </UDropdownMenu>
 </template>

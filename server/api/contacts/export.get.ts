@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
   const csvLines = [
     headers.join(','),
     ...rows.map(row =>
-      headers.map(h => {
+      headers.map((h) => {
         const val = row[h as keyof typeof row]
         if (val === null || val === undefined) return ''
         if (Array.isArray(val)) return `"${val.join(';')}"`

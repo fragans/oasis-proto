@@ -39,9 +39,11 @@ export default defineEventHandler(async (event) => {
       let attr = await db.select().from(contactAttributes).where(eq(contactAttributes.key, key)).limit(1)
 
       if (!attr[0]) {
-        const inferredType = typeof value === 'number' ? 'number'
-          : typeof value === 'boolean' ? 'boolean'
-          : 'string'
+        const inferredType = typeof value === 'number'
+          ? 'number'
+          : typeof value === 'boolean'
+            ? 'boolean'
+            : 'string'
         const [created] = await db.insert(contactAttributes).values({
           key,
           label: key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),

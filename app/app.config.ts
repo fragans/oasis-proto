@@ -6,17 +6,17 @@ export default defineAppConfig({
     },
     input: {
       slots: {
-        root: 'w-full',
+        root: 'w-full'
       }
     },
     textarea: {
       slots: {
-        root: 'w-full',
+        root: 'w-full'
       }
     },
     select: {
       slots: {
-        base: 'w-full',
+        base: 'w-full'
       }
     }
   }

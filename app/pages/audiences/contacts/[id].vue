@@ -93,19 +93,33 @@ onMounted(load)
 </script>
 
 <template>
-  <div v-if="loading" class="space-y-4">
+  <div
+    v-if="loading"
+    class="space-y-4"
+  >
     <div class="h-8 w-48 bg-zinc-100 dark:bg-zinc-800 rounded animate-pulse" />
     <div class="h-64 bg-zinc-100 dark:bg-zinc-800 rounded-xl animate-pulse" />
   </div>
 
-  <div v-else-if="!contact" class="text-center py-16">
+  <div
+    v-else-if="!contact"
+    class="text-center py-16"
+  >
     <p class="text-zinc-500">
       Contact not found
     </p>
-    <UButton to="/audiences/contacts" label="Back to Contacts" variant="ghost" class="mt-4" />
+    <UButton
+      to="/audiences/contacts"
+      label="Back to Contacts"
+      variant="ghost"
+      class="mt-4"
+    />
   </div>
 
-  <div v-else class="space-y-6">
+  <div
+    v-else
+    class="space-y-6"
+  >
     <!-- Header -->
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-4">
@@ -130,13 +144,27 @@ onMounted(load)
           color="neutral"
           @click="editing = true"
         />
-        <UButton icon="i-lucide-trash-2" variant="outline" color="error" @click="deleteOpen = true" />
+        <UButton
+          icon="i-lucide-trash-2"
+          variant="outline"
+          color="error"
+          @click="deleteOpen = true"
+        />
       </div>
     </div>
 
     <!-- Tags -->
-    <div v-if="contact.tags.length > 0" class="flex gap-1.5 flex-wrap">
-      <UBadge v-for="tag in contact.tags" :key="tag" color="neutral" variant="subtle" size="sm">
+    <div
+      v-if="contact.tags.length > 0"
+      class="flex gap-1.5 flex-wrap"
+    >
+      <UBadge
+        v-for="tag in contact.tags"
+        :key="tag"
+        color="neutral"
+        variant="subtle"
+        size="sm"
+      >
         {{ tag }}
       </UBadge>
     </div>
@@ -149,67 +177,164 @@ onMounted(load)
             Profile
           </h2>
 
-          <div v-if="editing" class="space-y-3">
+          <div
+            v-if="editing"
+            class="space-y-3"
+          >
             <div class="grid grid-cols-2 gap-2">
-              <UFormField label="First Name" size="sm">
-                <UInput v-model="editForm.firstName" size="sm" />
+              <UFormField
+                label="First Name"
+                size="sm"
+              >
+                <UInput
+                  v-model="editForm.firstName"
+                  size="sm"
+                />
               </UFormField>
-              <UFormField label="Last Name" size="sm">
-                <UInput v-model="editForm.lastName" size="sm" />
+              <UFormField
+                label="Last Name"
+                size="sm"
+              >
+                <UInput
+                  v-model="editForm.lastName"
+                  size="sm"
+                />
               </UFormField>
             </div>
-            <UFormField label="Email" size="sm">
-              <UInput v-model="editForm.email" type="email" size="sm" />
+            <UFormField
+              label="Email"
+              size="sm"
+            >
+              <UInput
+                v-model="editForm.email"
+                type="email"
+                size="sm"
+              />
             </UFormField>
-            <UFormField label="Phone" size="sm">
-              <UInput v-model="editForm.phone" size="sm" />
+            <UFormField
+              label="Phone"
+              size="sm"
+            >
+              <UInput
+                v-model="editForm.phone"
+                size="sm"
+              />
             </UFormField>
-            <UFormField label="City" size="sm">
-              <UInput v-model="editForm.city" size="sm" />
+            <UFormField
+              label="City"
+              size="sm"
+            >
+              <UInput
+                v-model="editForm.city"
+                size="sm"
+              />
             </UFormField>
-            <UFormField label="Province" size="sm">
-              <UInput v-model="editForm.province" size="sm" />
+            <UFormField
+              label="Province"
+              size="sm"
+            >
+              <UInput
+                v-model="editForm.province"
+                size="sm"
+              />
             </UFormField>
-            <UFormField label="Birthday" size="sm">
-              <UInput v-model="editForm.birthday" type="date" size="sm" />
+            <UFormField
+              label="Birthday"
+              size="sm"
+            >
+              <UInput
+                v-model="editForm.birthday"
+                type="date"
+                size="sm"
+              />
             </UFormField>
-            <UFormField label="Tags" size="sm" hint="Comma-separated">
-              <UInput v-model="editForm.tags" size="sm" />
+            <UFormField
+              label="Tags"
+              size="sm"
+              hint="Comma-separated"
+            >
+              <UInput
+                v-model="editForm.tags"
+                size="sm"
+              />
             </UFormField>
             <div class="flex gap-2 pt-2">
-              <UButton label="Save" color="primary" size="sm" :loading="saving" @click="onSave" />
-              <UButton label="Cancel" variant="ghost" color="neutral" size="sm" @click="editing = false; syncEditForm()" />
+              <UButton
+                label="Save"
+                color="primary"
+                size="sm"
+                :loading="saving"
+                @click="onSave"
+              />
+              <UButton
+                label="Cancel"
+                variant="ghost"
+                color="neutral"
+                size="sm"
+                @click="editing = false; syncEditForm()"
+              />
             </div>
           </div>
 
-          <dl v-else class="space-y-3 text-sm">
+          <dl
+            v-else
+            class="space-y-3 text-sm"
+          >
             <div class="flex justify-between">
-              <dt class="text-zinc-500">Phone</dt>
-              <dd class="text-zinc-900 dark:text-white">{{ contact.phone || '—' }}</dd>
+              <dt class="text-zinc-500">
+                Phone
+              </dt>
+              <dd class="text-zinc-900 dark:text-white">
+                {{ contact.phone || '—' }}
+              </dd>
             </div>
             <div class="flex justify-between">
-              <dt class="text-zinc-500">Gender</dt>
-              <dd class="text-zinc-900 dark:text-white capitalize">{{ contact.gender }}</dd>
+              <dt class="text-zinc-500">
+                Gender
+              </dt>
+              <dd class="text-zinc-900 dark:text-white capitalize">
+                {{ contact.gender }}
+              </dd>
             </div>
             <div class="flex justify-between">
-              <dt class="text-zinc-500">Birthday</dt>
-              <dd class="text-zinc-900 dark:text-white">{{ contact.birthday || '—' }}</dd>
+              <dt class="text-zinc-500">
+                Birthday
+              </dt>
+              <dd class="text-zinc-900 dark:text-white">
+                {{ contact.birthday || '—' }}
+              </dd>
             </div>
             <div class="flex justify-between">
-              <dt class="text-zinc-500">Location</dt>
-              <dd class="text-zinc-900 dark:text-white">{{ [contact.city, contact.province, contact.country].filter(Boolean).join(', ') || '—' }}</dd>
+              <dt class="text-zinc-500">
+                Location
+              </dt>
+              <dd class="text-zinc-900 dark:text-white">
+                {{ [contact.city, contact.province, contact.country].filter(Boolean).join(', ') || '—' }}
+              </dd>
             </div>
             <div class="flex justify-between">
-              <dt class="text-zinc-500">Language</dt>
-              <dd class="text-zinc-900 dark:text-white">{{ contact.language }}</dd>
+              <dt class="text-zinc-500">
+                Language
+              </dt>
+              <dd class="text-zinc-900 dark:text-white">
+                {{ contact.language }}
+              </dd>
             </div>
             <div class="flex justify-between">
-              <dt class="text-zinc-500">Last Seen</dt>
-              <dd class="text-zinc-900 dark:text-white">{{ formatDateTime(contact.lastSeenAt) }}</dd>
+              <dt class="text-zinc-500">
+                Last Seen
+              </dt>
+              <dd class="text-zinc-900 dark:text-white">
+                {{ formatDateTime(contact.lastSeenAt) }}
+              </dd>
             </div>
             <div class="flex justify-between">
-              <dt class="text-zinc-500">Created</dt>
-              <dd class="text-zinc-900 dark:text-white">{{ formatDate(contact.createdAt) }}</dd>
+              <dt class="text-zinc-500">
+                Created
+              </dt>
+              <dd class="text-zinc-900 dark:text-white">
+                {{ formatDate(contact.createdAt) }}
+              </dd>
             </div>
           </dl>
         </div>
@@ -219,10 +344,16 @@ onMounted(load)
           <h2 class="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-4">
             Devices
           </h2>
-          <div v-if="contact.devices.length === 0" class="text-sm text-zinc-400">
+          <div
+            v-if="contact.devices.length === 0"
+            class="text-sm text-zinc-400"
+          >
             No devices registered
           </div>
-          <div v-else class="space-y-3">
+          <div
+            v-else
+            class="space-y-3"
+          >
             <div
               v-for="device in contact.devices"
               :key="device.id"
@@ -249,13 +380,27 @@ onMounted(load)
           <h2 class="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-4">
             Custom Attributes
           </h2>
-          <div v-if="contact.customValues.length === 0" class="text-sm text-zinc-400">
+          <div
+            v-if="contact.customValues.length === 0"
+            class="text-sm text-zinc-400"
+          >
             No custom attributes
           </div>
-          <dl v-else class="space-y-2 text-sm">
-            <div v-for="cv in contact.customValues" :key="cv.id" class="flex justify-between">
-              <dt class="text-zinc-500">{{ cv.attribute?.label || cv.attributeId }}</dt>
-              <dd class="text-zinc-900 dark:text-white">{{ cv.value || '—' }}</dd>
+          <dl
+            v-else
+            class="space-y-2 text-sm"
+          >
+            <div
+              v-for="cv in contact.customValues"
+              :key="cv.id"
+              class="flex justify-between"
+            >
+              <dt class="text-zinc-500">
+                {{ cv.attribute?.label || cv.attributeId }}
+              </dt>
+              <dd class="text-zinc-900 dark:text-white">
+                {{ cv.value || '—' }}
+              </dd>
             </div>
           </dl>
         </div>
@@ -265,12 +410,26 @@ onMounted(load)
           <h2 class="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-4">
             Segments
           </h2>
-          <div v-if="contact.segments.length === 0" class="text-sm text-zinc-400">
+          <div
+            v-if="contact.segments.length === 0"
+            class="text-sm text-zinc-400"
+          >
             Not in any segments
           </div>
-          <div v-else class="flex gap-1.5 flex-wrap">
-            <NuxtLink v-for="seg in contact.segments" :key="seg.id" :to="`/audiences/segments/${seg.id}`">
-              <UBadge color="info" variant="subtle" size="sm">
+          <div
+            v-else
+            class="flex gap-1.5 flex-wrap"
+          >
+            <NuxtLink
+              v-for="seg in contact.segments"
+              :key="seg.id"
+              :to="`/audiences/segments/${seg.id}`"
+            >
+              <UBadge
+                color="info"
+                variant="subtle"
+                size="sm"
+              >
                 {{ seg.name }}
               </UBadge>
             </NuxtLink>
@@ -284,10 +443,16 @@ onMounted(load)
           <h2 class="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-4">
             Event Timeline
           </h2>
-          <div v-if="contact.events.length === 0" class="text-sm text-zinc-400 py-8 text-center">
+          <div
+            v-if="contact.events.length === 0"
+            class="text-sm text-zinc-400 py-8 text-center"
+          >
             No events recorded
           </div>
-          <div v-else class="space-y-0">
+          <div
+            v-else
+            class="space-y-0"
+          >
             <div
               v-for="(ev, idx) in contact.events"
               :key="ev.id"
@@ -295,9 +460,15 @@ onMounted(load)
             >
               <div class="flex flex-col items-center">
                 <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center shrink-0">
-                  <UIcon name="i-lucide-zap" class="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                  <UIcon
+                    name="i-lucide-zap"
+                    class="w-4 h-4 text-indigo-600 dark:text-indigo-400"
+                  />
                 </div>
-                <div v-if="idx < contact.events.length - 1" class="w-px flex-1 bg-zinc-200 dark:bg-zinc-700 mt-2" />
+                <div
+                  v-if="idx < contact.events.length - 1"
+                  class="w-px flex-1 bg-zinc-200 dark:bg-zinc-700 mt-2"
+                />
               </div>
               <div class="flex-1 min-w-0 pt-0.5">
                 <div class="flex items-baseline justify-between">
@@ -306,9 +477,15 @@ onMounted(load)
                   </p>
                   <time class="text-xs text-zinc-400 shrink-0 ml-2">{{ formatDateTime(ev.occurredAt) }}</time>
                 </div>
-                <div v-if="ev.properties && Object.keys(ev.properties).length > 0" class="mt-1.5">
+                <div
+                  v-if="ev.properties && Object.keys(ev.properties).length > 0"
+                  class="mt-1.5"
+                >
                   <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-lg p-2.5 text-xs font-mono text-zinc-600 dark:text-zinc-400">
-                    <div v-for="(val, key) in ev.properties" :key="String(key)">
+                    <div
+                      v-for="(val, key) in ev.properties"
+                      :key="String(key)"
+                    >
                       <span class="text-zinc-400">{{ key }}:</span> {{ val }}
                     </div>
                   </div>

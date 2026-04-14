@@ -65,8 +65,19 @@ async function onExport() {
         </p>
       </div>
       <div class="flex gap-2">
-        <UButton icon="i-lucide-download" label="Export" variant="outline" color="neutral" @click="onExport" />
-        <UButton icon="i-lucide-plus" label="Add Contact" color="primary" @click="showCreateModal = true" />
+        <UButton
+          icon="i-lucide-download"
+          label="Export"
+          variant="outline"
+          color="neutral"
+          @click="onExport"
+        />
+        <UButton
+          icon="i-lucide-plus"
+          label="Add Contact"
+          color="primary"
+          @click="showCreateModal = true"
+        />
       </div>
     </div>
 
@@ -106,28 +117,51 @@ async function onExport() {
             <th class="w-10 px-4 py-3" />
           </tr>
         </thead>
-        <tbody v-if="loading" class="divide-y divide-zinc-100 dark:divide-zinc-800">
-          <tr v-for="i in 5" :key="i">
-            <td colspan="6" class="px-4 py-4">
+        <tbody
+          v-if="loading"
+          class="divide-y divide-zinc-100 dark:divide-zinc-800"
+        >
+          <tr
+            v-for="i in 5"
+            :key="i"
+          >
+            <td
+              colspan="6"
+              class="px-4 py-4"
+            >
               <div class="h-4 bg-zinc-100 dark:bg-zinc-800 rounded animate-pulse" />
             </td>
           </tr>
         </tbody>
         <tbody v-else-if="contacts.length === 0">
           <tr>
-            <td colspan="6" class="px-4 py-16 text-center">
-              <UIcon name="i-lucide-users" class="w-12 h-12 mx-auto mb-4 text-zinc-300 dark:text-zinc-700" />
+            <td
+              colspan="6"
+              class="px-4 py-16 text-center"
+            >
+              <UIcon
+                name="i-lucide-users"
+                class="w-12 h-12 mx-auto mb-4 text-zinc-300 dark:text-zinc-700"
+              />
               <p class="text-zinc-600 dark:text-zinc-400 font-medium">
                 No contacts yet
               </p>
               <p class="text-sm text-zinc-400 mt-1 mb-4">
                 Add your first contact or import from CSV
               </p>
-              <UButton label="Add Contact" color="primary" size="sm" @click="showCreateModal = true" />
+              <UButton
+                label="Add Contact"
+                color="primary"
+                size="sm"
+                @click="showCreateModal = true"
+              />
             </td>
           </tr>
         </tbody>
-        <tbody v-else class="divide-y divide-zinc-100 dark:divide-zinc-800">
+        <tbody
+          v-else
+          class="divide-y divide-zinc-100 dark:divide-zinc-800"
+        >
           <tr
             v-for="contact in contacts"
             :key="contact.id"
@@ -154,9 +188,17 @@ async function onExport() {
             <td class="px-4 py-3 text-zinc-500">
               {{ formatDate(contact.createdAt) }}
             </td>
-            <td class="px-4 py-3" @click.stop>
+            <td
+              class="px-4 py-3"
+              @click.stop
+            >
               <UDropdownMenu :items="getRowActions(contact)">
-                <UButton icon="i-lucide-more-horizontal" variant="ghost" color="neutral" size="xs" />
+                <UButton
+                  icon="i-lucide-more-horizontal"
+                  variant="ghost"
+                  color="neutral"
+                  size="xs"
+                />
               </UDropdownMenu>
             </td>
           </tr>
@@ -165,15 +207,26 @@ async function onExport() {
     </div>
 
     <!-- Pagination -->
-    <div v-if="totalPages > 1" class="flex items-center justify-between">
+    <div
+      v-if="totalPages > 1"
+      class="flex items-center justify-between"
+    >
       <p class="text-sm text-zinc-500">
         Showing {{ (filters.page - 1) * filters.limit + 1 }}–{{ Math.min(filters.page * filters.limit, total) }} of {{ total }}
       </p>
-      <UPagination v-model="filters.page" :total="total" :items-per-page="filters.limit" />
+      <UPagination
+        v-model="filters.page"
+        :total="total"
+        :items-per-page="filters.limit"
+      />
     </div>
 
     <!-- Create Modal -->
-    <ContactCreateModal :open="showCreateModal" @update:open="showCreateModal = $event" @created="showCreateModal = false; refresh()" />
+    <ContactCreateModal
+      :open="showCreateModal"
+      @update:open="showCreateModal = $event"
+      @created="showCreateModal = false; refresh()"
+    />
 
     <!-- Delete dialog -->
     <CampaignConfirmDialog

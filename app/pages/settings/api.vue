@@ -80,43 +80,82 @@ onMounted(load)
     </div>
 
     <!-- New token alert -->
-    <div v-if="newTokenValue"
-      class="border border-emerald-300 dark:border-emerald-800 rounded-xl p-4 bg-emerald-50 dark:bg-emerald-900/20">
+    <div
+      v-if="newTokenValue"
+      class="border border-emerald-300 dark:border-emerald-800 rounded-xl p-4 bg-emerald-50 dark:bg-emerald-900/20"
+    >
       <div class="flex items-start gap-3">
-        <UIcon name="i-lucide-check-circle" class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+        <UIcon
+          name="i-lucide-check-circle"
+          class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5"
+        />
         <div class="flex-1">
           <p class="text-sm font-medium text-emerald-800 dark:text-emerald-200">
             Token created. Copy it now — it won't be shown again.
           </p>
           <div class="flex items-center gap-2 mt-2">
             <code
-              class="flex-1 bg-white dark:bg-zinc-900 border border-emerald-200 dark:border-emerald-700 rounded-lg px-3 py-2 text-sm font-mono text-zinc-900 dark:text-white break-all">
+              class="flex-1 bg-white dark:bg-zinc-900 border border-emerald-200 dark:border-emerald-700 rounded-lg px-3 py-2 text-sm font-mono text-zinc-900 dark:text-white break-all"
+            >
               {{ newTokenValue }}
             </code>
-            <UButton icon="i-lucide-copy" variant="outline" color="neutral" size="sm" @click="copyToken" />
+            <UButton
+              icon="i-lucide-copy"
+              variant="outline"
+              color="neutral"
+              size="sm"
+              @click="copyToken"
+            />
           </div>
         </div>
       </div>
       <div class="flex justify-end mt-3">
-        <UButton label="Done" size="sm" variant="ghost" @click="newTokenValue = ''" />
+        <UButton
+          label="Done"
+          size="sm"
+          variant="ghost"
+          @click="newTokenValue = ''"
+        />
       </div>
     </div>
 
     <!-- Create -->
     <div class="flex gap-2">
-      <UInput v-model="tokenName" placeholder="Token name (e.g. Production API)" class="flex-1" />
-      <UButton icon="i-lucide-plus" label="Generate Token" color="primary" :loading="saving" :disabled="!tokenName"
-        @click="onCreate" />
+      <UInput
+        v-model="tokenName"
+        placeholder="Token name (e.g. Production API)"
+        class="flex-1"
+      />
+      <UButton
+        icon="i-lucide-plus"
+        label="Generate Token"
+        color="primary"
+        :loading="saving"
+        :disabled="!tokenName"
+        @click="onCreate"
+      />
     </div>
 
     <!-- Token list -->
-    <div v-if="loading" class="space-y-3">
-      <div v-for="i in 2" :key="i" class="h-16 bg-zinc-100 dark:bg-zinc-800 rounded-xl animate-pulse" />
+    <div
+      v-if="loading"
+      class="space-y-3"
+    >
+      <div
+        v-for="i in 2"
+        :key="i"
+        class="h-16 bg-zinc-100 dark:bg-zinc-800 rounded-xl animate-pulse"
+      />
     </div>
 
-    <div v-else-if="tokens.length === 0"
-      class="text-center py-12 border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-900">
-      <UIcon name="i-lucide-key" class="w-12 h-12 mx-auto mb-4 text-zinc-300 dark:text-zinc-700" />
+    <div
+      v-else-if="tokens.length === 0"
+      class="text-center py-12 border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-900"
+    >
+      <UIcon
+        name="i-lucide-key"
+        class="w-12 h-12 mx-auto mb-4 text-zinc-300 dark:text-zinc-700"
+      />
       <p class="text-zinc-600 dark:text-zinc-400 font-medium">
         No API tokens
       </p>
@@ -125,12 +164,21 @@ onMounted(load)
       </p>
     </div>
 
-    <div v-else
-      class="border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden bg-white dark:bg-zinc-900 divide-y divide-zinc-100 dark:divide-zinc-800">
-      <div v-for="token in tokens" :key="token.id" class="flex items-center justify-between px-4 py-3">
+    <div
+      v-else
+      class="border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden bg-white dark:bg-zinc-900 divide-y divide-zinc-100 dark:divide-zinc-800"
+    >
+      <div
+        v-for="token in tokens"
+        :key="token.id"
+        class="flex items-center justify-between px-4 py-3"
+      >
         <div class="flex items-center gap-3">
           <div class="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-            <UIcon name="i-lucide-key" class="w-4 h-4 text-zinc-500" />
+            <UIcon
+              name="i-lucide-key"
+              class="w-4 h-4 text-zinc-500"
+            />
           </div>
           <div>
             <p class="text-sm font-medium text-zinc-900 dark:text-white">
@@ -143,15 +191,23 @@ onMounted(load)
             </p>
           </div>
         </div>
-        <UButton icon="i-lucide-trash-2" variant="ghost" color="error" size="xs" @click="deleteTarget = token" />
+        <UButton
+          icon="i-lucide-trash-2"
+          variant="ghost"
+          color="error"
+          size="xs"
+          @click="deleteTarget = token"
+        />
       </div>
     </div>
-
 
     <UCard class="bg-primary-50/50 dark:bg-primary-950/10 border-primary-200 dark:border-primary-800">
       <div class="flex gap-4">
         <div class="shrink-0">
-          <UIcon name="i-heroicons-information-circle-20-solid" class="w-6 h-6 text-primary-500" />
+          <UIcon
+            name="i-heroicons-information-circle-20-solid"
+            class="w-6 h-6 text-primary-500"
+          />
         </div>
 
         <div class="space-y-3">
@@ -170,21 +226,46 @@ onMounted(load)
             </p>
             <ul class="space-y-2">
               <li class="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
-                <UBadge size="xs" variant="soft" color="primary">1</UBadge>
+                <UBadge
+                  size="xs"
+                  variant="soft"
+                  color="primary"
+                >
+                  1
+                </UBadge>
                 <span><strong>Generate</strong> a token here and copy it.</span>
               </li>
               <li class="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
-                <UBadge size="xs" variant="soft" color="primary">2</UBadge>
+                <UBadge
+                  size="xs"
+                  variant="soft"
+                  color="primary"
+                >
+                  2
+                </UBadge>
                 <span><strong>Plug it</strong> into your app/SDK as a Bearer token.</span>
               </li>
               <li class="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
-                <UBadge size="xs" variant="soft" color="primary">3</UBadge>
+                <UBadge
+                  size="xs"
+                  variant="soft"
+                  color="primary"
+                >
+                  3
+                </UBadge>
                 <span><strong>Send events</strong> to <code
-                    class="text-xs bg-gray-200 dark:bg-gray-800 px-1 rounded">/api/v1/...</code> using that
+                  class="text-xs bg-gray-200 dark:bg-gray-800 px-1 rounded"
+                >/api/v1/...</code> using that
                   token.</span>
               </li>
               <li class="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
-                <UBadge size="xs" variant="soft" color="primary">4</UBadge>
+                <UBadge
+                  size="xs"
+                  variant="soft"
+                  color="primary"
+                >
+                  4
+                </UBadge>
                 <span><strong>Monitor usage</strong> via "last used" and revoke when finished.</span>
               </li>
             </ul>
@@ -198,9 +279,15 @@ onMounted(load)
     </UCard>
 
     <!-- Delete dialog -->
-    <CampaignConfirmDialog :open="!!deleteTarget" title="Revoke Token"
+    <CampaignConfirmDialog
+      :open="!!deleteTarget"
+      title="Revoke Token"
       :description="`Revoke '${deleteTarget?.name}'? Any systems using this token will lose access.`"
-      confirm-label="Revoke" confirm-color="error" :loading="deleting" @update:open="deleteTarget = null"
-      @confirm="onDelete" />
+      confirm-label="Revoke"
+      confirm-color="error"
+      :loading="deleting"
+      @update:open="deleteTarget = null"
+      @confirm="onDelete"
+    />
   </div>
 </template>

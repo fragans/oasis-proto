@@ -12,8 +12,15 @@ const label = computed(() => props.status.charAt(0).toUpperCase() + props.status
 </script>
 
 <template>
-  <UBadge :color="color as any" variant="subtle" size="sm">
-    <UIcon :name="icon" class="w-3.5 h-3.5 mr-1" />
+  <UBadge
+    :color="color as any"
+    variant="subtle"
+    size="sm"
+  >
+    <UIcon
+      :name="icon"
+      class="w-3.5 h-3.5 mr-1"
+    />
     {{ label }}
   </UBadge>
 </template>

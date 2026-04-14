@@ -47,8 +47,14 @@ async function handleFile(file: File) {
       class="hidden"
       @change="onFileSelect"
     >
-    <UIcon name="i-lucide-upload-cloud" class="w-10 h-10 mx-auto mb-3 text-zinc-400" />
-    <p v-if="uploading" class="text-sm text-indigo-600 dark:text-indigo-400 font-medium">
+    <UIcon
+      name="i-lucide-upload-cloud"
+      class="w-10 h-10 mx-auto mb-3 text-zinc-400"
+    />
+    <p
+      v-if="uploading"
+      class="text-sm text-indigo-600 dark:text-indigo-400 font-medium"
+    >
       Uploading...
     </p>
     <template v-else>
@@ -59,7 +65,10 @@ async function handleFile(file: File) {
         JPG, PNG, GIF, WebP, SVG — max 10MB
       </p>
     </template>
-    <p v-if="error" class="text-xs text-red-500 mt-2">
+    <p
+      v-if="error"
+      class="text-xs text-red-500 mt-2"
+    >
       {{ error }}
     </p>
   </div>

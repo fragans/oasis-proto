@@ -106,14 +106,14 @@ export interface ContactEventWithType extends ContactEvent {
 
 export type SegmentType = 'static' | 'dynamic'
 
-export type RuleOperator =
-  | 'equals' | 'not_equals'
-  | 'contains' | 'not_contains'
-  | 'starts_with' | 'ends_with'
-  | 'greater_than' | 'less_than'
-  | 'is_set' | 'is_not_set'
-  | 'in' | 'not_in'
-  | 'before' | 'after'
+export type RuleOperator
+  = | 'equals' | 'not_equals'
+    | 'contains' | 'not_contains'
+    | 'starts_with' | 'ends_with'
+    | 'greater_than' | 'less_than'
+    | 'is_set' | 'is_not_set'
+    | 'in' | 'not_in'
+    | 'before' | 'after'
 
 export interface SegmentRule {
   field: string

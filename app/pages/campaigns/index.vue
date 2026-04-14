@@ -146,28 +146,51 @@ function getRowActions(campaign: Campaign) {
             <th class="w-10 px-4 py-3" />
           </tr>
         </thead>
-        <tbody v-if="loading" class="divide-y divide-zinc-100 dark:divide-zinc-800">
-          <tr v-for="i in 5" :key="i">
-            <td colspan="7" class="px-4 py-4">
+        <tbody
+          v-if="loading"
+          class="divide-y divide-zinc-100 dark:divide-zinc-800"
+        >
+          <tr
+            v-for="i in 5"
+            :key="i"
+          >
+            <td
+              colspan="7"
+              class="px-4 py-4"
+            >
               <div class="h-4 bg-zinc-100 dark:bg-zinc-800 rounded animate-pulse" />
             </td>
           </tr>
         </tbody>
         <tbody v-else-if="campaigns.length === 0">
           <tr>
-            <td colspan="7" class="px-4 py-16 text-center">
-              <UIcon name="i-lucide-megaphone" class="w-12 h-12 mx-auto mb-4 text-zinc-300 dark:text-zinc-700" />
+            <td
+              colspan="7"
+              class="px-4 py-16 text-center"
+            >
+              <UIcon
+                name="i-lucide-megaphone"
+                class="w-12 h-12 mx-auto mb-4 text-zinc-300 dark:text-zinc-700"
+              />
               <p class="text-zinc-600 dark:text-zinc-400 font-medium">
                 No campaigns yet
               </p>
               <p class="text-sm text-zinc-400 mt-1 mb-4">
                 Create your first campaign to get started
               </p>
-              <UButton to="/campaigns/create" label="Create Campaign" color="primary" size="sm" />
+              <UButton
+                to="/campaigns/create"
+                label="Create Campaign"
+                color="primary"
+                size="sm"
+              />
             </td>
           </tr>
         </tbody>
-        <tbody v-else class="divide-y divide-zinc-100 dark:divide-zinc-800">
+        <tbody
+          v-else
+          class="divide-y divide-zinc-100 dark:divide-zinc-800"
+        >
           <tr
             v-for="campaign in campaigns"
             :key="campaign.id"
@@ -182,7 +205,10 @@ function getRowActions(campaign: Campaign) {
               >
             </td>
             <td class="px-4 py-3">
-              <NuxtLink :to="`/campaigns/${campaign.id}`" class="font-medium text-zinc-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400">
+              <NuxtLink
+                :to="`/campaigns/${campaign.id}`"
+                class="font-medium text-zinc-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400"
+              >
                 {{ campaign.name }}
               </NuxtLink>
             </td>
@@ -200,7 +226,12 @@ function getRowActions(campaign: Campaign) {
             </td>
             <td class="px-4 py-3">
               <UDropdownMenu :items="getRowActions(campaign)">
-                <UButton icon="i-lucide-more-horizontal" variant="ghost" color="neutral" size="xs" />
+                <UButton
+                  icon="i-lucide-more-horizontal"
+                  variant="ghost"
+                  color="neutral"
+                  size="xs"
+                />
               </UDropdownMenu>
             </td>
           </tr>
@@ -209,11 +240,18 @@ function getRowActions(campaign: Campaign) {
     </div>
 
     <!-- Pagination -->
-    <div v-if="totalPages > 1" class="flex items-center justify-between">
+    <div
+      v-if="totalPages > 1"
+      class="flex items-center justify-between"
+    >
       <p class="text-sm text-zinc-500">
         Showing {{ (filters.page - 1) * filters.limit + 1 }}–{{ Math.min(filters.page * filters.limit, total) }} of {{ total }}
       </p>
-      <UPagination v-model="filters.page" :total="total" :items-per-page="filters.limit" />
+      <UPagination
+        v-model="filters.page"
+        :total="total"
+        :items-per-page="filters.limit"
+      />
     </div>
 
     <!-- Delete dialog -->
