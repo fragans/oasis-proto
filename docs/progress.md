@@ -1,6 +1,6 @@
 # OASIS Platform — Journey Progress
 
-**Last updated:** 2026-04-13
+**Last updated:** 2026-04-14
 
 ---
 
@@ -238,23 +238,23 @@
 ### Milestone 2.1 — Contact Management `~5 days`
 
 #### Story 2.1.1 — Contact Database Schema
-- [ ] Define contacts table (core fields: name, email, phone, birthday, location, gender, language)
-- [ ] Define contact_devices table (platform, OS version, app version)
-- [ ] Define contact_custom_values table (EAV for custom attributes)
-- [ ] Define contact_events table (timestamped event records)
-- [ ] Generate and apply migrations
+- [x] Define contacts table (core fields: name, email, phone, birthday, location, gender, language)
+- [x] Define contact_devices table (platform, OS version, app version)
+- [x] Define contact_custom_values table (EAV for custom attributes)
+- [x] Define contact_events table (timestamped event records)
+- [x] Generate and apply migrations
 
 #### Story 2.1.2 — Contact CRUD API
-- [ ] List contacts with pagination + advanced AND/OR filtering
-- [ ] Create/update individual contacts
-- [ ] Bulk import via CSV/Excel with field mapping
-- [ ] Export filtered contact lists
-- [ ] Per-contact timeline of events
+- [x] List contacts with pagination + advanced AND/OR filtering
+- [x] Create/update individual contacts
+- [x] Bulk import via CSV/Excel with field mapping
+- [x] Export filtered contact lists
+- [x] Per-contact timeline of events
 
 #### Story 2.1.3 — Contact Management UI
-- [ ] Contact list page with search, filters, pagination
-- [ ] Contact detail page with profile, devices, custom attributes, event timeline
-- [ ] Contact creation form
+- [x] Contact list page with search, filters, pagination
+- [x] Contact detail page with profile, devices, custom attributes, event timeline
+- [x] Contact creation form
 - [ ] CSV/Excel upload UI with field mapping
 - [ ] PII field masking for restricted users
 
@@ -263,33 +263,33 @@
 ### Milestone 2.2 — Attributes & Events `~3 days`
 
 #### Story 2.2.1 — Attribute Schema Management
-- [ ] Define contact_attributes table (default + custom, type: string/number/boolean/date)
-- [ ] CRUD API for custom attributes
-- [ ] Attribute management UI with grouped category view
-- [ ] Source tagging (API, email, mobile SDK, web)
+- [x] Define contact_attributes table (default + custom, type: string/number/boolean/date)
+- [x] CRUD API for custom attributes
+- [x] Attribute management UI with grouped category view
+- [x] Source tagging (API, email, mobile SDK, web)
 
 #### Story 2.2.2 — Event Type Management
-- [ ] Define event_types table (default + custom, with parameters)
-- [ ] CRUD API for custom event types
-- [ ] Event type management UI with grouped category view
-- [ ] Deletion safeguards (warning if data exists)
+- [x] Define event_types table (default + custom, with parameters)
+- [x] CRUD API for custom event types
+- [x] Event type management UI with grouped category view
+- [x] Deletion safeguards (warning if data exists)
 
 ---
 
 ### Milestone 2.3 — Audience Segmentation `~5 days`
 
 #### Story 2.3.1 — Segment Engine
-- [ ] Define segments table (static vs dynamic, rules JSON, tags)
-- [ ] Static segment: add contacts via upload or UI
-- [ ] Dynamic segment: rule-based auto-update on filter criteria
-- [ ] Segment contact count estimation + on-demand refresh
+- [x] Define segments table (static vs dynamic, rules JSON, tags)
+- [x] Static segment: add contacts via upload or UI
+- [~] Dynamic segment: rule-based auto-update on filter criteria
+- [x] Segment contact count estimation + on-demand refresh
 - [ ] Export segment contact lists
 
 #### Story 2.3.2 — Segmentation UI
-- [ ] Segment list page with tags and counts
-- [ ] Segment builder with AND/OR rule editor
+- [x] Segment list page with tags and counts
+- [~] Segment builder with AND/OR rule editor
 - [ ] Audience size preview before save
-- [ ] Deletion confirmation when used in active campaigns
+- [x] Deletion confirmation when used in active campaigns
 
 ---
 
@@ -297,16 +297,16 @@
 
 #### Story 2.4.1 — Event Ingestion Pipeline
 - [ ] Connect to Oval API (webhook or polling)
-- [ ] Ingest events with parameters into contact_events
-- [ ] Enrich customer profiles from event stream
-- [ ] Near real-time profile updates
+- [x] Ingest events with parameters into contact_events
+- [x] Enrich customer profiles from event stream
+- [x] Near real-time profile updates
 
 #### Story 2.4.2 — Ingest API
-- [ ] `POST /api/v1/contacts/ingest` endpoint
-- [ ] Upsert logic (email → phone → contact_id resolution)
-- [ ] Auto-create custom attribute definitions from unknown keys
-- [ ] Assign contacts to static segments by ID
-- [ ] API token management UI (generate, rotate, copy, masked display)
+- [x] `POST /api/v1/contacts/ingest` endpoint
+- [x] Upsert logic (email → phone → contact_id resolution)
+- [x] Auto-create custom attribute definitions from unknown keys
+- [x] Assign contacts to static segments by ID
+- [x] API token management UI (generate, rotate, copy, masked display)
 
 ---
 
