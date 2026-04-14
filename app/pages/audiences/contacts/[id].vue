@@ -124,7 +124,7 @@ onMounted(load)
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-4">
         <div class="w-14 h-14 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-xl">
-          {{ (contact.firstName || contact.email || '?')[0].toUpperCase() }}
+          {{ (contact?.firstName || contact?.email || '?')[0].toUpperCase() }}
         </div>
         <div>
           <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">
