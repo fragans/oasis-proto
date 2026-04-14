@@ -4,7 +4,7 @@ import type { Journey, JourneyStatus } from '~~/shared/types/journey'
 definePageMeta({ layout: 'default' })
 
 const router = useRouter()
-const { journeys, total, loading, filters, refresh, updateFilters, changePage } = useJourneys()
+const { journeys, total, loading, filters, refresh, updateFilters } = useJourneys()
 const { deleteJourney } = useJourney()
 
 const showCreate = ref(false)

@@ -1,4 +1,4 @@
-import type { CampaignStatus, CampaignListResponse } from '~~/shared/types/campaign'
+import type { CampaignStatus, CampaignListResponse, CampaignListQuery } from '~~/shared/types/campaign'
 
 export function useCampaigns() {
   const filters = reactive({
@@ -11,7 +11,7 @@ export function useCampaigns() {
   })
 
   const query = computed(() => {
-    const q: Record<string, any> = {
+    const q: CampaignListQuery = {
       page: filters.page,
       limit: filters.limit,
       sortBy: filters.sortBy,

@@ -1,4 +1,4 @@
-import { ilike, and, sql, asc, desc } from 'drizzle-orm'
+import { ilike, and, sql, desc } from 'drizzle-orm'
 import { segments } from '../../database/schema'
 
 export default defineEventHandler(async (event) => {

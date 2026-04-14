@@ -9,7 +9,7 @@ export function useSegments() {
   })
 
   const query = computed(() => {
-    const q: Record<string, any> = {
+    const q: Record<string, unknown> = {
       page: filters.page,
       limit: filters.limit
     }
@@ -32,11 +32,11 @@ export function useSegments() {
     filters.page = 1
   }
 
-  async function createSegment(data: Record<string, any>) {
+  async function createSegment(data: Record<string, unknown>) {
     return $fetch('/api/segments', { method: 'POST', body: data })
   }
 
-  async function updateSegment(id: string, data: Record<string, any>) {
+  async function updateSegment(id: string, data: Record<string, unknown>) {
     return $fetch(`/api/segments/${id}`, { method: 'PUT', body: data })
   }
 

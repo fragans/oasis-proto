@@ -4,7 +4,7 @@ import type { Contact } from '~~/shared/types/contact'
 definePageMeta({ layout: 'default' })
 
 const router = useRouter()
-const { contacts, total, loading, filters, refresh, updateFilters, changePage } = useContacts()
+const { contacts, total, loading, filters, refresh, updateFilters } = useContacts()
 const { deleteContact } = useContact()
 
 const deleteTarget = ref<Contact | null>(null)
@@ -170,8 +170,10 @@ async function onExport() {
           >
             <td class="px-4 py-3">
               <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-medium text-sm shrink-0">
-                  {{ (contact.firstName || contact.email || '?')[0].toUpperCase() }}
+                <div
+                  class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-medium text-sm shrink-0"
+                >
+                  {{ displayName(contact).toUpperCase() }}
                 </div>
                 <span class="font-medium text-zinc-900 dark:text-white">{{ displayName(contact) }}</span>
               </div>
@@ -212,7 +214,8 @@ async function onExport() {
       class="flex items-center justify-between"
     >
       <p class="text-sm text-zinc-500">
-        Showing {{ (filters.page - 1) * filters.limit + 1 }}–{{ Math.min(filters.page * filters.limit, total) }} of {{ total }}
+        Showing {{ (filters.page - 1) * filters.limit + 1 }}–{{ Math.min(filters.page * filters.limit, total) }} of {{
+          total }}
       </p>
       <UPagination
         v-model="filters.page"

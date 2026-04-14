@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
   const conditions = [eq(journeyEnrollments.journeyId, id)]
 
   if (query.status) {
-    conditions.push(eq(journeyEnrollments.status, query.status as any))
+    conditions.push(eq(journeyEnrollments.status, query.status as string))
   }
 
   const where = and(...conditions)

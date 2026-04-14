@@ -38,7 +38,7 @@ async function onSubmit(action: 'draft' | 'schedule') {
       ...(form.endDate && { endDate: new Date(form.endDate).toISOString() })
     }
 
-    const campaign = await createCampaign(data) as any
+    const campaign = await createCampaign(data) as { id: string }
 
     // Add creatives to campaign
     if (uploadedCreatives.value.length > 0) {
@@ -65,8 +65,9 @@ async function onSubmit(action: 'draft' | 'schedule') {
 
     toast.add({ title: 'Campaign created', color: 'success' })
     router.push(`/campaigns/${campaign.id}`)
-  } catch (err: any) {
-    toast.add({ title: 'Error', description: err.data?.message || 'Failed to create campaign', color: 'error' })
+  } catch (err) {
+    console.log(err)
+    toast.add({ title: 'Error', description: 'Failed to create campaign', color: 'error' })
   } finally {
     submitting.value = false
   }

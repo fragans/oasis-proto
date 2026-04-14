@@ -1,6 +1,6 @@
 import Redis from 'ioredis'
 import { eq } from 'drizzle-orm'
-import { campaigns, creatives } from '../database/schema'
+import { campaigns } from '../database/schema'
 
 let _redis: Redis
 

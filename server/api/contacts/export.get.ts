@@ -1,4 +1,4 @@
-import { eq, ilike, and, sql } from 'drizzle-orm'
+import { ilike, and, sql } from 'drizzle-orm'
 import { contacts } from '../../database/schema'
 
 export default defineEventHandler(async (event) => {

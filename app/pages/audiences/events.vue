@@ -65,9 +65,10 @@ async function onDelete() {
     await $fetch(`/api/event-types/${deleteTarget.value.id}`, { method: 'DELETE' })
     deleteTarget.value = null
     await load()
-  } catch (err: any) {
-    if (err?.data?.message) {
-      alert(err.data.message)
+  } catch (err) {
+    const fetchError = err as any
+    if (fetchError?.data?.message) {
+      alert(fetchError.data.message)
     }
   } finally {
     deleting.value = false

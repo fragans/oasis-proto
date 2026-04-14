@@ -1,25 +1,15 @@
 <script setup lang="ts">
-import type { Campaign, CampaignStatus } from '~~/shared/types/campaign'
+import type { Campaign } from '~~/shared/types/campaign'
 
 definePageMeta({ layout: 'default' })
 
 const router = useRouter()
-const { campaigns, total, loading, filters, refresh, updateFilters, changePage } = useCampaigns()
-const { deleteCampaign, changeStatus, cloneCampaign } = useCampaign()
+const { campaigns, total, loading, filters, refresh, updateFilters } = useCampaigns()
+const { deleteCampaign, cloneCampaign } = useCampaign()
 
 const selected = ref<string[]>([])
 const deleteTarget = ref<Campaign | null>(null)
 const deleting = ref(false)
-
-const columns = [
-  { key: 'select', label: '' },
-  { key: 'name', label: 'Name' },
-  { key: 'status', label: 'Status' },
-  { key: 'priority', label: 'Priority' },
-  { key: 'dates', label: 'Date Range' },
-  { key: 'updatedAt', label: 'Updated' },
-  { key: 'actions', label: '' }
-]
 
 const totalPages = computed(() => Math.ceil(total.value / filters.limit))
 

@@ -1,4 +1,4 @@
-import { eq, ilike, and, sql, asc, desc } from 'drizzle-orm'
+import { ilike, and, sql, asc, desc } from 'drizzle-orm'
 import { contacts } from '../../database/schema'
 
 export default defineEventHandler(async (event) => {
@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
 
   const where = conditions.length > 0 ? and(...conditions) : undefined
   const sortColumn = contacts[sortBy as keyof typeof contacts] || contacts.createdAt
-  const orderBy = sortOrder === 'asc' ? asc(sortColumn as any) : desc(sortColumn as any)
+  const orderBy = sortOrder === 'asc' ? asc(sortColumn) : desc(sortColumn)
 
   const [rows, countResult] = await Promise.all([
     db.select().from(contacts).where(where).orderBy(orderBy).limit(limit).offset(offset),

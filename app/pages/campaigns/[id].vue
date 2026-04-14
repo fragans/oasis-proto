@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { CampaignStatus, Creative } from '~~/shared/types/campaign'
+import type { CampaignStatus } from '~~/shared/types/campaign'
 import { PRIORITY_COLORS } from '~~/shared/types/campaign'
 
 definePageMeta({ layout: 'default' })
@@ -52,7 +52,7 @@ function startEdit() {
 async function saveEdit() {
   saving.value = true
   try {
-    const data: Record<string, any> = {
+    const data: Record<string, unknown> = {
       name: editForm.name,
       priority: editForm.priority
     }
@@ -65,8 +65,9 @@ async function saveEdit() {
     editing.value = false
     await load()
     toast.add({ title: 'Campaign updated', color: 'success' })
-  } catch (err: any) {
-    toast.add({ title: 'Error', description: err.data?.message || 'Update failed', color: 'error' })
+  } catch (err) {
+    const fetchError = err as any
+    toast.add({ title: 'Error', description: fetchError.data?.message || 'Update failed', color: 'error' })
   } finally {
     saving.value = false
   }
@@ -77,8 +78,9 @@ async function onStatusChange(status: CampaignStatus) {
     await changeStatus(id, status)
     await load()
     toast.add({ title: `Campaign ${status}`, color: 'success' })
-  } catch (err: any) {
-    toast.add({ title: 'Error', description: err.data?.message || 'Status change failed', color: 'error' })
+  } catch (err) {
+    const fetchError = err as any
+    toast.add({ title: 'Error', description: fetchError.data?.message || 'Status change failed', color: 'error' })
   }
 }
 
@@ -87,8 +89,9 @@ async function onClone() {
     const cloned = await cloneCampaign(id) as any
     toast.add({ title: 'Campaign cloned', color: 'success' })
     router.push(`/campaigns/${cloned.id}`)
-  } catch (err: any) {
-    toast.add({ title: 'Error', description: err.data?.message || 'Clone failed', color: 'error' })
+  } catch (err) {
+    const fetchError = err as any
+    toast.add({ title: 'Error', description: fetchError.data?.message || 'Clone failed', color: 'error' })
   }
 }
 
@@ -98,8 +101,9 @@ async function onDelete() {
     await deleteCampaign(id)
     toast.add({ title: 'Campaign deleted', color: 'success' })
     router.push('/campaigns')
-  } catch (err: any) {
-    toast.add({ title: 'Error', description: err.data?.message || 'Delete failed', color: 'error' })
+  } catch (err) {
+    const fetchError = err as any
+    toast.add({ title: 'Error', description: fetchError.data?.message || 'Delete failed', color: 'error' })
   } finally {
     deleting.value = false
   }

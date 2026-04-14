@@ -5,14 +5,14 @@ export function useContact() {
     return $fetch<ContactWithDetails>(`/api/contacts/${id}`)
   }
 
-  async function createContact(data: Record<string, any>) {
+  async function createContact(data: Record<string, unknown>) {
     return $fetch('/api/contacts', {
       method: 'POST',
       body: data
     })
   }
 
-  async function updateContact(id: string, data: Record<string, any>) {
+  async function updateContact(id: string, data: Record<string, unknown>) {
     return $fetch(`/api/contacts/${id}`, {
       method: 'PUT',
       body: data
@@ -25,7 +25,7 @@ export function useContact() {
     })
   }
 
-  async function bulkImport(contacts: Record<string, any>[]) {
+  async function bulkImport(contacts: Record<string, unknown>[]) {
     return $fetch('/api/contacts/bulk-import', {
       method: 'POST',
       body: { contacts }

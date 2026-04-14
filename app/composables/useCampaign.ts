@@ -19,7 +19,7 @@ export function useCampaign() {
     })
   }
 
-  async function updateCampaign(id: string, data: Record<string, any>) {
+  async function updateCampaign(id: string, data: Record<string, unknown>) {
     return $fetch(`/api/campaigns/${id}`, {
       method: 'PUT',
       body: data

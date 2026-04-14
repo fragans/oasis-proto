@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: 'Campaign not found' })
   }
 
-  const updateData: Record<string, any> = { updatedAt: new Date() }
+  const updateData: Record<string, unknown> = { updatedAt: new Date() }
   if (parsed.data.name !== undefined) updateData.name = parsed.data.name
   if (parsed.data.description !== undefined) updateData.description = parsed.data.description
   if (parsed.data.objective !== undefined) updateData.objective = parsed.data.objective

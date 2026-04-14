@@ -154,10 +154,12 @@ function formatDate(date: string) {
           <p class="text-xs font-mono text-zinc-400 truncate">
             Subject: {{ template.subject }}
           </p>
+          <!-- eslint-disable vue/no-v-html -->
           <div
             class="mt-2 text-xs text-zinc-500 line-clamp-3 prose-sm"
             v-html="template.bodyHtml.slice(0, 200)"
           />
+          <!-- eslint-enable vue/no-v-html -->
         </div>
 
         <!-- Info -->

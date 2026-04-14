@@ -1,4 +1,4 @@
-import type { ContactListResponse } from '~~/shared/types/contact'
+import type { ContactListResponse, ContactListQuery } from '~~/shared/types/contact'
 
 export function useContacts() {
   const filters = reactive({
@@ -11,7 +11,7 @@ export function useContacts() {
   })
 
   const query = computed(() => {
-    const q: Record<string, any> = {
+    const q: ContactListQuery = {
       page: filters.page,
       limit: filters.limit,
       sortBy: filters.sortBy,

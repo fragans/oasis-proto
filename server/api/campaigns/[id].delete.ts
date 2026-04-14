@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm'
-import { campaigns, creatives } from '../../database/schema'
+import { campaigns } from '../../database/schema'
 
 export default defineEventHandler(async (event) => {
   const db = useDB()

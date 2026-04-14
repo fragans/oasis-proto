@@ -21,8 +21,9 @@ export function useCreativeUpload() {
       })
 
       return result
-    } catch (err: any) {
-      error.value = err.data?.message || err.message || 'Upload failed'
+    } catch (err) {
+      console.log(err)
+      error.value = 'Upload failed'
       throw err
     } finally {
       uploading.value = false

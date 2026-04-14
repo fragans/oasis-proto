@@ -1,6 +1,6 @@
 import { eq, or } from 'drizzle-orm'
 import { contacts, contactAttributes, contactCustomValues, contactEvents, eventTypes, segmentContacts } from '../../../database/schema'
-import { ingestContactSchema } from '~~/shared/types/contact'
+import { ingestContactSchema, type AttributeType } from '~~/shared/types/contact'
 
 export default defineEventHandler(async (event) => {
   const db = useDB()
@@ -47,7 +47,7 @@ export default defineEventHandler(async (event) => {
         const [created] = await db.insert(contactAttributes).values({
           key,
           label: key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
-          type: inferredType as any,
+          type: inferredType as AttributeType,
           category: 'auto'
         }).returning()
         attr = [created]
