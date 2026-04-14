@@ -17,10 +17,14 @@ const emit = defineEmits<{
 }>()
 
 const localLabel = ref(props.label)
-const localConfig = ref<Record<string, any>>({ ...props.config })
+const localConfig = ref<Record<string, unknown>>({ ...props.config })
 
-watch(() => props.config, (val) => { localConfig.value = { ...val } })
-watch(() => props.label, (val) => { localLabel.value = val })
+watch(() => props.config, (val) => {
+  localConfig.value = { ...val }
+})
+watch(() => props.label, (val) => {
+  localLabel.value = val
+})
 
 function save() {
   emit('updateLabel', localLabel.value)
