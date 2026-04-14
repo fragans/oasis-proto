@@ -3,13 +3,14 @@ import type { EmailTemplate } from '~~/shared/types/journey'
 
 definePageMeta({ layout: 'default' })
 
-const { templates, total, loading, filters, refresh, createTemplate, deleteTemplate } = useEmailTemplates()
+const { templates, total, loading, filters, refresh, createTemplate, updateTemplate, deleteTemplate } = useEmailTemplates()
 
 const showCreate = ref(false)
 const editTarget = ref<EmailTemplate | null>(null)
 const deleteTarget = ref<EmailTemplate | null>(null)
 const deleting = ref(false)
 const saving = ref(false)
+const editing = ref(false)
 
 const createForm = reactive({
   name: '',
@@ -17,6 +18,24 @@ const createForm = reactive({
   bodyHtml: '<h1>Hello {{first_name}}</h1>\n<p>Your message here...</p>',
   bodyText: '',
   category: 'general'
+})
+
+const editForm = reactive({
+  name: '',
+  subject: '',
+  bodyHtml: '',
+  bodyText: '',
+  category: ''
+})
+
+watch(editTarget, (t) => {
+  if (t) {
+    editForm.name = t.name
+    editForm.subject = t.subject
+    editForm.bodyHtml = t.bodyHtml
+    editForm.bodyText = t.bodyText || ''
+    editForm.category = t.category || 'general'
+  }
 })
 
 const totalPages = computed(() => Math.ceil(total.value / filters.limit))
@@ -40,6 +59,23 @@ async function handleCreate() {
     refresh()
   } finally {
     saving.value = false
+  }
+}
+
+async function handleEdit() {
+  if (!editTarget.value || !editForm.name.trim() || !editForm.subject.trim()) return
+  editing.value = true
+  try {
+    const variables = extractVariables(editForm.bodyHtml)
+    await updateTemplate(editTarget.value.id, {
+      ...editForm,
+      variables,
+      bodyText: editForm.bodyText || undefined
+    })
+    editTarget.value = null
+    refresh()
+  } finally {
+    editing.value = false
   }
 }
 
@@ -70,9 +106,6 @@ function formatDate(date: string) {
     <!-- Header -->
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">
-          Email Templates
-        </h1>
         <p class="text-sm text-zinc-500 mt-1">
           Reusable email templates with dynamic personalization
         </p>
@@ -175,9 +208,8 @@ function formatDate(date: string) {
             </div>
             <UDropdownMenu
               :items="[
-                { label: 'Edit', icon: 'i-lucide-pencil', onSelect() { editTarget = template } },
-                { type: 'separator' },
-                { label: 'Delete', icon: 'i-lucide-trash-2', onSelect() { deleteTarget = template } }
+                [{ label: 'Edit', icon: 'i-lucide-pencil', onSelect() { editTarget = template } }],
+                [{ label: 'Delete', icon: 'i-lucide-trash-2', color: 'error' as const, onSelect() { deleteTarget = template } }]
               ]"
             >
               <UButton
@@ -304,6 +336,95 @@ function formatDate(date: string) {
             @click="handleCreate"
           >
             Create Template
+          </UButton>
+        </div>
+      </template>
+    </UModal>
+
+    <!-- Edit Modal -->
+    <UModal
+      :open="!!editTarget"
+      @update:open="editTarget = null"
+    >
+      <template #header>
+        <h3 class="text-lg font-semibold">
+          Edit Template
+        </h3>
+      </template>
+
+      <template #body>
+        <div class="space-y-4">
+          <UFormField
+            label="Template Name"
+            required
+          >
+            <UInput
+              v-model="editForm.name"
+              placeholder="e.g. Welcome Email"
+              class="w-full"
+            />
+          </UFormField>
+
+          <UFormField
+            label="Subject Line"
+            required
+          >
+            <UInput
+              v-model="editForm.subject"
+              placeholder="e.g. Welcome to {{company_name}}"
+              class="w-full"
+            />
+          </UFormField>
+
+          <UFormField label="Category">
+            <UInput
+              v-model="editForm.category"
+              placeholder="general"
+              class="w-full"
+            />
+          </UFormField>
+
+          <UFormField
+            label="HTML Body"
+            required
+          >
+            <UTextarea
+              v-model="editForm.bodyHtml"
+              class="w-full font-mono text-xs"
+              :rows="10"
+              placeholder="<h1>Hello {{first_name}}</h1>"
+            />
+            <p class="text-xs text-zinc-500 mt-1">
+              Use <code class="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">&#123;&#123;variable_name&#125;&#125;</code> for personalization
+            </p>
+          </UFormField>
+
+          <UFormField label="Plain Text (optional)">
+            <UTextarea
+              v-model="editForm.bodyText"
+              class="w-full text-xs"
+              :rows="4"
+              placeholder="Hello {{first_name}}..."
+            />
+          </UFormField>
+        </div>
+      </template>
+
+      <template #footer>
+        <div class="flex justify-end gap-2">
+          <UButton
+            variant="ghost"
+            color="neutral"
+            @click="editTarget = null"
+          >
+            Cancel
+          </UButton>
+          <UButton
+            :loading="editing"
+            :disabled="!editForm.name.trim() || !editForm.subject.trim()"
+            @click="handleEdit"
+          >
+            Save Changes
           </UButton>
         </div>
       </template>
