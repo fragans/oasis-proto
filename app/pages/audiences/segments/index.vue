@@ -59,9 +59,6 @@ function formatDate(date: string | null) {
   <div class="space-y-6">
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">
-          Segments
-        </h1>
         <p class="text-sm text-zinc-500 mt-1">
           Group contacts into targetable audiences
         </p>

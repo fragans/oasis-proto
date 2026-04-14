@@ -36,9 +36,6 @@ const cards = computed(() => [
 <template>
   <div class="space-y-8">
     <div>
-      <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">
-        Audiences
-      </h1>
       <p class="text-sm text-zinc-500 mt-1">
         Manage contacts, segments, attributes, and event types
       </p>

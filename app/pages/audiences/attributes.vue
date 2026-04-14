@@ -82,9 +82,6 @@ onMounted(load)
   <div class="space-y-6">
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">
-          Contact Attributes
-        </h1>
         <p class="text-sm text-zinc-500 mt-1">
           Define custom attributes to enrich contact profiles
         </p>

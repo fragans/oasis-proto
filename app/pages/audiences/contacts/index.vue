@@ -57,9 +57,6 @@ async function onExport() {
   <div class="space-y-6">
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">
-          Contacts
-        </h1>
         <p class="text-sm text-zinc-500 mt-1">
           {{ total.toLocaleString() }} contacts in your database
         </p>
@@ -173,7 +170,7 @@ async function onExport() {
                 <div
                   class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-medium text-sm shrink-0"
                 >
-                  {{ displayName(contact).toUpperCase() }}
+                  {{ displayName(contact).charAt(0).toUpperCase() }}
                 </div>
                 <span class="font-medium text-zinc-900 dark:text-white">{{ displayName(contact) }}</span>
               </div>
