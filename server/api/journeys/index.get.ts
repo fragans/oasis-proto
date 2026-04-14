@@ -1,5 +1,7 @@
 import { eq, ilike, and, sql, asc, desc } from 'drizzle-orm'
-import { journeys } from '../../database/schema'
+import { journeys, type journeyStatusEnum } from '../../database/schema'
+
+type JourneyStatus = (typeof journeyStatusEnum.enumValues)[number]
 
 export default defineEventHandler(async (event) => {
   const db = useDB()
@@ -13,7 +15,7 @@ export default defineEventHandler(async (event) => {
   const conditions = []
 
   if (query.status && query.status !== 'all') {
-    conditions.push(eq(journeys.status, query.status as any))
+    conditions.push(eq(journeys.status, query.status as JourneyStatus))
   }
 
   if (query.search) {

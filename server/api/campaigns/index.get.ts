@@ -1,5 +1,7 @@
-import { eq, ilike, and, sql, asc, desc } from 'drizzle-orm'
-import { campaigns } from '../../database/schema'
+import { eq, ilike, and, sql, asc, desc, type AnyColumn } from 'drizzle-orm'
+import { campaigns, type campaignStatusEnum } from '../../database/schema'
+
+type CampaignStatus = (typeof campaignStatusEnum.enumValues)[number]
 
 export default defineEventHandler(async (event) => {
   const db = useDB()
@@ -14,7 +16,7 @@ export default defineEventHandler(async (event) => {
   const conditions = []
 
   if (query.status && query.status !== 'all') {
-    conditions.push(eq(campaigns.status, query.status as any))
+    conditions.push(eq(campaigns.status, query.status as CampaignStatus))
   }
 
   if (query.search) {
@@ -23,8 +25,8 @@ export default defineEventHandler(async (event) => {
 
   const where = conditions.length > 0 ? and(...conditions) : undefined
 
-  const sortColumn = campaigns[sortBy as keyof typeof campaigns] || campaigns.createdAt
-  const orderBy = sortOrder === 'asc' ? asc(sortColumn as any) : desc(sortColumn as any)
+  const sortColumn = (campaigns[sortBy as keyof typeof campaigns] || campaigns.createdAt) as AnyColumn
+  const orderBy = sortOrder === 'asc' ? asc(sortColumn) : desc(sortColumn)
 
   const [rows, countResult] = await Promise.all([
     db.select().from(campaigns).where(where).orderBy(orderBy).limit(limit).offset(offset),

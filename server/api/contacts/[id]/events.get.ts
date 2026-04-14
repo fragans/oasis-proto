@@ -1,5 +1,5 @@
 import { eq, desc } from 'drizzle-orm'
-import { contactEvents, eventTypes } from '../../../database/schema'
+import { contactEvents } from '../../../database/schema'
 
 export default defineEventHandler(async (event) => {
   const db = useDB()
