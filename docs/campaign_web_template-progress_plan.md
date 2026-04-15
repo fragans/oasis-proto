@@ -1,8 +1,9 @@
-# i need to plan a refactor and replacing campaign feature:
+/gsd-new-project "Refactor Campaign System: On-Site Messages" --vibe "Nuxt 4.4 + Nuxt UI 4.6"
+# i need to plan a refactor and update campaign feature:
 in campaign, there will be 2 submenu on-site-message and in-app-message
 this plan only about on-site-message
 
-## A. Web Templates: Select a Web Template to design and add interactive features to your website.
+## Web Templates(on-site-message): Select a Web Template to design and add interactive features to your website.
 this is the flow for create new `web template campaign`
 
 ### 1. Design: goals: Design one or more alternative versions of your campaign to show.
@@ -18,13 +19,18 @@ create button -> show modal input text for `campaign name`
 
 
 ## B. Segments: goals: Select one or more user groups to show your campaign.
-**campaigns/rules** : this page must be the same as **/audiences/segement
-segments card: choose multiple segments such as:
- - Attributes: Target the users based on if they have an Attribute you select.
- - Events: Target the users based on if they performed an Event you select.
- - Device Attributes: Target the users based on their mobile device attributes such as device model, operating system, and app version.
- - Location: Target the users based on their IP Address location.
+**campaigns/rules** : this step we can create new segment like in the **/audiences/segment/create or select existing segment for this campaign
 
 ## C. Rules
+- Page Rules: Trigger your campaign based on a page type or a parameter in a URL. ex: page url, most visit category
+- Page Behavior: Trigger your campaign based on users' scroll and exit intent actions on your website. ex: scroll down %
+- User Rules: Trigger your campaign based on users' login status or ad blocking preference.ex: time spent on site. ex: traffic source(location, country, city, device-type, browser)
+
 ## D. Goals
+Set goals to track the performance of your campaign.
+- purchase
+- click
+
 ## E. Launch
+- Activation Status: Active, Test, Passive
+- Activation Time: You can set the duration that your campaign will be active based on the date & time you input. 
