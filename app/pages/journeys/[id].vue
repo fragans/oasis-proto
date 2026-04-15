@@ -10,8 +10,19 @@ import '@vue-flow/minimap/dist/style.css'
 import type { JourneyNodeType, JourneyStatus } from '~~/shared/types/journey'
 import { NODE_TYPE_LABELS } from '~~/shared/types/journey'
 
-definePageMeta({ layout: 'default' })
+definePageMeta({ layout: 'canvas' })
 
+defineShortcuts({
+  meta_s: () => {
+    if (isEditable.value) handleSave()
+  },
+  meta_z: () => {
+    if (isEditable.value) undo()
+  },
+  meta_shift_z: () => {
+    if (isEditable.value) redo()
+  }
+})
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
@@ -26,9 +37,22 @@ const selectedNodeId = ref<string | null>(null)
 const showDeleteConfirm = ref(false)
 const deleting = ref(false)
 
-const { nodes, edges, addNodes, addEdges, removeNodes, setNodes, setEdges, onConnect, fitView, project } = useVueFlow({
+const {
+  nodes,
+  edges,
+  addNodes,
+  addEdges,
+  removeNodes,
+  setNodes,
+  setEdges,
+  onConnect,
+  fitView,
+  project
+} = useVueFlow({
   id: 'journey-builder'
 })
+
+const { pushSnapshot, undo, redo, canUndo, canRedo } = useCanvasHistory(nodes, edges, setNodes, setEdges)
 
 // Load journey data
 async function loadJourney() {
@@ -65,6 +89,7 @@ onMounted(loadJourney)
 
 // Connect nodes
 onConnect((params) => {
+  pushSnapshot()
   addEdges([{
     ...params,
     id: `e-${Date.now()}`,
@@ -75,6 +100,7 @@ onConnect((params) => {
 
 // Add a new node
 function addNode(type: JourneyNodeType) {
+  pushSnapshot()
   const id = `node-${Date.now()}`
   const yPositions = nodes.value.map(n => n.position.y)
   const maxY = yPositions.length > 0 ? Math.max(...yPositions) : 0
@@ -108,6 +134,7 @@ function onDrop(event: DragEvent) {
     y: event.clientY - bounds.top
   })
 
+  pushSnapshot()
   addNodes([{
     id: `node-${Date.now()}`,
     type: 'journey',
@@ -137,14 +164,17 @@ function onPaneClick() {
 
 function updateNodeConfig(config: Record<string, unknown>) {
   if (!selectedNodeId.value) return
+  pushSnapshot()
   const node = nodes.value.find(n => n.id === selectedNodeId.value)
   if (node) {
     node.data = { ...node.data, config }
   }
+  selectedNodeId.value = null
 }
 
 function updateNodeLabel(label: string) {
   if (!selectedNodeId.value) return
+  pushSnapshot()
   const node = nodes.value.find(n => n.id === selectedNodeId.value)
   if (node) {
     node.data = { ...node.data, label }
@@ -153,6 +183,7 @@ function updateNodeLabel(label: string) {
 
 function deleteSelectedNode() {
   if (!selectedNodeId.value) return
+  pushSnapshot()
   removeNodes([selectedNodeId.value])
   selectedNodeId.value = null
 }
@@ -218,64 +249,84 @@ const availableTransitions = computed(() => journey.value?.availableTransitions 
 </script>
 
 <template>
-  <div class="flex flex-col h-[calc(100vh-5rem)] -m-6">
+  <div class="flex flex-col h-screen -m-6">
     <!-- Toolbar -->
-    <div class="flex items-center justify-between px-4 py-2 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shrink-0">
-      <div class="flex items-center gap-3">
-        <UButton
-          icon="i-lucide-arrow-left"
-          variant="ghost"
-          color="neutral"
-          size="xs"
-          to="/journeys"
-        />
-        <div v-if="journey">
-          <h2 class="font-semibold text-zinc-900 dark:text-white text-sm">
-            {{ journey.name }}
-          </h2>
-          <p class="text-xs text-zinc-500">
-            {{ journey.description || 'No description' }}
-          </p>
+    <div class="fixed top-8 right-8 px-4 py-2 bg-white dark:bg-zinc-900/50 rounded-lg shadow-md border border-zinc-200 dark:border-zinc-800 backdrop-blur-sm z-10">
+      <div class="flex gap-3">
+        <div class="flex items-center gap-3">
+          <div v-if="journey">
+            <h2 class="font-semibold text-zinc-900 dark:text-white text-sm">
+              {{ journey.name }}
+            </h2>
+            <p class="text-xs text-zinc-500">
+              {{ journey.description || 'No description' }}
+            </p>
+          </div>
+          <JourneyStatusBadge
+            v-if="journey"
+            :status="journey.status"
+          />
         </div>
-        <JourneyStatusBadge
-          v-if="journey"
-          :status="journey.status"
-        />
-      </div>
 
-      <div class="flex items-center gap-2">
-        <!-- Status transitions -->
-        <UButton
-          v-for="status in availableTransitions"
-          :key="status"
-          :label="status === 'active' ? 'Activate' : status.charAt(0).toUpperCase() + status.slice(1)"
-          size="xs"
-          :color="status === 'active' ? 'success' : status === 'paused' ? 'warning' : 'neutral'"
-          variant="outline"
-          @click="handleStatusChange(status)"
-        />
-
-        <UButton
-          v-if="isEditable"
-          icon="i-lucide-save"
-          label="Save"
-          size="xs"
-          :loading="saving"
-          @click="handleSave"
-        />
-
-        <UDropdownMenu
-          :items="[
-            { label: 'Delete Journey', icon: 'i-lucide-trash-2', onSelect() { showDeleteConfirm = true } }
-          ]"
-        >
+        <div class="flex items-center gap-2">
+          <!-- Undo / Redo -->
           <UButton
-            icon="i-lucide-more-horizontal"
+            v-if="isEditable"
+            icon="i-lucide-undo-2"
+            size="xs"
             variant="ghost"
             color="neutral"
-            size="xs"
+            :disabled="!canUndo"
+            @click="undo"
           />
-        </UDropdownMenu>
+          <UButton
+            v-if="isEditable"
+            icon="i-lucide-redo-2"
+            size="xs"
+            variant="ghost"
+            color="neutral"
+            :disabled="!canRedo"
+            @click="redo"
+          />
+
+          <!-- Status transitions -->
+          <UButton
+            v-for="status in availableTransitions"
+            :key="status"
+            :label="status === 'active' ? 'Activate' : status.charAt(0).toUpperCase() + status.slice(1)"
+            size="xs"
+            :color="status === 'active' ? 'success' : status === 'paused' ? 'warning' : 'neutral'"
+            variant="outline"
+            @click="handleStatusChange(status)"
+          />
+
+          <UButton
+            v-if="isEditable"
+            icon="i-lucide-save"
+            label="Save"
+            size="xs"
+            :loading="saving"
+            @click="handleSave"
+          />
+
+          <UDropdownMenu
+            :content="{
+              align: 'end',
+              side: 'bottom',
+              sideOffset: 12
+            }"
+            :items="[
+              { label: 'Delete Journey', icon: 'i-lucide-trash-2', onSelect() { showDeleteConfirm = true } }
+            ]"
+          >
+            <UButton
+              icon="i-lucide-more-horizontal"
+              variant="ghost"
+              color="neutral"
+              size="xs"
+            />
+          </UDropdownMenu>
+        </div>
       </div>
     </div>
 
@@ -284,7 +335,7 @@ const availableTransitions = computed(() => journey.value?.availableTransitions 
       <!-- Node palette (only in draft) -->
       <div
         v-if="isEditable"
-        class="w-52 border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-3 overflow-y-auto shrink-0"
+        class="fixed inset-y-1/4 left-4 z-10 w-52 p-3 overflow-y-auto shrink-0 bg-white dark:bg-zinc-900/50 rounded-lg shadow-md border border-zinc-200 dark:border-zinc-800 backdrop-blur-sm"
       >
         <JourneyNodePalette @add="addNode" />
       </div>
@@ -313,6 +364,7 @@ const availableTransitions = computed(() => journey.value?.availableTransitions 
           :nodes-connectable="isEditable"
           :edges-updatable="isEditable"
           class="bg-zinc-50 dark:bg-zinc-950"
+          @node-drag-start="pushSnapshot"
           @node-click="onNodeClick"
           @pane-click="onPaneClick"
         >
