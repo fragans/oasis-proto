@@ -3,39 +3,11 @@ import type { Segment } from '~~/shared/types/contact'
 
 definePageMeta({ layout: 'default' })
 
-const router = useRouter()
 const { segments, total, loading, filters, refresh, updateFilters, deleteSegment } = useSegments()
-const showCreate = ref(false)
 const deleteTarget = ref<Segment | null>(null)
 const deleting = ref(false)
-const saving = ref(false)
 
 const totalPages = computed(() => Math.ceil(total.value / filters.limit))
-
-const form = reactive({
-  name: '',
-  description: '',
-  type: 'static' as 'static' | 'dynamic',
-  tags: ''
-})
-
-async function onCreate() {
-  saving.value = true
-  try {
-    const created = await $fetch<Segment>('/api/segments', {
-      method: 'POST',
-      body: {
-        ...form,
-        tags: form.tags ? form.tags.split(',').map(t => t.trim()) : []
-      }
-    })
-    showCreate.value = false
-    Object.assign(form, { name: '', description: '', type: 'static', tags: '' })
-    router.push(`/audiences/segments/${created.id}`)
-  } finally {
-    saving.value = false
-  }
-}
 
 async function onDelete() {
   if (!deleteTarget.value) return
@@ -67,7 +39,7 @@ function formatDate(date: string | null) {
         icon="i-lucide-plus"
         label="New Segment"
         color="primary"
-        @click="showCreate = true"
+        to="/audiences/segments/create"
       />
     </div>
 
@@ -125,7 +97,7 @@ function formatDate(date: string | null) {
         label="Create Segment"
         color="primary"
         size="sm"
-        @click="showCreate = true"
+        to="/audiences/segments/create"
       />
     </div>
 
@@ -200,80 +172,6 @@ function formatDate(date: string | null) {
         :items-per-page="filters.limit"
       />
     </div>
-
-    <!-- Create Modal -->
-    <UModal
-      :open="showCreate"
-      @update:open="showCreate = $event"
-    >
-      <template #header>
-        <h3 class="text-lg font-semibold text-zinc-900 dark:text-white">
-          Create Segment
-        </h3>
-      </template>
-      <template #body>
-        <form
-          class="space-y-4"
-          @submit.prevent="onCreate"
-        >
-          <UFormField label="Name">
-            <UInput
-              v-model="form.name"
-              placeholder="VIP Subscribers"
-            />
-          </UFormField>
-          <UFormField label="Description">
-            <UInput
-              v-model="form.description"
-              placeholder="Optional description"
-            />
-          </UFormField>
-          <UFormField label="Type">
-            <div class="flex gap-2">
-              <UButton
-                label="Static"
-                size="sm"
-                :variant="form.type === 'static' ? 'solid' : 'outline'"
-                :color="form.type === 'static' ? 'primary' : 'neutral'"
-                @click="form.type = 'static'"
-              />
-              <UButton
-                label="Dynamic"
-                size="sm"
-                :variant="form.type === 'dynamic' ? 'solid' : 'outline'"
-                :color="form.type === 'dynamic' ? 'primary' : 'neutral'"
-                @click="form.type = 'dynamic'"
-              />
-            </div>
-          </UFormField>
-          <UFormField
-            label="Tags"
-            hint="Comma-separated"
-          >
-            <UInput
-              v-model="form.tags"
-              placeholder="premium, newsletter"
-            />
-          </UFormField>
-        </form>
-      </template>
-      <template #footer>
-        <div class="flex justify-end gap-2">
-          <UButton
-            variant="ghost"
-            color="neutral"
-            label="Cancel"
-            @click="showCreate = false"
-          />
-          <UButton
-            label="Create"
-            color="primary"
-            :loading="saving"
-            @click="onCreate"
-          />
-        </div>
-      </template>
-    </UModal>
 
     <!-- Delete dialog -->
     <CampaignConfirmDialog

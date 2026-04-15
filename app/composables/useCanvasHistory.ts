@@ -1,8 +1,8 @@
 import type { GraphNode, GraphEdge } from '@vue-flow/core'
 
 interface Snapshot {
-  nodes: Array<{ id: string; position: { x: number; y: number }; data: Record<string, unknown> }>
-  edges: Array<{ id: string; source: string; target: string; sourceHandle?: string; label?: string }>
+  nodes: Array<{ id: string, position: { x: number, y: number }, data: Record<string, unknown> }>
+  edges: Array<{ id: string, source: string, target: string, sourceHandle?: string, label?: string }>
 }
 
 function captureSnapshot(nodes: GraphNode[], edges: GraphEdge[]): Snapshot {

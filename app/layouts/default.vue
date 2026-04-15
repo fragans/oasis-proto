@@ -62,7 +62,7 @@ const breadcrumbs = computed(() => {
       :class="isSidebarOpen ? 'w-64' : 'w-16'"
     >
       <!-- Logo -->
-      <div class="flex items-center h-16 px-4 border-b border-zinc-200 dark:border-zinc-800">
+      <div class="flex items-center justify-between h-16 px-4 border-b border-zinc-200 dark:border-zinc-800">
         <div class="flex items-center gap-2">
           <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
             O
@@ -72,6 +72,9 @@ const breadcrumbs = computed(() => {
             class="font-semibold text-zinc-900 dark:text-white"
           >OASIS</span>
         </div>
+        <template v-if="isSidebarOpen">
+          <UColorModeButton />
+        </template>
       </div>
 
       <!-- Navigation -->
@@ -177,10 +180,6 @@ const breadcrumbs = computed(() => {
       <!-- Header -->
       <header class="flex items-center justify-between h-16 px-6 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
         <UBreadcrumb :items="breadcrumbs" />
-
-        <div class="flex items-center gap-2">
-          <UColorModeButton />
-        </div>
       </header>
 
       <!-- Page content -->

@@ -114,6 +114,7 @@ export type RuleOperator
     | 'is_set' | 'is_not_set'
     | 'in' | 'not_in'
     | 'before' | 'after'
+    | 'in_last'
 
 export interface SegmentRule {
   field: string
@@ -232,7 +233,8 @@ export const createSegmentSchema = z.object({
       operator: z.enum([
         'equals', 'not_equals', 'contains', 'not_contains',
         'starts_with', 'ends_with', 'greater_than', 'less_than',
-        'is_set', 'is_not_set', 'in', 'not_in', 'before', 'after'
+        'is_set', 'is_not_set', 'in', 'not_in', 'before', 'after',
+        'in_last'
       ]),
       value: z.unknown()
     }))

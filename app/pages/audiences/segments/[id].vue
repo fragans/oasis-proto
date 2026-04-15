@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Segment, Contact } from '~~/shared/types/contact'
+import type { Segment, Contact, SegmentRuleGroup } from '~~/shared/types/contact'
 
 definePageMeta({ layout: 'default' })
 
@@ -22,6 +22,7 @@ const editForm = reactive({
   description: '',
   tags: ''
 })
+const editRules = ref<SegmentRuleGroup | null>(null)
 
 async function load() {
   loading.value = true
@@ -41,6 +42,7 @@ function syncEditForm() {
     description: segment.value.description || '',
     tags: (segment.value.tags || []).join(', ')
   })
+  editRules.value = segment.value.rules ? structuredClone(toRaw(segment.value.rules)) : null
 }
 
 async function loadContacts() {
@@ -63,7 +65,8 @@ async function onSave() {
       method: 'PUT',
       body: {
         ...editForm,
-        tags: editForm.tags ? editForm.tags.split(',').map(t => t.trim()) : []
+        tags: editForm.tags ? editForm.tags.split(',').map(t => t.trim()) : [],
+        ...(segment.value?.type === 'dynamic' ? { rules: editRules.value } : {})
       }
     })
     editing.value = false
@@ -224,22 +227,6 @@ onMounted(load)
                 size="sm"
               />
             </UFormField>
-            <div class="flex gap-2 pt-2">
-              <UButton
-                label="Save"
-                color="primary"
-                size="sm"
-                :loading="saving"
-                @click="onSave"
-              />
-              <UButton
-                label="Cancel"
-                variant="ghost"
-                color="neutral"
-                size="sm"
-                @click="editing = false; syncEditForm()"
-              />
-            </div>
           </div>
 
           <dl
@@ -291,15 +278,31 @@ onMounted(load)
 
         <!-- Rules (for dynamic segments) -->
         <div
-          v-if="segment.type === 'dynamic' && segment.rules"
+          v-if="segment.type === 'dynamic'"
           class="border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 bg-white dark:bg-zinc-900"
         >
           <h2 class="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-4">
             Rules
           </h2>
-          <div class="bg-zinc-50 dark:bg-zinc-800/50 rounded-lg p-3 text-xs font-mono text-zinc-600 dark:text-zinc-400">
-            <pre>{{ JSON.stringify(segment.rules, null, 2) }}</pre>
-          </div>
+
+          <!-- Edit mode: rule builder -->
+          <SegmentRuleBuilder
+            v-if="editing"
+            v-model="editRules"
+          />
+
+          <!-- View mode: readable rules -->
+          <SegmentRuleDisplay
+            v-else-if="segment.rules"
+            :rules="segment.rules"
+          />
+
+          <p
+            v-else
+            class="text-sm text-zinc-400"
+          >
+            No rules configured
+          </p>
         </div>
       </div>
 
@@ -392,7 +395,24 @@ onMounted(load)
         </div>
       </div>
     </div>
-
+    <template v-if="editing">
+      <div class="flex gap-2 p-2 sticky bottom-0 bg-white/50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-lg justify-end">
+        <UButton
+          label="Save"
+          color="primary"
+          size="sm"
+          :loading="saving"
+          @click="onSave"
+        />
+        <UButton
+          label="Cancel"
+          variant="ghost"
+          color="neutral"
+          size="sm"
+          @click="editing = false; syncEditForm()"
+        />
+      </div>
+    </template>
     <!-- Delete dialog -->
     <CampaignConfirmDialog
       :open="deleteOpen"
