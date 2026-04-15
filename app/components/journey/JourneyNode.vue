@@ -79,14 +79,14 @@ const isConditionOrSplit = computed(() => props.data.type === 'condition' || pro
       v-if="data.type !== 'trigger'"
       type="target"
       :position="Position.Top"
-      class="!w-3 !h-3 !bg-zinc-400 !border-2 !border-white dark:!border-zinc-900"
+      class="w-3 h-3 bg-zinc-400 border-2 border-white dark:border-zinc-900"
     />
 
     <Handle
       v-if="!isConditionOrSplit"
       type="source"
       :position="Position.Bottom"
-      class="!w-3 !h-3 !bg-indigo-500 !border-2 !border-white dark:!border-zinc-900"
+      class="w-3 h-3 bg-indigo-500 border-2 border-white dark:border-zinc-900"
     />
 
     <!-- Condition/Split: Yes/No or variant handles -->
@@ -95,13 +95,13 @@ const isConditionOrSplit = computed(() => props.data.type === 'condition' || pro
         id="yes"
         type="source"
         :position="Position.Bottom"
-        class="!w-3 !h-3 !bg-emerald-500 !border-2 !border-white dark:!border-zinc-900 !left-[30%]"
+        class="w-3 h-3 bg-emerald-500 border-2 border-white dark:border-zinc-900 left-[30%]"
       />
       <Handle
         id="no"
         type="source"
         :position="Position.Bottom"
-        class="!w-3 !h-3 !bg-red-500 !border-2 !border-white dark:!border-zinc-900 !left-[70%]"
+        class="w-3 h-3 bg-red-500 border-2 border-white dark:border-zinc-900 left-[70%]"
       />
     </template>
 
@@ -112,7 +112,7 @@ const isConditionOrSplit = computed(() => props.data.type === 'condition' || pro
         :key="variant.label"
         type="source"
         :position="Position.Bottom"
-        class="!w-3 !h-3 !bg-pink-500 !border-2 !border-white dark:!border-zinc-900"
+        class="w-3 h-3 bg-pink-500 border-2 border-white dark:border-zinc-900"
         :style="{ left: `${((idx + 1) / ((data.config.variants as any[])?.length || 2 + 1)) * 100}%` }"
       />
     </template>
