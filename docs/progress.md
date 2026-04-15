@@ -42,19 +42,19 @@
 - [x] Configure `nuxt.config.ts` (modules, devtools, CSS)
 - [x] Configure `tsconfig.json`
 - [x] Configure ESLint
-- [ ] Add `runtimeConfig` block to `nuxt.config.ts` for env vars
-- [ ] Install backend dependencies (drizzle-orm, postgres, ioredis, @aws-sdk/client-s3, zod)
-- [ ] Install drizzle-kit as dev dependency
+- [x] Add `runtimeConfig` block to `nuxt.config.ts` for env vars
+- [x] Install backend dependencies (drizzle-orm, postgres, ioredis, @aws-sdk/client-s3, zod)
+- [x] Install drizzle-kit as dev dependency
 
 #### Story 1.1.2 — Docker & Local Services
-- [ ] Create `docker-compose.yml` (PostgreSQL 16 + Redis 7)
-- [ ] Verify `docker compose up -d` starts both services
-- [ ] Verify connectivity from Nitro to Postgres and Redis
+- [x] Create `docker-compose.yml` (PostgreSQL 16 + Redis 7)
+- [x] Verify `docker compose up -d` starts both services
+- [x] Verify connectivity from Nitro to Postgres and Redis
 
 #### Story 1.1.3 — Environment Configuration
-- [ ] Create `.env.example` with all required variables
-- [ ] Create `.env` with real credentials (git-ignored)
-- [ ] Verify `.gitignore` excludes `.env`
+- [x] Create `.env.example` with all required variables
+- [x] Create `.env` with real credentials (git-ignored)
+- [x] Verify `.gitignore` excludes `.env`
 
 ---
 
@@ -63,20 +63,20 @@
 > Establish the Drizzle ORM schema for campaigns and creatives, with working migrations.
 
 #### Story 1.2.1 — Drizzle Configuration
-- [ ] Create `drizzle.config.ts`
-- [ ] Create `server/utils/drizzle.ts` (DB singleton via `useRuntimeConfig`)
+- [x] Create `drizzle.config.ts`
+- [x] Create `server/utils/drizzle.ts` (DB singleton via `useRuntimeConfig`)
 
 #### Story 1.2.2 — Campaign Schema
-- [ ] Define `campaignStatusEnum` (draft, scheduled, active, paused, completed)
-- [ ] Define `campaignPriorityEnum` (low, medium, high, critical)
-- [ ] Define `campaigns` table (id, name, description, objective, status, priority, startDate, endDate, createdAt, updatedAt)
-- [ ] Define `creatives` table (id, campaignId FK, type, fileUrl, fileName, fileSize, mimeType, clickUrl, altText, width, height, sortOrder, createdAt)
+- [x] Define `campaignStatusEnum` (draft, scheduled, active, paused, completed)
+- [x] Define `campaignPriorityEnum` (low, medium, high, critical)
+- [x] Define `campaigns` table (id, name, description, objective, status, priority, startDate, endDate, createdAt, updatedAt)
+- [x] Define `creatives` table (id, campaignId FK, type, fileUrl, fileName, fileSize, mimeType, clickUrl, altText, width, height, sortOrder, createdAt)
 
 #### Story 1.2.3 — Migrations
-- [ ] Generate initial migration with `drizzle-kit generate`
-- [ ] Apply migration with `drizzle-kit migrate`
-- [ ] Create `server/plugins/migrations.ts` for auto-migration on dev startup
-- [ ] Verify tables exist in Postgres via Drizzle Studio or psql
+- [x] Generate initial migration with `drizzle-kit generate`
+- [x] Apply migration with `drizzle-kit migrate`
+- [x] Create `server/plugins/migrations.ts` for auto-migration on dev startup
+- [x] Verify tables exist in Postgres via Drizzle Studio or psql
 
 ---
 
@@ -85,23 +85,23 @@
 > Build the core backend singletons: Redis sync, OBS upload, and shared types.
 
 #### Story 1.3.1 — Redis Integration
-- [ ] Create `server/utils/redis.ts` with ioredis singleton
-- [ ] Implement `syncCampaignToRedis(campaign)` — write campaign + creatives JSON to `campaign:{id}`
-- [ ] Implement `removeCampaignFromRedis(id)` — delete key + remove from `campaigns:active` set
-- [ ] Implement `syncAllActiveCampaigns()` — bulk sync for startup/recovery
-- [ ] Verify Redis read/write via `redis-cli`
+- [x] Create `server/utils/redis.ts` with ioredis singleton
+- [x] Implement `syncCampaignToRedis(campaign)` — write campaign + creatives JSON to `campaign:{id}`
+- [x] Implement `removeCampaignFromRedis(id)` — delete key + remove from `campaigns:active` set
+- [x] Implement `syncAllActiveCampaigns()` — bulk sync for startup/recovery
+- [x] Verify Redis read/write via `redis-cli`
 
 #### Story 1.3.2 — OBS / S3 Upload Client
-- [ ] Create `server/utils/obs.ts` with `@aws-sdk/client-s3` pointed at Huawei OBS endpoint
-- [ ] Implement `uploadCreative(buffer, key, mimeType)`
-- [ ] Implement `deleteCreative(key)`
-- [ ] Implement `getPublicUrl(key)` returning `https://assets-oasis.kgmedia.id/{key}`
-- [ ] Verify upload + CDN URL accessibility
+- [x] Create `server/utils/obs.ts` with `@aws-sdk/client-s3` pointed at Huawei OBS endpoint
+- [x] Implement `uploadCreative(buffer, key, mimeType)`
+- [x] Implement `deleteCreative(key)`
+- [x] Implement `getPublicUrl(key)` returning `https://assets-oasis.kgmedia.id/{key}`
+- [x] Verify upload + CDN URL accessibility
 
 #### Story 1.3.3 — Shared Types & Validation
-- [ ] Create `shared/types/campaign.ts` with `CampaignStatus`, `CampaignPriority`, interfaces
-- [ ] Define `createCampaignSchema` and `updateCampaignSchema` (Zod)
-- [ ] Define `STATUS_TRANSITIONS` map
+- [x] Create `shared/types/campaign.ts` with `CampaignStatus`, `CampaignPriority`, interfaces
+- [x] Define `createCampaignSchema` and `updateCampaignSchema` (Zod)
+- [x] Define `STATUS_TRANSITIONS` map
 
 ---
 
@@ -110,28 +110,28 @@
 > Full RESTful API for campaign CRUD, lifecycle state machine, cloning, and bulk actions.
 
 #### Story 1.4.1 — Campaign CRUD
-- [ ] `GET /api/campaigns` — list with pagination, search, status filter, sort
-- [ ] `POST /api/campaigns` — create campaign (Zod validation, default draft status)
-- [ ] `GET /api/campaigns/[id]` — get campaign with creatives + computed fields
-- [ ] `PUT /api/campaigns/[id]` — update campaign; re-sync Redis if active
-- [ ] `DELETE /api/campaigns/[id]` — delete campaign; remove from Redis + OBS cleanup
+- [x] `GET /api/campaigns` — list with pagination, search, status filter, sort
+- [x] `POST /api/campaigns` — create campaign (Zod validation, default draft status)
+- [x] `GET /api/campaigns/[id]` — get campaign with creatives + computed fields
+- [x] `PUT /api/campaigns/[id]` — update campaign; re-sync Redis if active
+- [x] `DELETE /api/campaigns/[id]` — delete campaign; remove from Redis + OBS cleanup
 
 #### Story 1.4.2 — Lifecycle State Machine
-- [ ] `PATCH /api/campaigns/[id]/status` — change status with transition validation
-- [ ] Enforce transition rules: draft->{scheduled,active}, scheduled->{active,draft}, active->{paused,completed}, paused->{active,completed}
-- [ ] On activate/resume: call `syncCampaignToRedis()`
-- [ ] On pause/complete: call `removeCampaignFromRedis()`
-- [ ] Return error on invalid transitions
+- [x] `PATCH /api/campaigns/[id]/status` — change status with transition validation
+- [x] Enforce transition rules: draft->{scheduled,active}, scheduled->{active,draft}, active->{paused,completed}, paused->{active,completed}
+- [x] On activate/resume: call `syncCampaignToRedis()`
+- [x] On pause/complete: call `removeCampaignFromRedis()`
+- [x] Return error on invalid transitions
 
 #### Story 1.4.3 — Clone & Bulk Actions
-- [ ] `POST /api/campaigns/[id]/clone` — clone as new draft (new ID, cleared dates, copy creatives)
-- [ ] `PATCH /api/campaigns/bulk` — bulk pause/resume/archive with Redis sync
-- [ ] Verify bulk actions apply to all selected campaigns
+- [x] `POST /api/campaigns/[id]/clone` — clone as new draft (new ID, cleared dates, copy creatives)
+- [x] `PATCH /api/campaigns/bulk` — bulk pause/resume/archive with Redis sync
+- [x] Verify bulk actions apply to all selected campaigns
 
 #### Story 1.4.4 — Creative Upload
-- [ ] `POST /api/upload/creative` — accept multipart/form-data
-- [ ] Validate file type (jpg, png, gif, webp, svg) and size (max 10MB)
-- [ ] Upload to OBS, return `{ url, fileName, fileSize, mimeType, width, height }`
+- [x] `POST /api/upload/creative` — accept multipart/form-data
+- [x] Validate file type (jpg, png, gif, webp, svg) and size (max 10MB)
+- [x] Upload to OBS, return `{ url, fileName, fileSize, mimeType, width, height }`
 
 ---
 
@@ -140,19 +140,19 @@
 > Build the dashboard shell with sidebar navigation, dark mode, and premium aesthetics.
 
 #### Story 1.5.1 — Theme Configuration
-- [ ] Update `app/app.config.ts` — primary: indigo, neutral: zinc, dark mode default
-- [ ] Update `app/assets/css/main.css` — replace green palette with indigo/violet
-- [ ] Add custom CSS: glassmorphism cards, gradient backgrounds, page transitions, status badge colors
+- [x] Update `app/app.config.ts` — primary: indigo, neutral: zinc, dark mode default
+- [x] Update `app/assets/css/main.css` — replace green palette with indigo/violet
+- [x] Add custom CSS: glassmorphism cards, gradient backgrounds, page transitions, status badge colors
 
 #### Story 1.5.2 — Dashboard Layout
-- [ ] Create `app/layouts/default.vue` — sidebar + header + main slot
-- [ ] Sidebar: logo, nav links (Campaigns; placeholders: Audiences, Journeys, Reports)
-- [ ] Header: breadcrumb, page title
-- [ ] Mobile responsive: sidebar collapses to drawer
-- [ ] Update `app/app.vue` — remove starter content, use dashboard layout
+- [x] Create `app/layouts/default.vue` — sidebar + header + main slot
+- [x] Sidebar: logo, nav links (Campaigns; placeholders: Audiences, Journeys, Reports)
+- [x] Header: breadcrumb, page title
+- [x] Mobile responsive: sidebar collapses to drawer
+- [x] Update `app/app.vue` — remove starter content, use dashboard layout
 
 #### Story 1.5.3 — Index Redirect
-- [ ] Update `app/pages/index.vue` — redirect to `/campaigns`
+- [x] Update `app/pages/index.vue` — redirect to `/campaigns`
 
 ---
 
@@ -161,22 +161,22 @@
 > Build the three main campaign pages: list, create, and detail/edit.
 
 #### Story 1.6.1 — Campaign List Page (`campaigns/index.vue`)
-- [ ] Data table with `UTable` (TanStack Table)
-- [ ] Columns: Name, Status badge, Priority, Date Range, Actions dropdown
-- [ ] Status filter chips (All, Active, Draft, Scheduled, Paused, Completed)
-- [ ] Debounced search input
-- [ ] Server-side pagination + page size selector
-- [ ] Column header sorting
-- [ ] Row checkbox selection + bulk action toolbar
-- [ ] Empty state with CTA
-- [ ] Skeleton loading rows
+- [x] Data table with `UTable` (TanStack Table)
+- [x] Columns: Name, Status badge, Priority, Date Range, Actions dropdown
+- [x] Status filter chips (All, Active, Draft, Scheduled, Paused, Completed)
+- [x] Debounced search input
+- [x] Server-side pagination + page size selector
+- [x] Column header sorting
+- [x] Row checkbox selection + bulk action toolbar
+- [x] Empty state with CTA
+- [x] Skeleton loading rows
 
 #### Story 1.6.2 — Campaign Create Page (`campaigns/create.vue`)
-- [ ] Section 1: Campaign details form (name, description, objective, priority, dates) with Zod validation
-- [ ] Section 2: Creative upload — drag & drop zone with preview, click-through URL, alt text
-- [ ] Section 3: Review summary — "Save as Draft" and "Schedule" CTAs
-- [ ] Wire up to `POST /api/campaigns` + `POST /api/upload/creative`
-- [ ] Success redirect to campaign detail page
+- [x] Section 1: Campaign details form (name, description, objective, priority, dates) with Zod validation
+- [x] Section 2: Creative upload — drag & drop zone with preview, click-through URL, alt text
+- [x] Section 3: Review summary — "Save as Draft" and "Schedule" CTAs
+- [x] Wire up to `POST /api/campaigns` + `POST /api/upload/creative`
+- [x] Success redirect to campaign detail page
 
 #### Story 1.6.3 — Campaign Detail / Edit Page (`campaigns/[id].vue`)
 - [ ] Header: campaign name + status badge + action buttons (Edit, Pause/Resume, Delete)
@@ -193,19 +193,19 @@
 > Build reusable components and data-fetching composables.
 
 #### Story 1.7.1 — Campaign Components
-- [ ] `CampaignStatusBadge.vue` — color-coded badge with icon per status
-- [ ] `CampaignCard.vue` — card-view alternative for list
-- [ ] `CreativeUploader.vue` — drag & drop + file validation
-- [ ] `CreativePreview.vue` — image preview with metadata
-- [ ] `StatusTransitionButton.vue` — dropdown with valid next states
-- [ ] `CampaignFilters.vue` — status chips + search input
-- [ ] `BulkActionToolbar.vue` — appears when rows selected (Pause, Resume, Archive)
-- [ ] `ConfirmDialog.vue` — reusable `UModal` confirmation
+- [x] `CampaignStatusBadge.vue` — color-coded badge with icon per status
+- [x] `CampaignCard.vue` — card-view alternative for list
+- [x] `CreativeUploader.vue` — drag & drop + file validation
+- [x] `CreativePreview.vue` — image preview with metadata
+- [x] `StatusTransitionButton.vue` — dropdown with valid next states
+- [x] `CampaignFilters.vue` — status chips + search input
+- [x] `BulkActionToolbar.vue` — appears when rows selected (Pause, Resume, Archive)
+- [x] `ConfirmDialog.vue` — reusable `UModal` confirmation
 
 #### Story 1.7.2 — Composables
-- [ ] `useCampaigns.ts` — reactive list with filters, pagination, search; wraps `useFetch`
-- [ ] `useCampaign.ts` — single campaign CRUD: fetch, create, update, delete, changeStatus, clone
-- [ ] `useCreativeUpload.ts` — upload with progress tracking
+- [x] `useCampaigns.ts` — reactive list with filters, pagination, search; wraps `useFetch`
+- [x] `useCampaign.ts` — single campaign CRUD: fetch, create, update, delete, changeStatus, clone
+- [x] `useCreativeUpload.ts` — upload with progress tracking
 
 ---
 
