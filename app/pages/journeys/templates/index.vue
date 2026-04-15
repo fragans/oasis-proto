@@ -112,13 +112,6 @@ function formatDate(date: string) {
       </div>
       <div class="flex gap-2">
         <UButton
-          icon="i-lucide-arrow-left"
-          label="Journeys"
-          variant="outline"
-          color="neutral"
-          to="/journeys"
-        />
-        <UButton
           icon="i-lucide-plus"
           label="New Template"
           color="primary"
