@@ -85,18 +85,6 @@ const priorityOptions = [
   <div class="max-w-3xl mx-auto space-y-8">
     <!-- Header -->
     <div>
-      <div class="flex items-center gap-2 mb-2">
-        <UButton
-          icon="i-lucide-arrow-left"
-          variant="ghost"
-          color="neutral"
-          size="sm"
-          to="/campaigns"
-        />
-        <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">
-          New Campaign
-        </h1>
-      </div>
       <p class="text-sm text-zinc-500">
         Create a new banner campaign for KG Media properties
       </p>
