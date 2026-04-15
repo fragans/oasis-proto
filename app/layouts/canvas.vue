@@ -24,6 +24,7 @@ const breadcrumbs = computed(() => {
           />
           <div class="flex items-center gap-2">
             <UBreadcrumb :items="breadcrumbs" />
+            <UColorModeButton />
           </div>
         </div>
       </header>
