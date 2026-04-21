@@ -105,6 +105,7 @@ export interface ContactEventWithType extends ContactEvent {
 // ─── Segments ───────────────────────────────────────────────
 
 export type SegmentType = 'static' | 'dynamic'
+export type StandardSegmentCategory = 'attributes' | 'events' | 'device' | 'location'
 
 export type RuleOperator
   = | 'equals' | 'not_equals'
@@ -132,6 +133,7 @@ export interface Segment {
   name: string
   description: string | null
   type: SegmentType
+  category: StandardSegmentCategory | null
   rules: SegmentRuleGroup | null
   tags: string[]
   contactCount: number
@@ -226,6 +228,7 @@ export const createSegmentSchema = z.object({
   name: z.string().min(1).max(255),
   description: z.string().optional(),
   type: z.enum(['static', 'dynamic']),
+  category: z.enum(['attributes', 'events', 'device', 'location']).optional(),
   rules: z.object({
     logic: z.enum(['and', 'or']),
     rules: z.array(z.object({

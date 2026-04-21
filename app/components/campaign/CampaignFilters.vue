@@ -46,7 +46,7 @@ watch(searchModel, (val) => {
       <UInput
         v-model="searchModel"
         icon="i-lucide-search"
-        placeholder="Search campaigns..."
+        placeholder="Search messages..."
         size="sm"
       />
     </div>

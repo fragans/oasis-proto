@@ -31,8 +31,8 @@ async function load() {
   try {
     campaign.value = await fetchCampaign(id)
   } catch {
-    toast.add({ title: 'Campaign not found', color: 'error' })
-    router.push('/campaigns')
+    toast.add({ title: 'Message not found', color: 'error' })
+    router.push('/campaigns/on-site-messages')
   } finally {
     loading.value = false
   }
@@ -64,9 +64,9 @@ async function saveEdit() {
     await updateCampaign(id, data)
     editing.value = false
     await load()
-    toast.add({ title: 'Campaign updated', color: 'success' })
-  } catch (err) {
-    const fetchError = err as any
+    toast.add({ title: 'Message updated', color: 'success' })
+  } catch (err: unknown) {
+    const fetchError = err as { data?: { message?: string } }
     toast.add({ title: 'Error', description: fetchError.data?.message || 'Update failed', color: 'error' })
   } finally {
     saving.value = false
@@ -77,20 +77,22 @@ async function onStatusChange(status: CampaignStatus) {
   try {
     await changeStatus(id, status)
     await load()
-    toast.add({ title: `Campaign ${status}`, color: 'success' })
-  } catch (err) {
-    const fetchError = err as any
+    toast.add({ title: `Message ${status}`, color: 'success' })
+  } catch (err: unknown) {
+    const fetchError = err as { data?: { message?: string } }
     toast.add({ title: 'Error', description: fetchError.data?.message || 'Status change failed', color: 'error' })
   }
 }
 
 async function onClone() {
   try {
-    const cloned = await cloneCampaign(id) as any
-    toast.add({ title: 'Campaign cloned', color: 'success' })
-    router.push(`/campaigns/${cloned.id}`)
-  } catch (err) {
-    const fetchError = err as any
+    const cloned = await cloneCampaign(id)
+    toast.add({ title: 'Message cloned', color: 'success' })
+    if (cloned && typeof cloned === 'object' && 'id' in cloned) {
+      router.push(`/campaigns/on-site-messages/${cloned.id}`)
+    }
+  } catch (err: unknown) {
+    const fetchError = err as { data?: { message?: string } }
     toast.add({ title: 'Error', description: fetchError.data?.message || 'Clone failed', color: 'error' })
   }
 }
@@ -99,10 +101,10 @@ async function onDelete() {
   deleting.value = true
   try {
     await deleteCampaign(id)
-    toast.add({ title: 'Campaign deleted', color: 'success' })
-    router.push('/campaigns')
-  } catch (err) {
-    const fetchError = err as any
+    toast.add({ title: 'Message deleted', color: 'success' })
+    router.push('/campaigns/on-site-messages')
+  } catch (err: unknown) {
+    const fetchError = err as { data?: { message?: string } }
     toast.add({ title: 'Error', description: fetchError.data?.message || 'Delete failed', color: 'error' })
   } finally {
     deleting.value = false
@@ -150,7 +152,7 @@ onMounted(load)
             variant="ghost"
             color="neutral"
             size="sm"
-            to="/campaigns"
+            to="/campaigns/on-site-messages"
           />
           <div>
             <div class="flex items-center gap-3">
@@ -196,7 +198,7 @@ onMounted(load)
         class="border border-indigo-200 dark:border-indigo-800 rounded-xl bg-white dark:bg-zinc-900 p-6 space-y-4"
       >
         <h2 class="text-lg font-semibold text-zinc-900 dark:text-white">
-          Edit Campaign
+          Edit Message
         </h2>
         <div class="space-y-4">
           <div>
@@ -265,7 +267,7 @@ onMounted(load)
               Priority
             </p>
             <UBadge
-              :color="(PRIORITY_COLORS[campaign.priority] as any)"
+              :color="PRIORITY_COLORS[campaign.priority] ?? 'neutral'"
               variant="subtle"
               size="sm"
               class="mt-1.5 capitalize"
@@ -350,7 +352,7 @@ onMounted(load)
     <!-- Delete dialog -->
     <CampaignConfirmDialog
       :open="deleteDialogOpen"
-      title="Delete Campaign"
+      title="Delete On Site Message"
       :description="`Are you sure you want to delete '${campaign?.name}'? This action cannot be undone.`"
       confirm-label="Delete"
       confirm-color="error"

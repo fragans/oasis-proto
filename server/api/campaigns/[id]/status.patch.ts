@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm'
 import { campaigns } from '../../../database/schema'
 import { changeStatusSchema, STATUS_TRANSITIONS } from '~~/shared/types/campaign'
 import type { CampaignStatus } from '~~/shared/types/campaign'
+import { syncTenantCampaignsToKV } from '../../../utils/kv-sync'
 
 export default defineEventHandler(async (event) => {
   const db = useDB()
@@ -49,11 +50,10 @@ export default defineEventHandler(async (event) => {
     .where(eq(campaigns.id, id))
     .returning()
 
-  // Redis sync
-  if (newStatus === 'active') {
-    await syncCampaignToRedis(id)
-  } else if (newStatus === 'paused' || newStatus === 'completed') {
-    await removeCampaignFromRedis(id)
+  // Sync tenant's campaign list to Cloudflare KV whenever active set changes
+  const tenantId = campaign.tenantId || 'kompasid'
+  if (newStatus === 'active' || newStatus === 'paused' || newStatus === 'completed') {
+    await syncTenantCampaignsToKV(tenantId)
   }
 
   return updated

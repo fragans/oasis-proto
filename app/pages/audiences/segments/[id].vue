@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Segment, Contact, SegmentRuleGroup } from '~~/shared/types/contact'
+import type { Segment, Contact, SegmentRuleGroup, StandardSegmentCategory } from '~~/shared/types/contact'
 
 definePageMeta({ layout: 'default' })
 
@@ -149,6 +149,16 @@ onMounted(load)
               {{ segment.type
               }}
             </UBadge>
+            <template v-if="segment.category">
+              &middot;
+              <UBadge
+                :label="segment.category"
+                color="neutral"
+                variant="subtle"
+                size="xs"
+                class="capitalize"
+              />
+            </template>
             &middot; {{ segment.contactCount.toLocaleString() }} contacts
           </p>
         </div>
@@ -249,6 +259,17 @@ onMounted(load)
                 {{ segment.type }}
               </dd>
             </div>
+            <div
+              v-if="segment.category"
+              class="flex justify-between"
+            >
+              <dt class="text-zinc-500">
+                Category
+              </dt>
+              <dd class="text-zinc-900 dark:text-white capitalize">
+                {{ segment.category }}
+              </dd>
+            </div>
             <div class="flex justify-between">
               <dt class="text-zinc-500">
                 Contacts
@@ -289,6 +310,7 @@ onMounted(load)
           <SegmentRuleBuilder
             v-if="editing"
             v-model="editRules"
+            :category="(segment.category as StandardSegmentCategory | null) ?? undefined"
           />
 
           <!-- View mode: readable rules -->

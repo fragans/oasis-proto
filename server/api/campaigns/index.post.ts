@@ -15,14 +15,25 @@ export default defineEventHandler(async (event) => {
   }
 
   const [campaign] = await db.insert(campaigns).values({
+    tenantId: parsed.data.tenantId,
     name: parsed.data.name,
     description: parsed.data.description || null,
     objective: parsed.data.objective || null,
     priority: parsed.data.priority,
     startDate: parsed.data.startDate ? new Date(parsed.data.startDate) : null,
-    endDate: parsed.data.endDate ? new Date(parsed.data.endDate) : null
+    endDate: parsed.data.endDate ? new Date(parsed.data.endDate) : null,
+    // Edge-worker delivery fields
+    templateType: parsed.data.templateType || null,
+    campaignType: parsed.data.campaignType,
+    elementSelector: parsed.data.elementSelector || null,
+    html: parsed.data.html || null,
+    trigger: parsed.data.trigger || null,
+    segment: parsed.data.segment || null,
+    isTestMode: parsed.data.isTestMode
   }).returning()
 
   setResponseStatus(event, 201)
+
+  // KV sync happens on status transition to 'active', not on creation (draft stage)
   return campaign
 })

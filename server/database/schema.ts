@@ -16,8 +16,34 @@ export const campaignPriorityEnum = pgEnum('campaign_priority', [
   'critical'
 ])
 
+export const campaignTypeEnum = pgEnum('campaign_type', [
+  'sticky',
+  'in-article',
+  'popup'
+])
+
+export const triggerModeEnum = pgEnum('trigger_mode', [
+  'immediate',
+  'scroll',
+  'exit-intent'
+])
+
+export const tenants = pgTable('tenants', {
+  id: varchar('id', { length: 255 }).primaryKey(), // e.g. 'kompasid'
+  hostname: varchar('hostname', { length: 255 }).notNull().unique(), // e.g. 'www.kompas.id'
+  cookieName: varchar('cookie_name', { length: 255 }).notNull().default('oasis_guid'),
+  apiUrl: text('api_url').notNull(),
+  authCookieNames: jsonb('auth_cookie_names').$type<string[]>().default([]),
+  isLive: boolean('is_live').default(false).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull()
+})
+
 export const campaigns = pgTable('campaigns', {
   id: uuid('id').primaryKey().defaultRandom(),
+  // Multi-tenant scope
+  tenantId: varchar('tenant_id', { length: 255 }).references(() => tenants.id, { onDelete: 'cascade' }).notNull().default('kompasid'),
+  // Basic metadata
   name: varchar('name', { length: 255 }).notNull(),
   description: text('description'),
   objective: varchar('objective', { length: 255 }),
@@ -25,6 +51,15 @@ export const campaigns = pgTable('campaigns', {
   priority: campaignPriorityEnum('priority').default('medium').notNull(),
   startDate: timestamp('start_date', { withTimezone: true }),
   endDate: timestamp('end_date', { withTimezone: true }),
+  // Edge-worker delivery fields
+  templateType: varchar('template_type', { length: 50 }),
+  campaignType: campaignTypeEnum('campaign_type').default('sticky').notNull(),
+  elementSelector: text('element_selector'),
+  html: text('html'),
+  trigger: jsonb('trigger').$type<{ mode: 'immediate' | 'scroll' | 'exit-intent', value?: number }>(),
+  segment: varchar('segment', { length: 255 }),
+  // Testing flag (oasis_test=1 gate per campaign)
+  isTestMode: boolean('is_test_mode').default(false).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull()
 })
@@ -45,7 +80,15 @@ export const creatives = pgTable('creatives', {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull()
 })
 
-export const campaignsRelations = relations(campaigns, ({ many }) => ({
+export const tenantsRelations = relations(tenants, ({ many }) => ({
+  campaigns: many(campaigns)
+}))
+
+export const campaignsRelations = relations(campaigns, ({ one, many }) => ({
+  tenant: one(tenants, {
+    fields: [campaigns.tenantId],
+    references: [tenants.id]
+  }),
   creatives: many(creatives)
 }))
 
@@ -149,6 +192,7 @@ export const segments = pgTable('segments', {
   name: varchar('name', { length: 255 }).notNull(),
   description: text('description'),
   type: segmentTypeEnum('type').notNull(),
+  category: varchar('category', { length: 50 }),
   rules: jsonb('rules').$type<Record<string, unknown>>(),
   tags: jsonb('tags').$type<string[]>().default([]),
   contactCount: integer('contact_count').default(0),

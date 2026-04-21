@@ -306,7 +306,6 @@
 - [x] Upsert logic (email → phone → contact_id resolution)
 - [x] Auto-create custom attribute definitions from unknown keys
 - [x] Assign contacts to static segments by ID
-- [x] API token management UI (generate, rotate, copy, masked display)
 
 ---
 
