@@ -1,8 +1,28 @@
-CREATE TYPE "public"."attribute_source" AS ENUM('api', 'email', 'mobile_sdk', 'web', 'manual', 'import');--> statement-breakpoint
-CREATE TYPE "public"."attribute_type" AS ENUM('string', 'number', 'boolean', 'date');--> statement-breakpoint
-CREATE TYPE "public"."gender" AS ENUM('male', 'female', 'other', 'unknown');--> statement-breakpoint
-CREATE TYPE "public"."segment_type" AS ENUM('static', 'dynamic');--> statement-breakpoint
-CREATE TABLE "api_tokens" (
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'attribute_source') THEN
+        CREATE TYPE "public"."attribute_source" AS ENUM('api', 'email', 'mobile_sdk', 'web', 'manual', 'import');
+    END IF;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'attribute_type') THEN
+        CREATE TYPE "public"."attribute_type" AS ENUM('string', 'number', 'boolean', 'date');
+    END IF;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'gender') THEN
+        CREATE TYPE "public"."gender" AS ENUM('male', 'female', 'other', 'unknown');
+    END IF;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'segment_type') THEN
+        CREATE TYPE "public"."segment_type" AS ENUM('static', 'dynamic');
+    END IF;
+END $$;
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "api_tokens" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name" varchar(255) NOT NULL,
 	"token_hash" varchar(255) NOT NULL,

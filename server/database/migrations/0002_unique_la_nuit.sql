@@ -1,7 +1,26 @@
-CREATE TYPE "public"."journey_enrollment_status" AS ENUM('active', 'completed', 'exited', 'failed');--> statement-breakpoint
-CREATE TYPE "public"."journey_execution_status" AS ENUM('pending', 'executing', 'completed', 'failed', 'skipped');--> statement-breakpoint
-CREATE TYPE "public"."journey_node_type" AS ENUM('trigger', 'action_email', 'action_push', 'action_banner', 'action_webhook', 'condition', 'delay', 'split');--> statement-breakpoint
-CREATE TYPE "public"."journey_status" AS ENUM('draft', 'active', 'paused', 'completed', 'archived');--> statement-breakpoint
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'journey_enrollment_status') THEN
+        CREATE TYPE "public"."journey_enrollment_status" AS ENUM('active', 'completed', 'exited', 'failed');
+    END IF;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'journey_execution_status') THEN
+        CREATE TYPE "public"."journey_execution_status" AS ENUM('pending', 'executing', 'completed', 'failed', 'skipped');
+    END IF;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'journey_node_type') THEN
+        CREATE TYPE "public"."journey_node_type" AS ENUM('trigger', 'action_email', 'action_push', 'action_banner', 'action_webhook', 'condition', 'delay', 'split');
+    END IF;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'journey_status') THEN
+        CREATE TYPE "public"."journey_status" AS ENUM('draft', 'active', 'paused', 'completed', 'archived');
+    END IF;
+END $$;--> statement-breakpoint
 CREATE TABLE "email_templates" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name" varchar(255) NOT NULL,
