@@ -16,6 +16,37 @@ const { data, status, refresh } = useFetch<{ creatives: Creative[] }>('/api/crea
 const creatives = computed(() => data.value?.creatives || [])
 const loading = computed(() => status.value === 'pending')
 
+const fileInput = ref<HTMLInputElement | null>(null)
+const uploading = ref(false)
+
+function triggerUpload() {
+  fileInput.value?.click()
+}
+
+async function handleFileUpload(event: Event) {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (!file) return
+
+  uploading.value = true
+  const formData = new FormData()
+  formData.append('file', file)
+
+  try {
+    await $fetch('/api/upload/creative', {
+      method: 'POST',
+      body: formData,
+      query: { tenantId: config.public.defaultTenantId }
+    })
+    await refresh()
+  } catch (error) {
+    console.error('Upload failed:', error)
+  } finally {
+    uploading.value = false
+    if (fileInput.value) fileInput.value.value = ''
+  }
+}
+
 function formatSize(bytes: number) {
   if (bytes === 0) return '0 B'
   const k = 1024
@@ -36,13 +67,29 @@ function formatSize(bytes: number) {
           View and manage all image assets uploaded across your campaigns.
         </p>
       </div>
-      <UButton
-        icon="i-lucide-refresh-cw"
-        variant="ghost"
-        color="neutral"
-        :loading="loading"
-        @click="() => refresh()"
-      />
+      <div class="flex items-center gap-2">
+        <UButton
+          icon="i-lucide-upload"
+          label="Upload"
+          :loading="uploading"
+          @click="triggerUpload"
+        />
+        <UButton
+          icon="i-lucide-refresh-cw"
+          variant="ghost"
+          color="neutral"
+          :loading="loading"
+          @click="() => refresh()"
+        />
+      </div>
+
+      <input
+        ref="fileInput"
+        type="file"
+        class="hidden"
+        accept="image/*"
+        @change="handleFileUpload"
+      >
     </div>
 
     <div
@@ -62,26 +109,22 @@ function formatSize(bytes: number) {
 
     <div
       v-else-if="creatives.length === 0"
-      class="flex flex-col items-center justify-center py-32 text-center border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-3xl"
+      class="flex flex-col items-center justify-center py-20 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-3xl"
     >
-      <div class="w-20 h-20 rounded-full bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center mb-6">
-        <UIcon
-          name="i-lucide-image-off"
-          class="w-10 h-10 text-zinc-300"
-        />
-      </div>
-      <h2 class="text-xl font-bold text-zinc-900 dark:text-white mb-2">
-        No creatives yet
-      </h2>
-      <p class="text-zinc-500 max-w-sm">
-        Creatives are automatically added here when you upload images during campaign creation.
-      </p>
-      <UButton
-        to="/campaigns/on-site-messages"
-        label="Go to Campaigns"
-        class="mt-8"
-        variant="outline"
-      />
+      <CreativeEmptyState
+        title="No creatives yet"
+        description="Upload your first creative to get started."
+      >
+        <template #action>
+          <UButton
+            icon="i-lucide-upload"
+            label="Upload Creative"
+            size="lg"
+            :loading="uploading"
+            @click="triggerUpload"
+          />
+        </template>
+      </CreativeEmptyState>
     </div>
 
     <div

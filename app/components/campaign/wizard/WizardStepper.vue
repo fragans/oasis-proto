@@ -31,7 +31,7 @@ function onStepChange(value: string | number | undefined) {
       :model-value="currentStep"
       color="primary"
       class="max-w-3xl w-full"
-      :linear="false"
+      linear
       @update:model-value="onStepChange"
     />
   </div>

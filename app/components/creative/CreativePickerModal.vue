@@ -10,11 +10,17 @@ interface Creative {
 }
 
 const config = useRuntimeConfig()
-const { data, status } = useFetch<{ creatives: Creative[] }>('/api/creatives', {
+const { data, status, refresh } = useAsyncData('creatives-picker', () => $fetch<{ creatives: Creative[] }>('/api/creatives', {
   query: { tenantId: config.public.defaultTenantId }
-})
+}))
 const creatives = computed(() => data.value?.creatives || [])
 const loading = computed(() => status.value === 'pending')
+
+watch(open, (isOpen) => {
+  if (isOpen) {
+    refresh()
+  }
+})
 
 function handleSelect(creative: Creative) {
   emit('select', creative)
@@ -25,9 +31,19 @@ function handleSelect(creative: Creative) {
 <template>
   <UModal v-model:open="open">
     <template #header>
-      <h3 class="text-lg font-semibold">
-        Select Creative
-      </h3>
+      <div class="flex items-center justify-between w-full">
+        <h3 class="text-lg font-semibold">
+          Select a Creative
+        </h3>
+        <UButton
+          icon="i-lucide-refresh-cw"
+          variant="ghost"
+          color="neutral"
+          size="sm"
+          :loading="loading"
+          @click="() => refresh()"
+        />
+      </div>
     </template>
 
     <template #body>
@@ -41,19 +57,7 @@ function handleSelect(creative: Creative) {
           class="aspect-square bg-zinc-100 dark:bg-zinc-800 animate-pulse rounded-lg"
         />
       </div>
-      <div
-        v-else-if="creatives.length === 0"
-        class="py-12 text-center text-zinc-500"
-      >
-        <UIcon
-          name="i-lucide-image-off"
-          class="w-12 h-12 mx-auto mb-3 opacity-20"
-        />
-        <p>No creatives found.</p>
-        <p class="text-xs">
-          Upload an image in a campaign first.
-        </p>
-      </div>
+      <CreativeEmptyState v-else-if="creatives.length === 0" />
       <div
         v-else
         class="grid grid-cols-3 gap-4 max-h-[400px] overflow-y-auto pr-2"

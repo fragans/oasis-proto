@@ -11,14 +11,27 @@ const form = reactive({
 
 const saving = ref(false)
 
+const { data: tenantsData } = await useFetch('/api/tenants')
+
 async function handleCreate() {
   if (!form.name.trim()) return
 
   saving.value = true
   try {
+    const config = useRuntimeConfig()
+    let tenantId = config.public.defaultTenantId
+
+    // Fallback to first available tenant if default is 'no-tenant' or missing
+    if (tenantsData.value?.tenants?.length) {
+      const tenantIds = tenantsData.value.tenants.map((t: { id: string }) => t.id)
+      if (!tenantIds.includes(tenantId)) {
+        tenantId = tenantIds[0]!
+      }
+    }
+
     const campaign = await createCampaign({
       name: form.name,
-      tenantId: useRuntimeConfig().public.defaultTenantId,
+      tenantId,
       campaignType: 'popup',
       templateType: 'modal-with-cta-redirect'
     }) as { id: string }
