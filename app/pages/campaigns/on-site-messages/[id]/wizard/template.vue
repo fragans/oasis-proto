@@ -105,7 +105,7 @@ async function handleNext() {
       </p>
     </div>
 
-    <div class="flex flex-col xl:flex-row gap-8">
+    <div class="flex flex-col gap-8">
       <div class="flex-1 space-y-8">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <CampaignWizardTemplateTile
