@@ -208,7 +208,7 @@ async function createTenant() {
           <div
             class="px-6 py-4 bg-zinc-50 dark:bg-zinc-800/50 border-t border-zinc-200 dark:border-zinc-800 flex justify-between items-center"
           >
-            <p class="text-xs text-zinc-500">
+            <p class="text-xs text-zinc-500 max-w-1/2">
               When Live Mode is enabled, the Edge worker will inject campaigns into the live site.
             </p>
             <div class="flex items-center gap-2">
