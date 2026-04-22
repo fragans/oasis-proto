@@ -40,12 +40,12 @@ export default defineEventHandler(async (event) => {
       success: true,
       message: `Tenant ${id} and all related data removed successfully`
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error(`[Tenant Delete] Failed to remove tenant ${id}:`, err)
     throw createError({
       statusCode: 500,
       statusMessage: 'Internal Server Error during deletion',
-      data: err?.message
+      data: err instanceof Error ? err.message : String(err)
     })
   }
 })

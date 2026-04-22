@@ -38,8 +38,8 @@ export default defineEventHandler(async (event) => {
       success: true,
       tenant
     }
-  } catch (err: any) {
-    if (err.code === '23505') { // Unique constraint violation
+  } catch (err: unknown) {
+    if (err && typeof err === 'object' && 'code' in err && err.code === '23505') { // Unique constraint violation
       throw createError({
         statusCode: 409,
         statusMessage: 'Tenant ID or Hostname already exists'

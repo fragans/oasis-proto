@@ -51,7 +51,8 @@ export default defineEventHandler(async (event) => {
     .returning()
 
   // Sync tenant's campaign list to Cloudflare KV whenever active set changes
-  const tenantId = campaign.tenantId || 'kompasid'
+  const config = useRuntimeConfig()
+  const tenantId = campaign.tenantId || config.public.defaultTenantId
   if (newStatus === 'active' || newStatus === 'paused' || newStatus === 'completed') {
     await syncTenantCampaignsToKV(tenantId)
   }

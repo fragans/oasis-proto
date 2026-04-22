@@ -2,6 +2,7 @@ import { inArray, eq } from 'drizzle-orm'
 import { campaigns } from '../../database/schema'
 import { bulkActionSchema, STATUS_TRANSITIONS } from '~~/shared/types/campaign'
 import type { CampaignStatus } from '~~/shared/types/campaign'
+import { syncTenantCampaignsToKV } from '../../utils/kv-sync'
 
 const ACTION_TO_STATUS: Record<string, CampaignStatus> = {
   pause: 'paused',
@@ -26,6 +27,7 @@ export default defineEventHandler(async (event) => {
   const rows = await db.select().from(campaigns).where(inArray(campaigns.id, parsed.data.ids))
 
   const results = { updated: 0, skipped: 0, errors: [] as string[] }
+  const affectedTenants = new Set<string>()
 
   for (const campaign of rows) {
     const currentStatus = campaign.status as CampaignStatus
@@ -40,13 +42,14 @@ export default defineEventHandler(async (event) => {
       .set({ status: targetStatus, updatedAt: new Date() })
       .where(eq(campaigns.id, campaign.id))
 
-    if (targetStatus === 'active') {
-      await syncCampaignToRedis(campaign.id)
-    } else if (targetStatus === 'paused' || targetStatus === 'completed') {
-      await removeCampaignFromRedis(campaign.id)
-    }
-
+    // Collect tenant IDs to sync later
+    affectedTenants.add(campaign.tenantId)
     results.updated++
+  }
+
+  // Sync each affected tenant once
+  for (const tenantId of affectedTenants) {
+    await syncTenantCampaignsToKV(tenantId)
   }
 
   return results

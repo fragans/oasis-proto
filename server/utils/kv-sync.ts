@@ -1,6 +1,6 @@
 import { eq, and } from 'drizzle-orm'
 import { campaigns, tenants } from '../database/schema'
-import type { KVCampaign, CampaignType, CampaignTrigger } from '~~/shared/types/campaign'
+import type { KVCampaign, CampaignType, CampaignTrigger, Targeting, CampaignGoal } from '~~/shared/types/campaign'
 
 /**
  * Syncs all ACTIVE campaigns for a given tenant to Cloudflare KV.
@@ -11,6 +11,8 @@ import type { KVCampaign, CampaignType, CampaignTrigger } from '~~/shared/types/
  * The edge worker (oasis-edge) reads this key to decide which banners to inject.
  */
 export async function syncTenantCampaignsToKV(tenantId: string): Promise<void> {
+  console.log('syncTenantCampaignsToKV')
+
   const config = useRuntimeConfig()
   const db = useDB()
 
@@ -36,7 +38,9 @@ export async function syncTenantCampaignsToKV(tenantId: string): Promise<void> {
     id: c.id,
     type: (c.campaignType || 'sticky') as CampaignType,
     trigger: (c.trigger as CampaignTrigger | null) || { mode: 'immediate' },
-    segment: c.segment ?? null, // null = show to ALL users
+    segment: (c.segment as string | null) ?? null, // null = show to ALL users
+    targeting: (c.targeting as unknown as Targeting) ?? null,
+    goal: (c.goal as unknown as CampaignGoal) ?? null,
     element_selector: c.elementSelector || 'body',
     html: c.html || '',
     isTestMode: c.isTestMode

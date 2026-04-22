@@ -54,6 +54,7 @@ export default defineEventHandler(async (event) => {
 
   return {
     success: true,
-    tenant: updated[0]
+    tenant: updated[0],
+    syncError: null as string | null
   }
 })

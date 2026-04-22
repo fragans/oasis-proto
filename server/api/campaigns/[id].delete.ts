@@ -1,5 +1,6 @@
 import { eq } from 'drizzle-orm'
 import { campaigns } from '../../database/schema'
+import { syncTenantCampaignsToKV } from '../../utils/kv-sync'
 
 export default defineEventHandler(async (event) => {
   const db = useDB()
@@ -14,9 +15,9 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: 'Campaign not found' })
   }
 
-  // Remove from Redis if active
+  // Re-sync KV if active (removes from list)
   if (campaign.status === 'active') {
-    await removeCampaignFromRedis(id)
+    await syncTenantCampaignsToKV(campaign.tenantId)
   }
 
   // Delete creative files from OBS

@@ -29,6 +29,8 @@ export default defineEventHandler(async (event) => {
     html: parsed.data.html || null,
     trigger: parsed.data.trigger || null,
     segment: parsed.data.segment || null,
+    targeting: parsed.data.targeting || null,
+    goal: parsed.data.goal || null,
     isTestMode: parsed.data.isTestMode
   }).returning()
 
