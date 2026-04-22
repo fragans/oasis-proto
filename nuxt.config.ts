@@ -16,12 +16,13 @@ export default defineNuxtConfig({
     cloudflareAccountId: process.env.CLOUDFLARE_ACCOUNT_ID || '',
     cloudflareApiToken: process.env.CLOUDFLARE_API_TOKEN || '',
     cloudflareKvNamespaceId: process.env.CLOUDFLARE_KV_NAMESPACE_ID || '',
-    // Huawei OBS
-    obsEndpoint: process.env.OBS_ENDPOINT || '',
-    obsAccessKeyId: process.env.OBS_ACCESS_KEY_ID || '',
-    obsSecretAccessKey: process.env.OBS_SECRET_ACCESS_KEY || '',
-    obsBucket: process.env.OBS_BUCKET || '',
-    obsCdnUrl: process.env.OBS_CDN_URL || '',
+    // S3 Storage (AWS/OBS)
+    s3Endpoint: process.env.S3_ENDPOINT || '',
+    s3AccessKeyId: process.env.S3_ACCESS_KEY_ID || '',
+    s3SecretAccessKey: process.env.S3_SECRET_ACCESS_KEY || '',
+    s3Bucket: process.env.S3_BUCKET || '',
+    s3Region: process.env.S3_REGION || 'ap-southeast-3',
+    s3CdnUrl: process.env.S3_CDN_URL || '',
 
     public: {
       // Multi-tenancy

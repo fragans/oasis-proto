@@ -236,29 +236,35 @@ export const campaignTriggerSchema = z.object({
   value: z.number().optional()
 })
 
-export const createCampaignSchema = z.object({
+export const baseCampaignSchema = z.object({
   // Basic metadata
   name: z.string().min(1).max(255),
   description: z.string().nullable().optional(),
   objective: z.string().max(255).nullable().optional(),
-  priority: z.enum(['low', 'medium', 'high', 'critical']).default('medium'),
+  priority: z.enum(['low', 'medium', 'high', 'critical']),
   startDate: z.string().datetime().nullable().optional(),
   endDate: z.string().datetime().nullable().optional(),
   // Multi-tenant
   tenantId: z.string().min(1),
   // Edge-worker delivery fields
   templateType: z.enum(['promo-code', 'feedback-rating', 'modal-with-cta-redirect']).nullable().optional(),
-  campaignType: z.enum(['sticky', 'in-article', 'popup']).default('sticky'),
+  campaignType: z.enum(['sticky', 'in-article', 'popup']),
   elementSelector: z.string().nullable().optional(),
   html: z.string().nullable().optional(),
   trigger: campaignTriggerSchema.nullable().optional(),
   segment: z.string().nullable().optional(), // null = show to all users
   targeting: targetingSchema.nullable().optional(),
   goal: campaignGoalSchema.nullable().optional(),
+  isTestMode: z.boolean()
+})
+
+export const createCampaignSchema = baseCampaignSchema.extend({
+  priority: z.enum(['low', 'medium', 'high', 'critical']).default('medium'),
+  campaignType: z.enum(['sticky', 'in-article', 'popup']).default('sticky'),
   isTestMode: z.boolean().default(false)
 })
 
-export const updateCampaignSchema = createCampaignSchema.partial()
+export const updateCampaignSchema = baseCampaignSchema.partial()
 
 export const changeStatusSchema = z.object({
   status: z.enum(['draft', 'scheduled', 'active', 'paused', 'completed'])

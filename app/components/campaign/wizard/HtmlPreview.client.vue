@@ -80,7 +80,7 @@ const srcdoc = computed(() => {
           name="i-lucide-lock"
           class="w-3 h-3 text-zinc-400"
         />
-        <span class="text-[10px] text-zinc-400 font-medium truncate">your-website.com</span>
+        <span class="text-[10px] text-zinc-400 font-medium truncate">{{ useRuntimeConfig().public.defaultTenantId }}</span>
       </div>
 
       <div class="flex items-center gap-3">
