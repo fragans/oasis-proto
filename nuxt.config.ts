@@ -1,4 +1,3 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
@@ -13,13 +12,21 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     databaseUrl: process.env.DATABASE_URL || '',
-    redisHost: process.env.REDIS_HOST || 'localhost',
-    redisPort: Number(process.env.REDIS_PORT) || 6379,
+    // Cloudflare KV — used by the kv-sync utility to push live campaigns to oasis-edge
+    cloudflareAccountId: process.env.CLOUDFLARE_ACCOUNT_ID || '',
+    cloudflareApiToken: process.env.CLOUDFLARE_API_TOKEN || '',
+    cloudflareKvNamespaceId: process.env.CLOUDFLARE_KV_NAMESPACE_ID || '',
+    // Huawei OBS
     obsEndpoint: process.env.OBS_ENDPOINT || '',
     obsAccessKeyId: process.env.OBS_ACCESS_KEY_ID || '',
     obsSecretAccessKey: process.env.OBS_SECRET_ACCESS_KEY || '',
     obsBucket: process.env.OBS_BUCKET || '',
-    obsCdnUrl: process.env.OBS_CDN_URL || ''
+    obsCdnUrl: process.env.OBS_CDN_URL || '',
+
+    public: {
+      // Multi-tenancy
+      defaultTenantId: process.env.DEFAULT_TENANT_ID || 'no-tenant'
+    }
   },
 
   routeRules: {

@@ -18,11 +18,28 @@ const FIELD_LABELS: Record<string, string> = {
   'contact.lastSeenAt': 'Last Visit Date',
   'contact.createdAt': 'Sign-Up Date',
   'contact.birthday': 'Birthday',
+  'contact.tags': 'Tags',
   'event.sign_up.count': 'User Sign-Up',
   'event.purchase.count': 'Purchase',
   'event.page_view.count': 'Page View',
   'event.login.count': 'Login',
-  'event.add_to_cart.count': 'Add to Cart'
+  'event.add_to_cart.count': 'Add to Cart',
+  'device.platform': 'Platform',
+  'device.osVersion': 'OS Version',
+  'device.appVersion': 'App Version',
+  'device.deviceModel': 'Device Model',
+  'device.lastActiveAt': 'Last Active'
+}
+
+function getFieldLabel(field: string): string {
+  if (FIELD_LABELS[field]) return FIELD_LABELS[field]
+  if (field.startsWith('attribute.')) {
+    return field.replace('attribute.', '').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+  }
+  if (field.startsWith('event.') && field.endsWith('.count')) {
+    return field.slice(6, -6).replace(/[_.]/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+  }
+  return field
 }
 
 const OPERATOR_LABELS: Record<string, string> = {
@@ -101,7 +118,7 @@ function formatValue(rule: { field: string, operator: string, value: unknown }):
           class="mr-1"
         />
         <span class="font-medium text-zinc-900 dark:text-white">
-          {{ FIELD_LABELS[rule.field] || rule.field }}
+          {{ getFieldLabel(rule.field) }}
         </span>
         <span class="text-zinc-500">
           {{ getOperatorLabel(rule) }}

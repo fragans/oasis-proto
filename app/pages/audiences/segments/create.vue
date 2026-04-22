@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Segment, SegmentRuleGroup } from '~~/shared/types/contact'
+import type { Segment, SegmentRuleGroup, StandardSegmentCategory } from '~~/shared/types/contact'
 
 definePageMeta({ layout: 'default' })
 
@@ -13,7 +13,12 @@ const form = reactive({
   type: 'static' as 'static' | 'dynamic',
   tags: ''
 })
+const category = ref<StandardSegmentCategory | null>(null)
 const rules = ref<SegmentRuleGroup | null>(null)
+
+watch(category, () => {
+  rules.value = null
+})
 
 async function onCreate() {
   saving.value = true
@@ -23,6 +28,7 @@ async function onCreate() {
       body: {
         ...form,
         tags: form.tags ? form.tags.split(',').map(t => t.trim()) : [],
+        category: form.type === 'dynamic' ? category.value : undefined,
         ...(form.type === 'dynamic' && rules.value ? { rules: rules.value } : {})
       }
     })
@@ -88,10 +94,19 @@ async function onCreate() {
           </div>
         </div>
 
-        <!-- Rule Builder for Dynamic -->
+        <!-- Standard Segment Category for Dynamic -->
         <div v-if="form.type === 'dynamic'">
+          <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">Segment Category</label>
+          <SegmentCategoryPicker v-model="category" />
+        </div>
+
+        <!-- Rule Builder for Dynamic + Category selected -->
+        <div v-if="form.type === 'dynamic' && category">
           <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">Rules</label>
-          <SegmentRuleBuilder v-model="rules" />
+          <SegmentRuleBuilder
+            v-model="rules"
+            :category="category"
+          />
         </div>
       </div>
     </div>

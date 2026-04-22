@@ -7,13 +7,16 @@ export function useCampaign() {
 
   async function createCampaign(data: {
     name: string
+    tenantId?: string
+    campaignType?: string
+    templateType?: string
     description?: string
     objective?: string
     priority?: string
     startDate?: string
     endDate?: string
   }) {
-    return $fetch('/api/campaigns', {
+    return $fetch<{ id: string }>('/api/campaigns', {
       method: 'POST',
       body: data
     })

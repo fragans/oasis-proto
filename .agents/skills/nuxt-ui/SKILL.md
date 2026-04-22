@@ -142,6 +142,27 @@ export default defineNuxtConfig({
 <UIcon name="i-custom-my-icon" />
 ```
 
+## MCP Server
+
+Nuxt UI provides an official MCP server for AI assistants to access up-to-date component documentation, examples, and prompts.
+
+**Config:**
+```json
+{ "mcpServers": { "nuxt-ui": { "serverUrl": "https://ui.nuxt.com/mcp" } } }
+```
+
+**Available Tools:**
+- `search_components`: Find components by name/description.
+- `get_component`: Get full docs, examples, and API for a component.
+- `search_icons`: Find Iconify icons (defaults to lucide).
+- `list_templates` / `get_template`: Browse and setup starter templates.
+- `list_examples` / `get_example`: Browse and get code for UI examples.
+
+**Available Prompts:**
+- `find_component_for_usecase`
+- `implement_component_with_props`
+- `setup_project_with_template`
+
 ## Theming & Branding
 
 Nuxt UI ships with a default look. The goal is to adapt it to your brand so every app looks unique.

@@ -5,39 +5,46 @@ const navigation = [
   {
     label: 'Campaigns',
     icon: 'i-lucide-megaphone',
-    to: '/campaigns'
-  },
-  {
-    label: 'Audiences',
-    icon: 'i-lucide-users',
-    to: '/audiences',
+    to: '/campaigns',
     children: [
-      { label: 'Overview', to: '/audiences', icon: 'i-lucide-layout-dashboard' },
-      { label: 'Contacts', to: '/audiences/contacts', icon: 'i-lucide-contact' },
-      { label: 'Segments', to: '/audiences/segments', icon: 'i-lucide-layers' },
-      { label: 'Attributes', to: '/audiences/attributes', icon: 'i-lucide-tag' },
-      { label: 'Event Types', to: '/audiences/events', icon: 'i-lucide-zap' }
+      { label: 'On Site Message', to: '/campaigns/on-site-messages', icon: 'i-lucide-megaphone' },
+      { label: 'Creatives', to: '/creatives', icon: 'i-lucide-image' }
     ]
   },
-  {
-    label: 'Journeys',
-    icon: 'i-lucide-route',
-    to: '/journeys',
-    children: [
-      { label: 'All Journeys', to: '/journeys', icon: 'i-lucide-route' },
-      { label: 'Email Templates', to: '/journeys/templates', icon: 'i-lucide-mail' }
-    ]
-  },
-  {
-    label: 'Reports',
-    icon: 'i-lucide-bar-chart-3',
-    to: '/reports',
-    disabled: true
-  },
+  // {
+  //   label: 'Audiences',
+  //   icon: 'i-lucide-users',
+  //   to: '/audiences',
+  //   children: [
+  //     { label: 'Overview', to: '/audiences', icon: 'i-lucide-layout-dashboard' },
+  //     { label: 'Contacts', to: '/audiences/contacts', icon: 'i-lucide-contact' },
+  //     { label: 'Segments', to: '/audiences/segments', icon: 'i-lucide-layers' },
+  //     { label: 'Attributes', to: '/audiences/attributes', icon: 'i-lucide-tag' },
+  //     { label: 'Event Types', to: '/audiences/events', icon: 'i-lucide-zap' }
+  //   ]
+  // },
+  // {
+  //   label: 'Journeys',
+  //   icon: 'i-lucide-route',
+  //   to: '/journeys',
+  //   children: [
+  //     { label: 'All Journeys', to: '/journeys', icon: 'i-lucide-route' },
+  //     { label: 'Email Templates', to: '/journeys/templates', icon: 'i-lucide-mail' }
+  //   ]
+  // },
+  // {
+  //   label: 'Reports',
+  //   icon: 'i-lucide-bar-chart-3',
+  //   to: '/reports',
+  //   disabled: true
+  // },
   {
     label: 'Settings',
     icon: 'i-lucide-settings',
-    to: '/settings/api'
+    to: '/settings',
+    children: [
+      { label: 'General', to: '/settings', icon: 'i-lucide-settings' }
+    ]
   }
 ]
 
@@ -64,7 +71,9 @@ const breadcrumbs = computed(() => {
       <!-- Logo -->
       <div class="flex items-center justify-between h-16 px-4 border-b border-zinc-200 dark:border-zinc-800">
         <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
+          <div
+            class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-sm shrink-0"
+          >
             O
           </div>
           <span
@@ -178,7 +187,9 @@ const breadcrumbs = computed(() => {
     <!-- Main content -->
     <div class="flex-1 flex flex-col overflow-hidden">
       <!-- Header -->
-      <header class="flex items-center justify-between h-16 px-6 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+      <header
+        class="flex items-center justify-between h-16 px-6 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900"
+      >
         <UBreadcrumb :items="breadcrumbs" />
       </header>
 

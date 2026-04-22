@@ -1,0 +1,1 @@
+ALTER TABLE "campaigns" ALTER COLUMN "tenant_id" DROP DEFAULT;
