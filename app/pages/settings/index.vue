@@ -41,14 +41,22 @@ async function toggleLive(tenantId: string, currentStatus: boolean) {
   }
 }
 
-const deleteTarget = ref<any>(null)
+interface Tenant {
+  id: string
+  hostname: string
+  apiUrl: string
+  cookieName: string
+  isLive: boolean
+}
+
+const deleteTarget = ref<Tenant | null>(null)
 const deleting = ref(false)
 
 async function removeTenant() {
   if (!deleteTarget.value) return
   deleting.value = true
   try {
-    const response: any = await $fetch(`/api/tenants/${deleteTarget.value.id}`, {
+    const response = await $fetch<{ success: boolean, message: string }>(`/api/tenants/${deleteTarget.value.id}`, {
       method: 'DELETE'
     })
 
@@ -60,10 +68,10 @@ async function removeTenant() {
       })
       await refreshTenants()
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
     toast.add({
       title: 'Error',
-      description: err?.data?.statusMessage || 'Failed to delete tenant',
+      description: err instanceof Error ? err.message : 'Failed to delete tenant',
       color: 'error'
     })
   } finally {
@@ -100,10 +108,10 @@ async function createTenant() {
       newTenant.value = { id: '', hostname: '', apiUrl: '', cookieName: 'oasis_guid' }
       await refreshTenants()
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
     toast.add({
       title: 'Error',
-      description: err?.data?.statusMessage || 'Failed to create tenant',
+      description: err instanceof Error ? err.message : 'Failed to create tenant',
       color: 'error'
     })
   } finally {
@@ -267,7 +275,7 @@ async function createTenant() {
             Current Environment: <UBadge
               size="xs"
               variant="soft"
-              color="indigo"
+              color="neutral"
             >
               Staging
             </UBadge>

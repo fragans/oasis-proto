@@ -1,4 +1,3 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
@@ -22,7 +21,12 @@ export default defineNuxtConfig({
     obsAccessKeyId: process.env.OBS_ACCESS_KEY_ID || '',
     obsSecretAccessKey: process.env.OBS_SECRET_ACCESS_KEY || '',
     obsBucket: process.env.OBS_BUCKET || '',
-    obsCdnUrl: process.env.OBS_CDN_URL || ''
+    obsCdnUrl: process.env.OBS_CDN_URL || '',
+
+    public: {
+      // Multi-tenancy
+      defaultTenantId: process.env.DEFAULT_TENANT_ID || 'no-tenant'
+    }
   },
 
   routeRules: {

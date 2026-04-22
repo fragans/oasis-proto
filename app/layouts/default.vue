@@ -7,7 +7,8 @@ const navigation = [
     icon: 'i-lucide-megaphone',
     to: '/campaigns',
     children: [
-      { label: 'On Site Message', to: '/campaigns/on-site-messages', icon: 'i-lucide-megaphone' }
+      { label: 'On Site Message', to: '/campaigns/on-site-messages', icon: 'i-lucide-megaphone' },
+      { label: 'Creatives', to: '/creatives', icon: 'i-lucide-image' }
     ]
   },
   // {
