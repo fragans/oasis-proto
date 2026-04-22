@@ -1,7 +1,19 @@
 <script setup lang="ts">
 const route = useRoute()
 
-const navigation = [
+interface NavigationItem {
+  label: string
+  icon: string
+  to: string
+  disabled?: boolean
+  children?: {
+    label: string
+    to: string
+    icon: string
+  }[]
+}
+
+const navigation: NavigationItem[] = [
   {
     label: 'Campaigns',
     icon: 'i-lucide-megaphone',

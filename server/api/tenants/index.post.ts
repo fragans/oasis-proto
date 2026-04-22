@@ -25,6 +25,13 @@ export default defineEventHandler(async (event) => {
       isLive: false // Default to maintenance
     }).returning()
 
+    if (!tenant) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: 'Failed to create tenant'
+      })
+    }
+
     // Sync to KV immediately so the edge worker knows about this tenant config
     try {
       await syncTenantConfigToKV(tenant.id)
