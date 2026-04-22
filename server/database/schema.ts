@@ -42,7 +42,7 @@ export const tenants = pgTable('tenants', {
 export const campaigns = pgTable('campaigns', {
   id: uuid('id').primaryKey().defaultRandom(),
   // Multi-tenant scope
-  tenantId: varchar('tenant_id', { length: 255 }).references(() => tenants.id, { onDelete: 'cascade' }).notNull().default('kompasid'),
+  tenantId: varchar('tenant_id', { length: 255 }).references(() => tenants.id, { onDelete: 'cascade' }).notNull(),
   // Basic metadata
   name: varchar('name', { length: 255 }).notNull(),
   description: text('description'),
@@ -58,6 +58,8 @@ export const campaigns = pgTable('campaigns', {
   html: text('html'),
   trigger: jsonb('trigger').$type<{ mode: 'immediate' | 'scroll' | 'exit-intent', value?: number }>(),
   segment: varchar('segment', { length: 255 }),
+  targeting: jsonb('targeting').$type<import('~~/shared/types/campaign').Targeting | null>(),
+  goal: jsonb('goal').$type<import('~~/shared/types/campaign').CampaignGoal | null>(),
   // Testing flag (oasis_test=1 gate per campaign)
   isTestMode: boolean('is_test_mode').default(false).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),

@@ -50,6 +50,20 @@
       "when": 1776771099223,
       "tag": "0006_melodic_mordo",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1776862792326,
+      "tag": "0007_slow_sentinel",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1776878668558,
+      "tag": "0008_messy_anthem",
+      "breakpoints": true
     }
   ]
 }

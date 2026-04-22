@@ -4,11 +4,29 @@ export type CampaignStatus = 'draft' | 'scheduled' | 'active' | 'paused' | 'comp
 export type CampaignPriority = 'low' | 'medium' | 'high' | 'critical'
 export type CampaignType = 'sticky' | 'in-article' | 'popup'
 export type TriggerMode = 'immediate' | 'scroll' | 'exit-intent'
-export type TemplateType = 'coupon' | 'feedback_rating'
+export type TemplateType = 'promo-code' | 'feedback-rating' | 'modal-with-cta-redirect'
+export type DeviceType = 'mobile' | 'desktop' | 'tablet'
 
 export interface CampaignTrigger {
   mode: TriggerMode
   value?: number
+}
+export type TargetingRule
+  = | { kind: 'geo', countries?: string[], cities?: string[], regions?: string[], boundingBox?: { latMin: number, latMax: number, lonMin: number, lonMax: number } }
+    | { kind: 'device', types: DeviceType[] }
+    | { kind: 'login', state: 'logged-in' | 'anonymous' }
+    | { kind: 'page', match: 'equals' | 'starts-with' | 'contains' | 'regex', value: string }
+    | { kind: 'gtm-attr', key: string, op: 'equals' | 'contains', value: string }
+
+export interface Targeting {
+  operator: 'AND' | 'OR'
+  rules: TargetingRule[]
+}
+
+export interface CampaignGoal {
+  type: 'click'
+  selector: string
+  destinationUrl?: string
 }
 
 export interface Campaign {
@@ -28,6 +46,8 @@ export interface Campaign {
   html: string | null
   trigger: CampaignTrigger | null
   segment: string | null
+  targeting: Targeting | null
+  goal: CampaignGoal | null
   isTestMode: boolean
   createdAt: string
   updatedAt: string
@@ -76,6 +96,8 @@ export interface KVCampaign {
   type: CampaignType
   trigger: CampaignTrigger
   segment: string | null
+  targeting: Targeting | null
+  goal: CampaignGoal | null
   element_selector: string
   html: string
   isTestMode: boolean
@@ -94,9 +116,9 @@ export const CAMPAIGN_TEMPLATES: Record<TemplateType, {
     html: string
   }
 }> = {
-  coupon: {
-    label: 'Coupon Banner',
-    description: 'Bottom-center floating promo banner to drive subscriptions.',
+  'promo-code': {
+    label: 'Promo Code',
+    description: 'A floating banner with a discount code to drive conversions.',
     icon: 'i-lucide-tag',
     defaults: {
       campaignType: 'sticky',
@@ -113,9 +135,9 @@ export const CAMPAIGN_TEMPLATES: Record<TemplateType, {
 </div>`
     }
   },
-  feedback_rating: {
+  'feedback-rating': {
     label: 'Feedback Rating',
-    description: 'Ask readers to rate their experience with a star widget.',
+    description: 'Collect user feedback with a simple star rating widget.',
     icon: 'i-lucide-star',
     defaults: {
       campaignType: 'popup',
@@ -135,10 +157,79 @@ export const CAMPAIGN_TEMPLATES: Record<TemplateType, {
   <button style="width: 100%; padding: 14px; background: #1a56db; color: #fff; border: none; border-radius: 14px; cursor: pointer; font-size: 15px; font-weight: 600; box-shadow: 0 4px 6px -1px rgba(26, 86, 219, 0.2);">Submit Feedback</button>
 </div>`
     }
+  },
+  'modal-with-cta-redirect': {
+    label: 'Modal with CTA',
+    description: 'A large centered modal with a custom background and a call-to-action button.',
+    icon: 'i-lucide-layout-template',
+    defaults: {
+      campaignType: 'popup',
+      elementSelector: 'body',
+      trigger: { mode: 'immediate' },
+      html: `<div class="oasis-modal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999; font-family: system-ui, -apple-system, sans-serif;">
+  <div style="background: #fff; width: 100%; max-width: 500px; border-radius: 24px; overflow: hidden; position: relative; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
+    <div style="height: 240px; background-image: url('{{creativeUrl}}'); background-size: cover; background-position: center; background-color: #f3f4f6;"></div>
+    <div style="padding: 32px; text-align: center;">
+      <h3 style="margin: 0 0 12px; font-size: 24px; font-weight: 800; color: #111827;">Limited Time Offer</h3>
+      <p style="margin: 0 0 24px; font-size: 16px; color: #4b5563; line-height: 1.5;">Don't miss out on our latest updates and exclusive offers designed just for you.</p>
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <button data-oasis-goal="click" style="width: 100%; padding: 16px; background: #1a56db; color: #fff; border: none; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: 700; transition: background 0.2s;">Get Started Now</button>
+        <button onclick="this.getRootNode().host.style.display='none'" style="width: 100%; padding: 12px; background: transparent; color: #6b7280; border: none; cursor: pointer; font-size: 14px; font-weight: 500;">Maybe later</button>
+      </div>
+    </div>
+    <button onclick="this.getRootNode().host.style.display='none'" style="position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; border-radius: 50%; background: rgba(0,0,0,0.1); border: none; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px;">&times;</button>
+  </div>
+</div>`
+    }
   }
 }
 
 // ─── Zod Validation Schemas ──────────────────────────────────────────────────────
+
+export const targetingRuleSchema = z.discriminatedUnion('kind', [
+  z.object({
+    kind: z.literal('geo'),
+    countries: z.array(z.string()).optional(),
+    cities: z.array(z.string()).optional(),
+    regions: z.array(z.string()).optional(),
+    boundingBox: z.object({
+      latMin: z.number(),
+      latMax: z.number(),
+      lonMin: z.number(),
+      lonMax: z.number()
+    }).optional()
+  }),
+  z.object({
+    kind: z.literal('device'),
+    types: z.array(z.enum(['mobile', 'desktop', 'tablet']))
+  }),
+  z.object({
+    kind: z.literal('login'),
+    state: z.enum(['logged-in', 'anonymous'])
+  }),
+  z.object({
+    kind: z.literal('page'),
+    match: z.enum(['equals', 'starts-with', 'contains', 'regex']),
+    value: z.string()
+  }),
+  z.object({
+    kind: z.literal('gtm-attr'),
+    key: z.string(),
+    op: z.enum(['equals', 'contains']),
+    value: z.string()
+  })
+])
+
+export const targetingSchema = z.object({
+  operator: z.enum(['AND', 'OR']).default('AND'),
+  rules: z.array(targetingRuleSchema)
+})
+
+export const campaignGoalSchema = z.object({
+  type: z.literal('click'),
+  selector: z.string(),
+  destinationUrl: z.string().url().optional()
+})
 
 export const campaignTriggerSchema = z.object({
   mode: z.enum(['immediate', 'scroll', 'exit-intent']),
@@ -148,20 +239,22 @@ export const campaignTriggerSchema = z.object({
 export const createCampaignSchema = z.object({
   // Basic metadata
   name: z.string().min(1).max(255),
-  description: z.string().optional(),
-  objective: z.string().max(255).optional(),
+  description: z.string().nullable().optional(),
+  objective: z.string().max(255).nullable().optional(),
   priority: z.enum(['low', 'medium', 'high', 'critical']).default('medium'),
-  startDate: z.string().datetime().optional(),
-  endDate: z.string().datetime().optional(),
+  startDate: z.string().datetime().nullable().optional(),
+  endDate: z.string().datetime().nullable().optional(),
   // Multi-tenant
-  tenantId: z.string().min(1).default('kompasid'),
+  tenantId: z.string().min(1),
   // Edge-worker delivery fields
-  templateType: z.enum(['coupon', 'feedback_rating']).optional(),
+  templateType: z.enum(['promo-code', 'feedback-rating', 'modal-with-cta-redirect']).nullable().optional(),
   campaignType: z.enum(['sticky', 'in-article', 'popup']).default('sticky'),
-  elementSelector: z.string().optional(),
-  html: z.string().optional(),
-  trigger: campaignTriggerSchema.optional(),
-  segment: z.string().optional(), // null = show to all users
+  elementSelector: z.string().nullable().optional(),
+  html: z.string().nullable().optional(),
+  trigger: campaignTriggerSchema.nullable().optional(),
+  segment: z.string().nullable().optional(), // null = show to all users
+  targeting: targetingSchema.nullable().optional(),
+  goal: campaignGoalSchema.nullable().optional(),
   isTestMode: z.boolean().default(false)
 })
 
@@ -184,7 +277,7 @@ export const STATUS_TRANSITIONS: Record<CampaignStatus, CampaignStatus[]> = {
   completed: []
 }
 
-export const STATUS_COLORS: Record<CampaignStatus, string> = {
+export const STATUS_COLORS: Record<CampaignStatus, 'error' | 'neutral' | 'primary' | 'secondary' | 'success' | 'info' | 'warning'> = {
   active: 'success',
   scheduled: 'warning',
   draft: 'neutral',
@@ -200,7 +293,7 @@ export const STATUS_ICONS: Record<CampaignStatus, string> = {
   completed: 'i-lucide-check-circle'
 }
 
-export const PRIORITY_COLORS: Record<CampaignPriority, string> = {
+export const PRIORITY_COLORS: Record<CampaignPriority, 'error' | 'neutral' | 'primary' | 'secondary' | 'success' | 'info' | 'warning'> = {
   low: 'neutral',
   medium: 'info',
   high: 'warning',
