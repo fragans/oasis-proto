@@ -53,6 +53,8 @@ async function onClone(id: string) {
   refresh()
 }
 
+const showCreateModal = ref(false)
+
 function formatDate(date: string | null) {
   if (!date) return '—'
   return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
@@ -60,12 +62,51 @@ function formatDate(date: string | null) {
 
 function getRowActions(campaign: Campaign) {
   return [
-    { label: 'View', icon: 'i-lucide-eye', onSelect() { router.push(`/campaigns/on-site-messages/${campaign.id}`) } },
+    { label: 'Edit', icon: 'i-lucide-pencil', onSelect() { router.push(`/campaigns/on-site-messages/${campaign.id}/wizard/template`) } },
     { label: 'Clone', icon: 'i-lucide-copy', onSelect() { onClone(campaign.id) } },
     { type: 'separator' as const },
     { label: 'Delete', icon: 'i-lucide-trash-2', onSelect() { deleteTarget.value = campaign } }
   ]
 }
+
+const columns = [
+  {
+    id: 'select',
+    meta: {
+      class: {
+        th: 'w-10'
+      }
+    }
+  },
+  {
+    accessorKey: 'name',
+    header: 'Name'
+  },
+  {
+    accessorKey: 'status',
+    header: 'Status'
+  },
+  {
+    accessorKey: 'priority',
+    header: 'Priority'
+  },
+  {
+    id: 'dateRange',
+    header: 'Date Range'
+  },
+  {
+    accessorKey: 'updatedAt',
+    header: 'Updated'
+  },
+  {
+    id: 'actions',
+    meta: {
+      class: {
+        th: 'w-10'
+      }
+    }
+  }
+]
 </script>
 
 <template>
@@ -84,7 +125,7 @@ function getRowActions(campaign: Campaign) {
         icon="i-lucide-plus"
         label="New Message"
         color="primary"
-        to="/campaigns/on-site-messages/create"
+        @click="showCreateModal = true"
       />
     </div>
 
@@ -105,129 +146,94 @@ function getRowActions(campaign: Campaign) {
     />
 
     <!-- Table -->
-    <div class="border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden bg-white dark:bg-zinc-900">
-      <table class="w-full text-sm">
-        <thead class="bg-zinc-50 dark:bg-zinc-800/50">
-          <tr>
-            <th class="w-10 px-4 py-3">
-              <input
-                type="checkbox"
-                :checked="selected.length === campaigns.length && campaigns.length > 0"
-                :indeterminate="selected.length > 0 && selected.length < campaigns.length"
-                class="rounded border-zinc-300"
-                @change="toggleAll"
-              >
-            </th>
-            <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">
-              Name
-            </th>
-            <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">
-              Status
-            </th>
-            <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">
-              Priority
-            </th>
-            <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">
-              Date Range
-            </th>
-            <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">
-              Updated
-            </th>
-            <th class="w-10 px-4 py-3" />
-          </tr>
-        </thead>
-        <tbody
-          v-if="loading"
-          class="divide-y divide-zinc-100 dark:divide-zinc-800"
+    <UTable
+      :data="campaigns"
+      :columns="columns"
+      :loading="loading"
+      class="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-900 overflow-hidden"
+      :ui="{
+        td: 'px-4 py-3',
+        th: 'px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-800/50'
+      }"
+    >
+      <template #select-header>
+        <UCheckbox
+          :model-value="selected.length === campaigns.length && campaigns.length > 0"
+          :indeterminate="selected.length > 0 && selected.length < campaigns.length"
+          @update:model-value="toggleAll"
+        />
+      </template>
+
+      <template #select-cell="{ row }">
+        <UCheckbox
+          :model-value="selected.includes(row.original.id)"
+          @update:model-value="toggleSelect(row.original.id)"
+        />
+      </template>
+
+      <template #name-cell="{ row }">
+        <NuxtLink
+          :to="`/campaigns/on-site-messages/${row.original.id}/wizard/template`"
+          class="font-medium text-zinc-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400"
         >
-          <tr
-            v-for="i in 5"
-            :key="i"
-          >
-            <td
-              colspan="7"
-              class="px-4 py-4"
-            >
-              <div class="h-4 bg-zinc-100 dark:bg-zinc-800 rounded animate-pulse" />
-            </td>
-          </tr>
-        </tbody>
-        <tbody v-else-if="campaigns.length === 0">
-          <tr>
-            <td
-              colspan="7"
-              class="px-4 py-16 text-center"
-            >
-              <UIcon
-                name="i-lucide-megaphone"
-                class="w-12 h-12 mx-auto mb-4 text-zinc-300 dark:text-zinc-700"
-              />
-              <p class="text-zinc-600 dark:text-zinc-400 font-medium">
-                No messages yet
-              </p>
-              <p class="text-sm text-zinc-400 mt-1 mb-4">
-                Create your first message to get started
-              </p>
-              <UButton
-                to="/campaigns/on-site-messages/create"
-                label="Create Message"
-                color="primary"
-                size="sm"
-              />
-            </td>
-          </tr>
-        </tbody>
-        <tbody
-          v-else
-          class="divide-y divide-zinc-100 dark:divide-zinc-800"
-        >
-          <tr
-            v-for="campaign in campaigns"
-            :key="campaign.id"
-            class="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
-          >
-            <td class="px-4 py-3">
-              <input
-                type="checkbox"
-                :checked="selected.includes(campaign.id)"
-                class="rounded border-zinc-300"
-                @change="toggleSelect(campaign.id)"
-              >
-            </td>
-            <td class="px-4 py-3">
-              <NuxtLink
-                :to="`/campaigns/on-site-messages/${campaign.id}`"
-                class="font-medium text-zinc-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400"
-              >
-                {{ campaign.name }}
-              </NuxtLink>
-            </td>
-            <td class="px-4 py-3">
-              <CampaignStatusBadge :status="campaign.status" />
-            </td>
-            <td class="px-4 py-3 capitalize text-zinc-600 dark:text-zinc-400">
-              {{ campaign.priority }}
-            </td>
-            <td class="px-4 py-3 text-zinc-600 dark:text-zinc-400">
-              {{ formatDate(campaign.startDate) }} — {{ formatDate(campaign.endDate) }}
-            </td>
-            <td class="px-4 py-3 text-zinc-500">
-              {{ formatDate(campaign.updatedAt) }}
-            </td>
-            <td class="px-4 py-3">
-              <UDropdownMenu :items="getRowActions(campaign)">
-                <UButton
-                  icon="i-lucide-more-horizontal"
-                  variant="ghost"
-                  color="neutral"
-                  size="xs"
-                />
-              </UDropdownMenu>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+          {{ row.original.name }}
+        </NuxtLink>
+      </template>
+
+      <template #status-cell="{ row }">
+        <CampaignStatusBadge :status="row.original.status" />
+      </template>
+
+      <template #priority-cell="{ row }">
+        <span class="capitalize text-zinc-600 dark:text-zinc-400">
+          {{ row.original.priority }}
+        </span>
+      </template>
+
+      <template #dateRange-cell="{ row }">
+        <span class="text-zinc-600 dark:text-zinc-400">
+          {{ formatDate(row.original.startDate) }} — {{ formatDate(row.original.endDate) }}
+        </span>
+      </template>
+
+      <template #updatedAt-cell="{ row }">
+        <span class="text-zinc-500">
+          {{ formatDate(row.original.updatedAt) }}
+        </span>
+      </template>
+
+      <template #actions-cell="{ row }">
+        <UDropdownMenu :items="getRowActions(row.original)">
+          <UButton
+            icon="i-lucide-more-horizontal"
+            variant="ghost"
+            color="neutral"
+            size="xs"
+          />
+        </UDropdownMenu>
+      </template>
+
+      <template #empty>
+        <div class="px-4 py-16 text-center">
+          <UIcon
+            name="i-lucide-megaphone"
+            class="w-12 h-12 mx-auto mb-4 text-zinc-300 dark:text-zinc-700"
+          />
+          <p class="text-zinc-600 dark:text-zinc-400 font-medium">
+            No messages yet
+          </p>
+          <p class="text-sm text-zinc-400 mt-1 mb-4">
+            Create your first message to get started
+          </p>
+          <UButton
+            label="Create Message"
+            color="primary"
+            size="sm"
+            @click="showCreateModal = true"
+          />
+        </div>
+      </template>
+    </UTable>
 
     <!-- Pagination -->
     <div
@@ -235,7 +241,8 @@ function getRowActions(campaign: Campaign) {
       class="flex items-center justify-between"
     >
       <p class="text-sm text-zinc-500">
-        Showing {{ (filters.page - 1) * filters.limit + 1 }}–{{ Math.min(filters.page * filters.limit, total) }} of {{ total }}
+        Showing {{ (filters.page - 1) * filters.limit + 1 }}–{{ Math.min(filters.page * filters.limit, total) }} of {{
+          total }}
       </p>
       <UPagination
         v-model="filters.page"
@@ -255,5 +262,6 @@ function getRowActions(campaign: Campaign) {
       @update:open="deleteTarget = null"
       @confirm="onDelete"
     />
+    <CampaignOsmCreateNameModal v-model:open="showCreateModal" />
   </div>
 </template>
