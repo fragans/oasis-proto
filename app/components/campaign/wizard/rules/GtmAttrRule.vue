@@ -2,6 +2,7 @@
 const props = defineProps<{
   modelValue: {
     kind: 'gtm-attr'
+    event?: string
     key: string
     op: 'equals' | 'contains'
     value: string
@@ -9,6 +10,11 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits(['update:modelValue'])
+
+const event = computed({
+  get: () => props.modelValue.event || '',
+  set: val => emit('update:modelValue', { ...props.modelValue, event: val || undefined })
+})
 
 const key = computed({
   get: () => props.modelValue.key,
@@ -32,21 +38,33 @@ const opOptions = [
 </script>
 
 <template>
-  <div class="flex gap-4">
-    <UInput
-      v-model="key"
-      placeholder="dataLayer key (e.g. userTier)"
-      class="flex-1"
-    />
-    <USelect
-      v-model="op"
-      :options="opOptions"
-      class="w-40"
-    />
-    <UInput
-      v-model="value"
-      placeholder="Expected value"
-      class="flex-1"
-    />
+  <div class="flex flex-col gap-4">
+    <div class="flex gap-4">
+      <UInput
+        v-model="event"
+        placeholder="Event Name (e.g. page_viewed) - Optional"
+        class="flex-1"
+        icon="i-lucide-activity"
+      />
+    </div>
+    <div class="flex gap-4">
+      <UInput
+        v-model="key"
+        placeholder="dataLayer key (e.g. userTier)"
+        class="flex-1"
+        icon="i-lucide-key"
+      />
+      <USelect
+        v-model="op"
+        :options="opOptions"
+        class="w-40"
+      />
+      <UInput
+        v-model="value"
+        placeholder="Expected value"
+        class="flex-1"
+        icon="i-lucide-tag"
+      />
+    </div>
   </div>
 </template>

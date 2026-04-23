@@ -16,7 +16,7 @@ export type TargetingRule
     | { kind: 'device', types: DeviceType[] }
     | { kind: 'login', state: 'logged-in' | 'anonymous' }
     | { kind: 'page', match: 'equals' | 'starts-with' | 'contains' | 'regex', value: string }
-    | { kind: 'gtm-attr', key: string, op: 'equals' | 'contains', value: string }
+    | { kind: 'gtm-attr', event?: string, key: string, op: 'equals' | 'contains', value: string }
 
 export interface Targeting {
   operator: 'AND' | 'OR'
@@ -214,6 +214,7 @@ export const targetingRuleSchema = z.discriminatedUnion('kind', [
   }),
   z.object({
     kind: z.literal('gtm-attr'),
+    event: z.string().optional(),
     key: z.string(),
     op: z.enum(['equals', 'contains']),
     value: z.string()
