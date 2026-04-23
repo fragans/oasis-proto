@@ -79,45 +79,6 @@ async function removeTenant() {
     deleteTarget.value = null
   }
 }
-
-// Create Tenant
-const showCreateModal = ref(false)
-const creating = ref(false)
-const newTenant = ref({
-  id: '',
-  hostname: '',
-  apiUrl: '',
-  cookieName: 'oasis_guid'
-})
-
-async function createTenant() {
-  creating.value = true
-  try {
-    const response = await $fetch('/api/tenants', {
-      method: 'POST',
-      body: newTenant.value
-    })
-
-    if (response.success) {
-      toast.add({
-        title: 'Success',
-        description: `Tenant ${newTenant.value.id} created successfully`,
-        color: 'success'
-      })
-      showCreateModal.value = false
-      newTenant.value = { id: '', hostname: '', apiUrl: '', cookieName: 'oasis_guid' }
-      await refreshTenants()
-    }
-  } catch (err: unknown) {
-    toast.add({
-      title: 'Error',
-      description: err instanceof Error ? err.message : 'Failed to create tenant',
-      color: 'error'
-    })
-  } finally {
-    creating.value = false
-  }
-}
 </script>
 
 <template>
@@ -135,7 +96,7 @@ async function createTenant() {
         icon="i-lucide-plus"
         label="Add Tenant"
         color="primary"
-        @click="showCreateModal = true"
+        to="/settings/tenants/create"
       />
     </div>
 
@@ -257,41 +218,37 @@ async function createTenant() {
     </div>
 
     <!-- Info Card -->
-    <UCard>
-      <div class="flex gap-4">
-        <div class="shrink-0">
-          <UIcon
-            name="i-lucide-info"
-            class="w-6 h-6 text-indigo-500"
-          />
-        </div>
-
-        <div class="space-y-3">
-          <h3 class="text-sm font-semibold text-indigo-900 uppercase tracking-wide">
-            Edge Synchronization
-          </h3>
-
-          <p class="text-sm text-zinc-600 leading-relaxed">
-            Changing the <strong>Live Mode</strong> status automatically triggers a synchronization to the Cloudflare
-            Edge
-            KV.
-            The <code>oasis-edge</code> worker uses this flag to determine if it should serve personalized content or
-            act as
-            a transparent proxy.
-          </p>
-          <USeparator />
-          <div class="text-xs text-zinc-500 pt-2">
-            Current Environment: <UBadge
-              size="xs"
-              variant="soft"
-              color="neutral"
-            >
-              Staging
-            </UBadge>
+    <div class="fixed bottom-4 right-4">
+      <div class="max-w-md mx-auto">
+        <UCard variant="subtle">
+          <div class="flex gap-4">
+            <div class="space-y-3">
+              <h3 class="text-sm font-semibold text-indigo-900 uppercase tracking-wide">
+                Edge Synchronization
+              </h3>
+              <p class="text-sm text-zinc-600 leading-relaxed">
+                Changing the <strong>Live Mode</strong> status automatically triggers a synchronization to the Cloudflare
+                Edge
+                KV.
+                The <code>oasis-edge</code> worker uses this flag to determine if it should serve personalized content or
+                act as
+                a transparent proxy.
+              </p>
+              <USeparator />
+              <div class="text-xs text-zinc-500 pt-2">
+                Current Environment: <UBadge
+                  size="xs"
+                  variant="soft"
+                  color="neutral"
+                >
+                  Staging
+                </UBadge>
+              </div>
+            </div>
           </div>
-        </div>
+        </UCard>
       </div>
-    </UCard>
+    </div>
 
     <!-- Delete Confirmation -->
     <CampaignConfirmDialog
@@ -304,72 +261,5 @@ async function createTenant() {
       @update:open="deleteTarget = null"
       @confirm="removeTenant"
     />
-
-    <!-- Create Tenant Modal -->
-    <UModal
-      v-model:open="showCreateModal"
-      title="Add New Property"
-    >
-      <template #body>
-        <form
-          class="space-y-4"
-          @submit.prevent="createTenant"
-        >
-          <UFormField
-            label="Unique ID"
-            help="Internal slug, e.g. 'kompasid-staging'"
-          >
-            <UInput
-              v-model="newTenant.id"
-              placeholder="tenant-id"
-            />
-          </UFormField>
-
-          <UFormField
-            label="Public Hostname"
-            help="The domain bound to the Cloudflare Worker"
-          >
-            <UInput
-              v-model="newTenant.hostname"
-              placeholder="oasis-edge.example.com"
-            />
-          </UFormField>
-
-          <UFormField
-            label="Origin URL (Host Target)"
-            help="Where the worker fetches content from"
-          >
-            <UInput
-              v-model="newTenant.apiUrl"
-              placeholder="https://www.example.com"
-            />
-          </UFormField>
-
-          <UFormField
-            label="Storage Cookie"
-            help="Name of the cookie to store the GUID"
-          >
-            <UInput
-              v-model="newTenant.cookieName"
-              placeholder="oasis_guid"
-            />
-          </UFormField>
-
-          <div class="flex justify-end gap-3 mt-6">
-            <UButton
-              variant="ghost"
-              label="Cancel"
-              @click="showCreateModal = false"
-            />
-            <UButton
-              type="submit"
-              label="Create Tenant"
-              color="primary"
-              :loading="creating"
-            />
-          </div>
-        </form>
-      </template>
-    </UModal>
   </div>
 </template>
