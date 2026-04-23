@@ -87,6 +87,16 @@ const breadcrumbs = computed(() => {
         class="flex items-center justify-between h-16 px-6 shrink-0"
       >
         <UBreadcrumb :items="breadcrumbs" />
+
+        <div class="flex items-center gap-4">
+          <UButton
+            to="/workflow"
+            icon="i-lucide-book-open-text"
+            color="neutral"
+            variant="outline"
+            size="sm"
+          />
+        </div>
       </header>
 
       <!-- Page content -->

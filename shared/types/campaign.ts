@@ -4,7 +4,7 @@ export type CampaignStatus = 'draft' | 'scheduled' | 'active' | 'paused' | 'comp
 export type CampaignPriority = 'low' | 'medium' | 'high' | 'critical'
 export type CampaignType = 'sticky' | 'in-article' | 'popup'
 export type TriggerMode = 'immediate' | 'scroll' | 'exit-intent'
-export type TemplateType = 'promo-code' | 'feedback-rating' | 'modal-with-cta-redirect'
+export type TemplateType = 'promo-code' | 'modal-with-cta-redirect'
 export type DeviceType = 'mobile' | 'desktop' | 'tablet'
 
 export interface CampaignTrigger {
@@ -135,29 +135,7 @@ export const CAMPAIGN_TEMPLATES: Record<TemplateType, {
 </div>`
     }
   },
-  'feedback-rating': {
-    label: 'Feedback Rating',
-    description: 'Collect user feedback with a simple star rating widget.',
-    icon: 'i-lucide-star',
-    defaults: {
-      campaignType: 'popup',
-      elementSelector: 'body',
-      trigger: { mode: 'scroll', value: 70 },
-      html: `<div class="oasis-rating" style="position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #fff; color: #111827; padding: 28px; border-radius: 24px; width: 340px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); border: 1px solid #f3f4f6; z-index: 9999; font-family: system-ui, -apple-system, sans-serif; text-align: center;">
-  <button onclick="this.getRootNode().host.style.display='none'" style="position: absolute; top: 16px; right: 16px; background: none; border: none; color: #9ca3af; cursor: pointer; font-size: 22px; line-height: 1;">&times;</button>
-  <p style="font-weight: 700; margin: 0 0 8px; font-size: 19px; color: #111827; letter-spacing: -0.02em;">How was the read?</p>
-  <p style="margin: 0 0 24px; font-size: 14px; color: #6b7280;">Your feedback helps us deliver better content.</p>
-  <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 28px; font-size: 32px; cursor: pointer;">
-    <style>
-      .star { opacity: 0.4; transition: all 0.2s ease; }
-      .star:hover { opacity: 1; transform: scale(1.2); }
-    </style>
-    <span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span>
-  </div>
-  <button style="width: 100%; padding: 14px; background: #1a56db; color: #fff; border: none; border-radius: 14px; cursor: pointer; font-size: 15px; font-weight: 600; box-shadow: 0 4px 6px -1px rgba(26, 86, 219, 0.2);">Submit Feedback</button>
-</div>`
-    }
-  },
+
   'modal-with-cta-redirect': {
     label: 'Modal with CTA',
     description: 'A large centered modal with a custom background and a call-to-action button.',
@@ -170,11 +148,11 @@ export const CAMPAIGN_TEMPLATES: Record<TemplateType, {
   <div style="background: #fff; width: 100%; max-width: 500px; border-radius: 24px; overflow: hidden; position: relative; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
     <div style="height: 240px; background-image: url('{{creativeUrl}}'); background-size: cover; background-position: center; background-color: #f3f4f6;"></div>
     <div style="padding: 32px; text-align: center;">
-      <h3 style="margin: 0 0 12px; font-size: 24px; font-weight: 800; color: #111827;">Limited Time Offer</h3>
-      <p style="margin: 0 0 24px; font-size: 16px; color: #4b5563; line-height: 1.5;">Don't miss out on our latest updates and exclusive offers designed just for you.</p>
+      <h3 style="margin: 0 0 12px; font-size: 24px; font-weight: 800; color: #111827;">{{title}}</h3>
+      <p style="margin: 0 0 24px; font-size: 16px; color: #4b5563; line-height: 1.5;">{{description}}</p>
       <div style="display: flex; flex-direction: column; gap: 12px;">
-        <button data-oasis-goal="click" style="width: 100%; padding: 16px; background: #1a56db; color: #fff; border: none; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: 700; transition: background 0.2s;">Get Started Now</button>
-        <button onclick="this.getRootNode().host.style.display='none'" style="width: 100%; padding: 12px; background: transparent; color: #6b7280; border: none; cursor: pointer; font-size: 14px; font-weight: 500;">Maybe later</button>
+        <a href="{{ctaLink}}" data-oasis-goal="click" style="display: block; width: 100%; padding: 16px; background: #1a56db; color: #fff; border: none; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: 700; transition: background 0.2s; text-decoration: none; box-sizing: border-box;">{{ctaPositive}}</a>
+        <button onclick="this.getRootNode().host.style.display='none'" style="width: 100%; padding: 12px; background: transparent; color: #6b7280; border: none; cursor: pointer; font-size: 14px; font-weight: 500;">{{ctaNegative}}</button>
       </div>
     </div>
     <button onclick="this.getRootNode().host.style.display='none'" style="position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; border-radius: 50%; background: rgba(0,0,0,0.1); border: none; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px;">&times;</button>
@@ -248,7 +226,7 @@ export const baseCampaignSchema = z.object({
   // Multi-tenant
   tenantId: z.string().min(1),
   // Edge-worker delivery fields
-  templateType: z.enum(['promo-code', 'feedback-rating', 'modal-with-cta-redirect']).nullable().optional(),
+  templateType: z.enum(['promo-code', 'modal-with-cta-redirect']).nullable().optional(),
   campaignType: z.enum(['sticky', 'in-article', 'popup']),
   elementSelector: z.string().nullable().optional(),
   html: z.string().nullable().optional(),
