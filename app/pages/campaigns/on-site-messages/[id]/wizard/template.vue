@@ -14,6 +14,14 @@ const selectedTemplate = ref<TemplateType | null>(null)
 const selectedCreativeUrl = ref<string | null>(null)
 const showCreativePicker = ref(false)
 
+const modalProps = ref({
+  title: 'Limited Time Offer',
+  description: 'Don\'t miss out on our latest updates and exclusive offers designed just for you.',
+  ctaPositive: 'Get Started Now',
+  ctaNegative: 'Maybe later',
+  ctaLink: 'https://example.com'
+})
+
 // Sync from campaign data only once when loaded
 watch(campaign, (newCampaign) => {
   if (!newCampaign) return
@@ -23,18 +31,44 @@ watch(campaign, (newCampaign) => {
     selectedTemplate.value = tplType
   }
 
-  // Restore creative URL if it's the modal-with-cta-redirect template
-  if (selectedTemplate.value === 'modal-with-cta-redirect' && !selectedCreativeUrl.value) {
-    // 1. Try from creatives array (if it was uploaded/attached properly)
-    const creatives = (newCampaign as CampaignWithCreatives).creatives
-    if (creatives && creatives.length > 0) {
-      selectedCreativeUrl.value = creatives[0]?.fileUrl || null
-    // 2. Fallback: Parse from existing HTML if creatives array is empty
-    } else if (newCampaign.html) {
-      const match = newCampaign.html.match(/background-image: url\(['"]?(.*?)['"]?\)/)
-      if (match && match[1] && match[1] !== '{{creativeUrl}}') {
-        selectedCreativeUrl.value = match[1]
+  // Restore props if it's the modal-with-cta-redirect template
+  if (selectedTemplate.value === 'modal-with-cta-redirect') {
+    // 1. Restore Creative URL
+    if (!selectedCreativeUrl.value) {
+      const creatives = (newCampaign as CampaignWithCreatives).creatives
+      if (creatives && creatives.length > 0) {
+        selectedCreativeUrl.value = creatives[0]?.fileUrl || null
+      } else if (newCampaign.html) {
+        const match = newCampaign.html.match(/background-image: url\(['"]?(.*?)['"]?\)/)
+        if (match && match[1] && match[1] !== '{{creativeUrl}}') {
+          selectedCreativeUrl.value = match[1]
+        }
       }
+    }
+
+    // 2. Restore Text Props from HTML if available
+    if (newCampaign.html) {
+      const titleMatch = newCampaign.html.match(/<h3[^>]*>(.*?)<\/h3>/)
+      if (titleMatch?.[1]) modalProps.value.title = titleMatch[1]
+
+      const descMatch = newCampaign.html.match(/<p[^>]*>(.*?)<\/p>/)
+      if (descMatch?.[1]) modalProps.value.description = descMatch[1]
+
+      const positiveMatch = newCampaign.html.match(/<[ab][^>]*data-oasis-goal="click"[^>]*>(.*?)<\/[ab]>/)
+      if (positiveMatch?.[1]) modalProps.value.ctaPositive = positiveMatch[1]
+
+      const negativeMatch = newCampaign.html.match(/<button[^>]*background: transparent;[^>]*>(.*?)<\/button>/)
+      if (negativeMatch?.[1]) modalProps.value.ctaNegative = negativeMatch[1]
+
+      const linkMatch = newCampaign.html.match(/href="([^"]*)"/)
+      if (linkMatch?.[1] && linkMatch[1] !== '{{ctaLink}}') {
+        modalProps.value.ctaLink = linkMatch[1]
+      }
+    }
+
+    // 3. Sync from Goal if available (takes priority for the link)
+    if (newCampaign.goal?.destinationUrl) {
+      modalProps.value.ctaLink = newCampaign.goal.destinationUrl
     }
   }
 }, { immediate: true })
@@ -49,11 +83,15 @@ const previewHtml = computed(() => {
   const tpl = CAMPAIGN_TEMPLATES[selectedTemplate.value]
   let html = tpl.defaults.html
 
-  if (selectedTemplate.value === 'modal-with-cta-redirect' && selectedCreativeUrl.value) {
-    html = html.replace('{{creativeUrl}}', selectedCreativeUrl.value)
-  } else if (selectedTemplate.value === 'modal-with-cta-redirect') {
-    // Placeholder if no creative selected yet
-    html = html.replace('{{creativeUrl}}', 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop')
+  if (selectedTemplate.value === 'modal-with-cta-redirect') {
+    const creativeUrl = selectedCreativeUrl.value || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop'
+    html = html
+      .replace('{{creativeUrl}}', creativeUrl)
+      .replace('{{title}}', modalProps.value.title)
+      .replace('{{description}}', modalProps.value.description)
+      .replace('{{ctaPositive}}', modalProps.value.ctaPositive)
+      .replace('{{ctaNegative}}', modalProps.value.ctaNegative)
+      .replace('{{ctaLink}}', modalProps.value.ctaLink)
   }
 
   return html
@@ -80,14 +118,27 @@ async function handleNext() {
 
   if (selectedTemplate.value === 'modal-with-cta-redirect') {
     const creativeUrl = selectedCreativeUrl.value || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop'
-    html = html.replace('{{creativeUrl}}', creativeUrl)
+    html = html
+      .replace('{{creativeUrl}}', creativeUrl)
+      .replace('{{title}}', modalProps.value.title)
+      .replace('{{description}}', modalProps.value.description)
+      .replace('{{ctaPositive}}', modalProps.value.ctaPositive)
+      .replace('{{ctaNegative}}', modalProps.value.ctaNegative)
+      .replace('{{ctaLink}}', modalProps.value.ctaLink)
   }
 
   await patch({
     templateType: selectedTemplate.value,
     campaignType: tpl.defaults.campaignType,
     elementSelector: tpl.defaults.elementSelector,
-    html
+    html,
+    goal: selectedTemplate.value === 'modal-with-cta-redirect'
+      ? {
+          type: 'click',
+          selector: '[data-oasis-goal="click"]',
+          destinationUrl: modalProps.value.ctaLink
+        }
+      : campaign.value?.goal
   })
 
   router.push(`/campaigns/on-site-messages/${campaignId}/wizard/target`)
@@ -116,52 +167,105 @@ async function handleNext() {
             @select="handleSelectTemplate"
           />
         </div>
-
-        <div
-          v-if="selectedTemplate === 'modal-with-cta-redirect'"
-          class="p-6 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/10 border border-indigo-100 dark:border-indigo-900/50"
-        >
-          <div class="flex items-center justify-between gap-4">
-            <div class="flex items-center gap-4">
-              <div class="w-20 h-20 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 overflow-hidden shrink-0 flex items-center justify-center">
-                <img
-                  v-if="selectedCreativeUrl"
-                  :src="selectedCreativeUrl"
-                  class="w-full h-full object-cover"
-                >
-                <div
-                  v-else
-                  class="text-zinc-400"
-                >
-                  <UIcon
-                    name="i-lucide-image"
-                    class="w-10 h-10"
-                  />
+        <div class="space-y-1">
+          <h2 class="text-2xl font-bold text-zinc-900 dark:text-white">
+            Design Custom Template
+          </h2>
+          <p class="text-zinc-500">
+            Edit the props to customize the template
+          </p>
+        </div>
+        <UCard variant="outline">
+          <div
+            v-if="selectedTemplate === 'modal-with-cta-redirect'"
+            class="space-y-6"
+          >
+            <div class="p-6 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/10 border border-indigo-100 dark:border-indigo-900/50">
+              <div class="flex items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                  <div class="w-20 h-20 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 overflow-hidden shrink-0 flex items-center justify-center">
+                    <img
+                      v-if="selectedCreativeUrl"
+                      :src="selectedCreativeUrl"
+                      class="w-full h-full object-cover"
+                    >
+                    <div
+                      v-else
+                      class="text-zinc-400"
+                    >
+                      <UIcon
+                        name="i-lucide-image"
+                        class="w-10 h-10"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <p class="font-bold text-zinc-900 dark:text-white">
+                      Background Creative
+                    </p>
+                    <p class="text-sm text-zinc-500 mt-1">
+                      Choose an image to display in the modal header.
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <div>
-                <p class="font-bold text-zinc-900 dark:text-white">
-                  Background Creative
-                </p>
-                <p class="text-sm text-zinc-500 mt-1">
-                  Choose an image to display in the modal header.
-                </p>
+                <UButton
+                  color="neutral"
+                  variant="outline"
+                  icon="i-lucide-search"
+                  size="md"
+                  @click="showCreativePicker = true"
+                >
+                  {{ selectedCreativeUrl ? 'Change Image' : 'Browse Gallery' }}
+                </UButton>
               </div>
             </div>
-            <UButton
-              color="neutral"
-              variant="outline"
-              icon="i-lucide-search"
-              size="md"
-              @click="showCreativePicker = true"
-            >
-              {{ selectedCreativeUrl ? 'Change Image' : 'Browse Gallery' }}
-            </UButton>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <UFormField label="Modal Title">
+                <UInput
+                  v-model="modalProps.title"
+                  placeholder="Enter title..."
+                  class="w-full"
+                />
+              </UFormField>
+              <UFormField
+                label="Modal Description"
+                class="md:col-span-2"
+              >
+                <UTextarea
+                  v-model="modalProps.description"
+                  placeholder="Enter description..."
+                  class="w-full"
+                  :rows="3"
+                />
+              </UFormField>
+              <UFormField label="Positive CTA Label">
+                <UInput
+                  v-model="modalProps.ctaPositive"
+                  placeholder="Enter button text..."
+                  class="w-full"
+                />
+              </UFormField>
+              <UFormField label="Positive CTA Link">
+                <UInput
+                  v-model="modalProps.ctaLink"
+                  placeholder="https://..."
+                  class="w-full"
+                />
+              </UFormField>
+              <UFormField label="Negative CTA Label">
+                <UInput
+                  v-model="modalProps.ctaNegative"
+                  placeholder="Enter button text..."
+                  class="w-full"
+                />
+              </UFormField>
+            </div>
           </div>
-        </div>
+        </UCard>
       </div>
 
-      <div class="xl:w-[450px] shrink-0">
+      <div class="w-full">
         <div class="sticky top-8 space-y-4">
           <div
             v-if="selectedTemplate"

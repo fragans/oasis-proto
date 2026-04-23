@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
   const db = useDB()
   const config = useRuntimeConfig()
   const query = getQuery(event)
-  const tenantId = (query.tenantId as string) || config.public.defaultTenantId
+  const tenantId = (query.tenantId as string) || (config.public.defaultTenantId as string)
 
   const files = await readMultipartFormData(event)
 
