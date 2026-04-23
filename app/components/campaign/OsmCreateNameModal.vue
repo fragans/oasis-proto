@@ -11,7 +11,7 @@ const form = reactive({
 
 const saving = ref(false)
 
-const { data: tenantsData } = await useFetch('/api/tenants')
+const { data: tenantsData } = await useFetch<{ tenants: { id: string }[] }>('/api/tenants')
 
 async function handleCreate() {
   if (!form.name.trim()) return
@@ -19,11 +19,11 @@ async function handleCreate() {
   saving.value = true
   try {
     const config = useRuntimeConfig()
-    let tenantId = config.public.defaultTenantId
+    let tenantId = config.public.defaultTenantId as string
 
     // Fallback to first available tenant if default is 'no-tenant' or missing
     if (tenantsData.value?.tenants?.length) {
-      const tenantIds = tenantsData.value.tenants.map((t: { id: string }) => t.id)
+      const tenantIds = tenantsData.value.tenants.map(t => t.id)
       if (!tenantIds.includes(tenantId)) {
         tenantId = tenantIds[0]!
       }

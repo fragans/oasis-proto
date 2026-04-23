@@ -14,7 +14,7 @@ export default defineNitroPlugin(async () => {
 
       // Ensure default tenant exists
       const config = useRuntimeConfig()
-      const tenantId = config.public.defaultTenantId
+      const tenantId = config.public.defaultTenantId as string
 
       if (tenantId && tenantId !== 'no-tenant') {
         const existing = await db.select().from(tenants).where(eq(tenants.id, tenantId)).limit(1)
