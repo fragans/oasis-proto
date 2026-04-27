@@ -244,7 +244,7 @@ async function handleNext() {
       </div>
 
       <!-- Summary Card -->
-      <div class="p-6 rounded-2xl bg-zinc-900 dark:bg-black text-white space-y-4">
+      <UCard>
         <h3 class="font-bold text-zinc-400 uppercase tracking-widest text-xs">
           Campaign Summary
         </h3>
@@ -282,7 +282,7 @@ async function handleNext() {
             </p>
           </div>
         </div>
-      </div>
+      </UCard>
     </div>
 
     <CampaignWizardFooter

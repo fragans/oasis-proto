@@ -12,7 +12,6 @@ const { campaign, patch, saving } = useWizardDraft(campaignId)
 const type = ref<'click'>('click')
 const selector = ref('[data-oasis-goal="click"]')
 const destinationUrl = ref('')
-const isTestMode = ref(true)
 
 // Sync from campaign data
 watchEffect(() => {
@@ -22,7 +21,6 @@ watchEffect(() => {
       selector.value = campaign.value.goal.selector
       destinationUrl.value = campaign.value.goal.destinationUrl || ''
     }
-    isTestMode.value = campaign.value.isTestMode || false
   }
 })
 
@@ -33,7 +31,7 @@ async function handleNext() {
     destinationUrl: destinationUrl.value || undefined
   }
 
-  await patch({ goal, isTestMode: isTestMode.value })
+  await patch({ goal })
   router.push(`/campaigns/on-site-messages/${campaignId}/wizard/launch`)
 }
 </script>
@@ -92,34 +90,13 @@ async function handleNext() {
         </UFormField>
       </div>
 
-      <div class="pt-2">
-        <div class="flex items-start gap-4 p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
-          <UCheckbox
-            id="test-mode"
-            v-model="isTestMode"
-            class="mt-1"
-          />
-          <div class="flex-1">
-            <label
-              for="test-mode"
-              class="block font-bold text-amber-900 dark:text-amber-200 cursor-pointer"
-            >
-              Enable Test Mode
-            </label>
-            <p class="text-sm text-amber-700 dark:text-amber-400 mt-1 leading-relaxed">
-              If enabled, this message will only be visible to users with the <code class="bg-amber-100 dark:bg-amber-900 px-1 rounded text-xs font-mono">oasis_test=1</code> cookie.
-            </p>
-          </div>
-        </div>
-      </div>
-
       <div class="flex items-start gap-4 p-4 rounded-xl bg-blue-50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/50">
         <UIcon
           name="i-lucide-info"
           class="w-5 h-5 text-blue-500 shrink-0 mt-0.5"
         />
         <p class="text-sm text-blue-700 dark:text-blue-300 leading-relaxed">
-          <strong>Pro Tip:</strong> You can test your goal by enabling <strong>Test Mode</strong> and clicking the target element on your live site.
+          <strong>Pro Tip:</strong> You can test your goal tracking on your live site using the <code class="bg-blue-100 dark:bg-blue-900 px-1 rounded text-xs font-mono">oasis_test=1</code> cookie. Test Mode is enabled by default for all new campaigns.
         </p>
       </div>
     </div>
