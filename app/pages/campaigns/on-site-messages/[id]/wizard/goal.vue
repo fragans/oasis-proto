@@ -89,16 +89,6 @@ async function handleNext() {
           />
         </UFormField>
       </div>
-
-      <div class="flex items-start gap-4 p-4 rounded-xl bg-blue-50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/50">
-        <UIcon
-          name="i-lucide-info"
-          class="w-5 h-5 text-blue-500 shrink-0 mt-0.5"
-        />
-        <p class="text-sm text-blue-700 dark:text-blue-300 leading-relaxed">
-          <strong>Pro Tip:</strong> You can test your goal tracking on your live site using the <code class="bg-blue-100 dark:bg-blue-900 px-1 rounded text-xs font-mono">oasis_test=1</code> cookie. Test Mode is enabled by default for all new campaigns.
-        </p>
-      </div>
     </div>
 
     <CampaignWizardFooter

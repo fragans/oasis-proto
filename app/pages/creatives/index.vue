@@ -18,6 +18,7 @@ const loading = computed(() => status.value === 'pending')
 
 const fileInput = ref<HTMLInputElement | null>(null)
 const uploading = ref(false)
+const selectedCreative = ref<Creative | null>(null)
 
 function triggerUpload() {
   fileInput.value?.click()
@@ -136,19 +137,21 @@ function formatSize(bytes: number) {
         :key="creative.id"
         class="group space-y-3"
       >
-        <div class="aspect-square rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 relative shadow-sm hover:shadow-md transition-shadow">
+        <div
+          class="aspect-square rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 relative shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+          @click="selectedCreative = creative"
+        >
           <img
             :src="creative.fileUrl"
             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
           >
           <div class="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
             <UButton
-              icon="i-lucide-external-link"
+              icon="i-lucide-maximize-2"
               color="neutral"
               variant="solid"
               size="sm"
-              :to="creative.fileUrl"
-              target="_blank"
+              @click.stop="selectedCreative = creative"
             />
           </div>
         </div>
@@ -167,5 +170,72 @@ function formatSize(bytes: number) {
         </div>
       </div>
     </div>
+
+    <UModal
+      :open="!!selectedCreative"
+      fullscreen
+      :ui="{
+        content: 'bg-black/75 backdrop-blur-xl p-0',
+        body: 'p-0 flex flex-col h-full items-center justify-center',
+        header: 'flex justify-end' as const
+      }"
+      @update:open="(val) => !val && (selectedCreative = null)"
+    >
+      <template #header>
+        <div>
+          <UButton
+            icon="i-lucide-x"
+            color="neutral"
+            variant="outline"
+            size="xl"
+            @click="selectedCreative = null"
+          />
+        </div>
+      </template>
+
+      <template #body>
+        <div class="relative w-full h-full flex flex-col items-center justify-center p-4">
+          <img
+            v-if="selectedCreative"
+            :src="selectedCreative.fileUrl"
+            class="max-w-full max-h-[90vh] object-contain shadow-2xl rounded-lg"
+            :alt="selectedCreative.fileName"
+          >
+
+          <div
+            v-if="selectedCreative"
+            class="absolute bottom-8 left-1/2 -translate-x-1/2 text-center space-y-2 bg-black/40 px-6 py-3 rounded-2xl backdrop-blur-md border border-white/10"
+          >
+            <p class="text-white font-bold text-lg">
+              {{ selectedCreative.fileName }}
+            </p>
+            <div class="flex items-center justify-center gap-4 text-zinc-400 text-sm">
+              <span>{{ formatSize(selectedCreative.fileSize) }}</span>
+              <span class="w-1 h-1 rounded-full" />
+              <span class="uppercase">{{ selectedCreative.mimeType.split('/')[1] }}</span>
+            </div>
+            <div class="pt-4 flex items-center justify-center gap-3">
+              <UButton
+                icon="i-lucide-download"
+                label="Download"
+                color="primary"
+                variant="subtle"
+                :to="selectedCreative.fileUrl"
+                target="_blank"
+                download
+              />
+              <UButton
+                icon="i-lucide-external-link"
+                label="Open Original"
+                color="neutral"
+                variant="outline"
+                :to="selectedCreative.fileUrl"
+                target="_blank"
+              />
+            </div>
+          </div>
+        </div>
+      </template>
+    </UModal>
   </div>
 </template>
