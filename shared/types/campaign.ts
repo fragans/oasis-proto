@@ -124,15 +124,18 @@ export const CAMPAIGN_TEMPLATES: Record<TemplateType, {
       campaignType: 'sticky',
       elementSelector: 'body',
       trigger: { mode: 'scroll', value: 30 },
-      html: `<div class="oasis-banner" style="position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a56db; color: #fff; padding: 16px 24px; border-radius: 99px; display: flex; align-items: center; gap: 16px; box-shadow: 0 10px 25px -5px rgba(26, 86, 219, 0.4); z-index: 9999; font-family: system-ui, -apple-system, sans-serif; min-width: 400px; border: 1px solid rgba(255,255,255,0.1);">
-  <div style="background: rgba(255,255,255,0.2); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px;">🎁</div>
-  <div style="flex: 1;">
-    <p style="margin: 0; font-weight: 600; font-size: 15px; letter-spacing: -0.01em;">Extra 50% OFF first month</p>
-    <p style="margin: 0; font-size: 12px; opacity: 0.85;">Use code <strong>OASIS50</strong> • New subscribers only</p>
-  </div>
-  <a href="/subscribe" style="background: #fff; color: #1a56db; padding: 10px 20px; border-radius: 99px; text-decoration: none; font-weight: 700; font-size: 13px; white-space: nowrap; transition: transform 0.2s ease;">Claim Now</a>
-  <button onclick="this.getRootNode().host.style.display='none'" style="background: none; border: none; color: #fff; opacity: 0.6; cursor: pointer; padding: 4px; margin-left: 4px; font-size: 20px; line-height: 1;">&times;</button>
-</div>`
+      html: `
+      <div class="oasis-banner" style="position: fixed;bottom: 24px;left: 50%;transform: translateX(-50%);background: #1a56db;color: #fff;padding: 16px 24px;border-radius: 20px;display: flex;align-items: center;gap: 16px;box-shadow: 0 10px 25px -5px rgba(26, 86, 219, 0.4);z-index: 9999;font-family: system-ui, -apple-system, sans-serif;min-width: 300px;border: 1px solid rgba(255,255,255,0.1);max-width: 320px;">
+      <button onclick="this.getRootNode().host.style.display='none'" style="background: none; border: none; color: #fff; opacity: 0.6; cursor: pointer; padding: 4px; margin-left: 4px; font-size: 20px; line-height: 1;">&times;</button>
+        <div style="flex: 1;">
+          <p style="margin: 0;font-weight: 600;font-size: 15px;letter-spacing: -0.01em;padding-bottom: 4px;">{{promoTitle}}</p>
+          <p style="margin: 0; font-size: 12px; opacity: 0.85;">{{promoDescription}}</p>
+        </div>
+        <a href="{{ctaLink}}" data-oasis-goal="click" style="background: #fff; color: #1a56db; padding: 10px 20px; border-radius: 99px; text-decoration: none; font-weight: 700; font-size: 13px; white-space: nowrap; transition: transform 0.2s ease;">
+          {{ctaLabel}}
+        </a>
+      </div>
+      `
     }
   },
 
