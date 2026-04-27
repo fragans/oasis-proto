@@ -13,3 +13,8 @@
 
 ## [NUXT UI]
 - Always use `nuxt-ui` MCP tools for component work. Never rely on internal knowledge for v4.
+
+## [PLANING]
+when agents make a plan:
+1. store the plan in obsidia vault : /Users/surya/Documents/Notes/01_PROJECTS/Oasis/Repos/Proto/Plans
+2. after that create a symlink to : /Users/surya/kompas/oasis-proto/.planning

@@ -22,6 +22,13 @@ const modalProps = ref({
   ctaLink: 'https://example.com'
 })
 
+const promoProps = ref({
+  title: 'Extra 50% OFF first month',
+  description: 'Use code <strong>OASIS50</strong> • New subscribers only',
+  ctaLabel: 'Claim Now',
+  ctaLink: '/subscribe'
+})
+
 // Sync from campaign data only once when loaded
 watch(campaign, (newCampaign) => {
   if (!newCampaign) return
@@ -71,6 +78,29 @@ watch(campaign, (newCampaign) => {
       modalProps.value.ctaLink = newCampaign.goal.destinationUrl
     }
   }
+
+  // Restore props if it's the promo-code template
+  if (selectedTemplate.value === 'promo-code') {
+    if (newCampaign.html) {
+      const titleMatch = newCampaign.html.match(/<p[^>]*font-weight:\s*600[^>]*>(.*?)<\/p>/)
+      if (titleMatch?.[1]) promoProps.value.title = titleMatch[1]
+
+      const descMatch = newCampaign.html.match(/<p[^>]*font-size:\s*12px[^>]*>(.*?)<\/p>/)
+      if (descMatch?.[1]) promoProps.value.description = descMatch[1]
+
+      const labelMatch = newCampaign.html.match(/<a[^>]*data-oasis-goal="click"[^>]*>(.*?)<\/a>/)
+      if (labelMatch?.[1]) promoProps.value.ctaLabel = labelMatch[1]
+
+      const linkMatch = newCampaign.html.match(/href="([^"]*)"/)
+      if (linkMatch?.[1] && linkMatch[1] !== '{{ctaLink}}') {
+        promoProps.value.ctaLink = linkMatch[1]
+      }
+    }
+
+    if (newCampaign.goal?.destinationUrl) {
+      promoProps.value.ctaLink = newCampaign.goal.destinationUrl
+    }
+  }
 }, { immediate: true })
 
 const templateList = Object.entries(CAMPAIGN_TEMPLATES).map(([key, tpl]) => ({
@@ -92,6 +122,12 @@ const previewHtml = computed(() => {
       .replace('{{ctaPositive}}', modalProps.value.ctaPositive)
       .replace('{{ctaNegative}}', modalProps.value.ctaNegative)
       .replace('{{ctaLink}}', modalProps.value.ctaLink)
+  } else if (selectedTemplate.value === 'promo-code') {
+    html = html
+      .replace('{{promoTitle}}', promoProps.value.title)
+      .replace('{{promoDescription}}', promoProps.value.description)
+      .replace('{{ctaLabel}}', promoProps.value.ctaLabel)
+      .replace('{{ctaLink}}', promoProps.value.ctaLink)
   }
 
   return html
@@ -125,6 +161,12 @@ async function handleNext() {
       .replace('{{ctaPositive}}', modalProps.value.ctaPositive)
       .replace('{{ctaNegative}}', modalProps.value.ctaNegative)
       .replace('{{ctaLink}}', modalProps.value.ctaLink)
+  } else if (selectedTemplate.value === 'promo-code') {
+    html = html
+      .replace('{{promoTitle}}', promoProps.value.title)
+      .replace('{{promoDescription}}', promoProps.value.description)
+      .replace('{{ctaLabel}}', promoProps.value.ctaLabel)
+      .replace('{{ctaLink}}', promoProps.value.ctaLink)
   }
 
   await patch({
@@ -138,7 +180,13 @@ async function handleNext() {
           selector: '[data-oasis-goal="click"]',
           destinationUrl: modalProps.value.ctaLink
         }
-      : campaign.value?.goal
+      : selectedTemplate.value === 'promo-code'
+        ? {
+            type: 'click',
+            selector: '[data-oasis-goal="click"]',
+            destinationUrl: promoProps.value.ctaLink
+          }
+        : campaign.value?.goal
   })
 
   router.push(`/campaigns/on-site-messages/${campaignId}/wizard/target`)
@@ -257,6 +305,42 @@ async function handleNext() {
                 <UInput
                   v-model="modalProps.ctaNegative"
                   placeholder="Enter button text..."
+                  class="w-full"
+                />
+              </UFormField>
+            </div>
+          </div>
+
+          <div
+            v-else-if="selectedTemplate === 'promo-code'"
+            class="space-y-6"
+          >
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <UFormField label="Promo Title">
+                <UInput
+                  v-model="promoProps.title"
+                  placeholder="Enter promo title..."
+                  class="w-full"
+                />
+              </UFormField>
+              <UFormField label="Promo Description">
+                <UInput
+                  v-model="promoProps.description"
+                  placeholder="Enter description..."
+                  class="w-full"
+                />
+              </UFormField>
+              <UFormField label="CTA Label">
+                <UInput
+                  v-model="promoProps.ctaLabel"
+                  placeholder="Enter button text..."
+                  class="w-full"
+                />
+              </UFormField>
+              <UFormField label="CTA Link">
+                <UInput
+                  v-model="promoProps.ctaLink"
+                  placeholder="/subscribe"
                   class="w-full"
                 />
               </UFormField>
