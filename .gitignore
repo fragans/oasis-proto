@@ -25,3 +25,6 @@ logs
 
 # agentic coding needs
 RULES.md
+.agent/*
+.agents/*
+.claude/*
