@@ -12,6 +12,7 @@ const emit = defineEmits<{
 }>()
 
 const route = useRoute()
+const router = useRouter()
 const steps = ['template', 'target', 'trigger', 'goal', 'launch']
 
 const currentStepId = computed(() => {
@@ -41,7 +42,7 @@ const isLastStep = computed(() => steps[steps.length - 1] === currentStepId.valu
         <UButton
           variant="ghost"
           color="neutral"
-          @click="useRouter().push('/campaigns/on-site-messages')"
+          @click="router.push('/campaigns/on-site-messages')"
         >
           Exit Wizard
         </UButton>

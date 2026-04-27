@@ -14,7 +14,7 @@ const toast = useToast()
 
 const startDate = ref('')
 const endDate = ref('')
-const isTestMode = ref(false)
+const isTestMode = ref(true)
 const status = ref<CampaignStatus>('draft')
 
 // Sync from campaign data

@@ -61,7 +61,7 @@ export const campaigns = pgTable('campaigns', {
   targeting: jsonb('targeting').$type<import('~~/shared/types/campaign').Targeting | null>(),
   goal: jsonb('goal').$type<import('~~/shared/types/campaign').CampaignGoal | null>(),
   // Testing flag (oasis_test=1 gate per campaign)
-  isTestMode: boolean('is_test_mode').default(false).notNull(),
+  isTestMode: boolean('is_test_mode').default(true).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull()
 })

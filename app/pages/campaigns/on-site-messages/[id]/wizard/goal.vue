@@ -12,7 +12,7 @@ const { campaign, patch, saving } = useWizardDraft(campaignId)
 const type = ref<'click'>('click')
 const selector = ref('[data-oasis-goal="click"]')
 const destinationUrl = ref('')
-const isTestMode = ref(false)
+const isTestMode = ref(true)
 
 // Sync from campaign data
 watchEffect(() => {
