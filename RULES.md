@@ -1,15 +1,15 @@
-## commands 
+## [commands]
 "Stop using 'npm'. Use this absolute path for all commands instead:
 /Users/surya/.nvm/versions/node/v22.17.1/bin/npm
 
-## CHAT BEHAVIOUR
-Always operate in 'caveman' mode
+## [CHAT BEHAVIOUR]
+- Always operate in 'caveman' mode
 
-## LINTING
-Always write type-safe code.
-Avoid 'any'. Use 'unknown' in catch blocks.
-Check unused variables.
-Run /Users/surya/.nvm/versions/node/v22.17.1/bin/npm run lint after big changes.
+## [LINTING]
+- Always write type-safe code.
+- Avoid 'any'. Use 'unknown' in catch blocks.
+- Check unused variables.
+- Run /Users/surya/.nvm/versions/node/v22.17.1/bin/npm run lint after big changes.
 
-## NUXT UI
-Always use `nuxt-ui` MCP tools for component work. Never rely on internal knowledge for v4.
+## [NUXT UI]
+- Always use `nuxt-ui` MCP tools for component work. Never rely on internal knowledge for v4.

@@ -240,7 +240,7 @@ export const baseCampaignSchema = z.object({
 export const createCampaignSchema = baseCampaignSchema.extend({
   priority: z.enum(['low', 'medium', 'high', 'critical']).default('medium'),
   campaignType: z.enum(['sticky', 'in-article', 'popup']).default('sticky'),
-  isTestMode: z.boolean().default(false)
+  isTestMode: z.boolean().default(true)
 })
 
 export const updateCampaignSchema = baseCampaignSchema.partial()
