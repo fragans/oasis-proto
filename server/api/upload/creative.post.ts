@@ -1,6 +1,5 @@
 import { randomUUID } from 'node:crypto'
-import { eq, and } from 'drizzle-orm'
-import { campaigns, creatives } from '../../database/schema'
+import { creatives } from '../../database/schema'
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml']
 const MAX_SIZE = 10 * 1024 * 1024 // 10MB
@@ -37,37 +36,8 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // Resolve Campaign ID (required by schema)
-  let campaignId = query.campaignId as string
-  if (!campaignId) {
-    // Look for a "Global Assets" campaign for this tenant
-    const galleryCampaign = await db.query.campaigns.findFirst({
-      where: and(
-        eq(campaigns.tenantId, tenantId),
-        eq(campaigns.name, 'Global Creative Gallery')
-      )
-    })
-
-    if (galleryCampaign) {
-      campaignId = galleryCampaign.id
-    } else {
-      // Create a placeholder campaign for gallery assets
-      const [newCampaign] = await db.insert(campaigns).values({
-        tenantId,
-        name: 'Global Creative Gallery',
-        description: 'System-generated campaign to host gallery assets.',
-        status: 'draft'
-      }).returning()
-
-      if (!newCampaign) {
-        throw createError({
-          statusCode: 500,
-          message: 'Failed to create Global Creative Gallery campaign'
-        })
-      }
-      campaignId = newCampaign.id
-    }
-  }
+  // Campaign ID is now optional
+  const campaignId = query.campaignId as string || null
 
   const ext = mimeType!.split('/')[1]!.replace('svg+xml', 'svg').replace('jpeg', 'jpg')
   const key = `creatives/${randomUUID()}.${ext}`
@@ -76,6 +46,7 @@ export default defineEventHandler(async (event) => {
 
   // Save to database
   const [creative] = await db.insert(creatives).values({
+    tenantId,
     campaignId,
     type: 'image',
     fileUrl: url,

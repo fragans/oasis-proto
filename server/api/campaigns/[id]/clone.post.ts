@@ -16,6 +16,7 @@ export default defineEventHandler(async (event) => {
 
   // Create cloned campaign as draft
   const result = await db.insert(campaigns).values({
+    tenantId: campaign.tenantId,
     name: `${campaign.name} (Copy)`,
     description: campaign.description,
     objective: campaign.objective,
@@ -25,11 +26,11 @@ export default defineEventHandler(async (event) => {
     endDate: null
   }).returning()
   const cloned = result[0]!
-
   // Clone creatives
   if (campaign.creatives.length > 0) {
     await db.insert(creatives).values(
       campaign.creatives.map(c => ({
+        tenantId: campaign.tenantId,
         campaignId: cloned.id,
         type: c.type,
         fileUrl: c.fileUrl,

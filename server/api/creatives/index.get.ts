@@ -1,5 +1,5 @@
 import { desc, eq } from 'drizzle-orm'
-import { campaigns, creatives } from '../../database/schema'
+import { creatives } from '../../database/schema'
 
 export default defineEventHandler(async (event) => {
   const db = useDB()
@@ -18,8 +18,7 @@ export default defineEventHandler(async (event) => {
     createdAt: creatives.createdAt
   })
     .from(creatives)
-    .innerJoin(campaigns, eq(creatives.campaignId, campaigns.id))
-    .where(eq(campaigns.tenantId, tenantId))
+    .where(eq(creatives.tenantId, tenantId))
     .orderBy(desc(creatives.createdAt))
 
   return { creatives: rows }

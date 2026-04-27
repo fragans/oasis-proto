@@ -148,7 +148,7 @@ export const CAMPAIGN_TEMPLATES: Record<TemplateType, {
       elementSelector: 'body',
       trigger: { mode: 'immediate' },
       html: `<div class="oasis-modal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999; font-family: system-ui, -apple-system, sans-serif;">
-  <div style="background: #fff; width: 100%; max-width: 500px; border-radius: 24px; overflow: hidden; position: relative; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
+  <div style="background: #fff; width: 100%; max-width: 320px; border-radius: 24px; overflow: hidden; position: relative; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
     <div style="height: 240px; background-image: url('{{creativeUrl}}'); background-size: cover; background-position: center; background-color: #f3f4f6;"></div>
     <div style="padding: 32px; text-align: center;">
       <h3 style="margin: 0 0 12px; font-size: 24px; font-weight: 800; color: #111827;">{{title}}</h3>
@@ -210,7 +210,7 @@ export const targetingSchema = z.object({
 export const campaignGoalSchema = z.object({
   type: z.literal('click'),
   selector: z.string(),
-  destinationUrl: z.string().url().optional()
+  destinationUrl: z.string().optional()
 })
 
 export const campaignTriggerSchema = z.object({

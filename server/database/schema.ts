@@ -68,7 +68,8 @@ export const campaigns = pgTable('campaigns', {
 
 export const creatives = pgTable('creatives', {
   id: uuid('id').primaryKey().defaultRandom(),
-  campaignId: uuid('campaign_id').references(() => campaigns.id, { onDelete: 'cascade' }).notNull(),
+  campaignId: uuid('campaign_id').references(() => campaigns.id, { onDelete: 'set null' }),
+  tenantId: varchar('tenant_id', { length: 255 }).references(() => tenants.id, { onDelete: 'cascade' }),
   type: varchar('type', { length: 50 }).notNull(),
   fileUrl: text('file_url').notNull(),
   fileName: varchar('file_name', { length: 255 }).notNull(),

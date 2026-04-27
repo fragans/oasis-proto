@@ -85,7 +85,7 @@ async function handleNext() {
             v-model="destinationUrl"
             placeholder="https://kompas.id/subscribe"
             size="lg"
-            type="url"
+            type="text"
           />
         </UFormField>
       </div>
