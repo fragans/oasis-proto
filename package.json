@@ -9,8 +9,7 @@
     "postinstall": "nuxt prepare",
     "lint": "eslint . --fix",
     "typecheck": "nuxt typecheck",
-    "pgweb": "pgweb --url 'postgresql://oasis:oasis_dev@localhost:5432/oasis'",
-    "redis-gui": "docker run --rm --name oasis-redis-gui -d -p 8081:8081 --env REDIS_HOSTS=local:host.docker.internal:6379 rediscommander/redis-commander:latest"
+    "pgweb": "pgweb --url 'postgresql://oasis:oasis_dev@localhost:5432/oasis'"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1029.0",
@@ -22,7 +21,6 @@
     "@vue-flow/core": "^1.48.2",
     "@vue-flow/minimap": "^1.5.4",
     "drizzle-orm": "^0.45.2",
-    "ioredis": "^5.10.1",
     "nuxt": "^4.4.2",
     "postgres": "^3.4.9",
     "tailwindcss": "^4.2.2",
