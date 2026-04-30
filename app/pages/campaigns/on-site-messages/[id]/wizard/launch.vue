@@ -133,7 +133,7 @@ async function handleNext() {
       <div class="p-8 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm space-y-8">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <UFormField
-            label="Start Date (Optional)"
+            label="Start Date - UTC (Optional)"
             description="When should this message begin?"
           >
             <UInput
@@ -143,7 +143,7 @@ async function handleNext() {
             />
           </UFormField>
           <UFormField
-            label="End Date (Optional)"
+            label="End Date - UTC (Optional)"
             description="When should this message stop?"
           >
             <UInput
