@@ -11,6 +11,14 @@ const selected = ref<string[]>([])
 const deleteTarget = ref<Campaign | null>(null)
 const deleting = ref(false)
 
+const selectedCampaign = ref<Campaign | null>(null)
+const isDrawerOpen = ref(false)
+
+function showDetails(campaign: Campaign) {
+  selectedCampaign.value = campaign
+  isDrawerOpen.value = true
+}
+
 const totalPages = computed(() => Math.ceil(total.value / filters.limit))
 
 function toggleSelect(id: string) {
@@ -203,14 +211,23 @@ const columns = [
       </template>
 
       <template #actions-cell="{ row }">
-        <UDropdownMenu :items="getRowActions(row.original)">
+        <div class="flex items-center gap-1">
           <UButton
-            icon="i-lucide-more-horizontal"
+            icon="i-lucide-info"
             variant="ghost"
             color="neutral"
             size="xs"
+            @click="showDetails(row.original)"
           />
-        </UDropdownMenu>
+          <UDropdownMenu :items="getRowActions(row.original)">
+            <UButton
+              icon="i-lucide-more-horizontal"
+              variant="ghost"
+              color="neutral"
+              size="xs"
+            />
+          </UDropdownMenu>
+        </div>
       </template>
 
       <template #empty>
@@ -263,5 +280,9 @@ const columns = [
       @confirm="onDelete"
     />
     <CampaignOsmCreateNameModal v-model:open="showCreateModal" />
+    <CampaignDetailDrawer
+      v-model:open="isDrawerOpen"
+      :campaign="selectedCampaign"
+    />
   </div>
 </template>
