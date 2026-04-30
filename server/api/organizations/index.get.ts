@@ -5,9 +5,8 @@ import { getOrganizationId } from '../../utils/organization'
 export default defineEventHandler(async (event) => {
   const db = useDB()
   const organizationId = getOrganizationId(event)
-  const isSuperAdmin = getHeader(event, 'x-oasis-super-admin') === 'true'
 
-  if (isSuperAdmin) {
+  if (isSuperAdmin(event)) {
     const allOrganizations = await db.select().from(organizations)
     return { organizations: allOrganizations }
   }

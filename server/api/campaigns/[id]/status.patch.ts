@@ -53,7 +53,7 @@ export default defineEventHandler(async (event) => {
   // Sync organization's campaign list to Cloudflare KV whenever active set changes
   const config = useRuntimeConfig()
   const organizationId = campaign.organizationId || config.public.defaultOrganizationId
-  if (newStatus === 'active' || newStatus === 'paused' || newStatus === 'completed') {
+  if (['active', 'scheduled', 'paused', 'completed'].includes(newStatus)) {
     await syncOrganizationCampaignsToKV(organizationId)
   }
 

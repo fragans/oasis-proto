@@ -1,22 +1,33 @@
 import type { H3Event } from 'h3'
 
-export const getOrganizationId = (event: H3Event): string | null => {
-  const isSuperAdmin = getHeader(event, 'x-oasis-super-admin') === 'true'
-  if (isSuperAdmin) return null
+export const isSuperAdmin = (event: H3Event): boolean => {
+  const config = useRuntimeConfig()
+  if (!config.superAdminEnabled) return false
 
-  return getHeader(event, 'x-oasis-organization') || null
+  const adminHeader = getHeader(event, 'x-oasis-super-admin')
+  return adminHeader === config.superAdminToken
+}
+
+export const getOrganizationId = (event: H3Event): string | null => {
+  const orgHeader = getHeader(event, 'x-oasis-organization') || null
+
+  if (isSuperAdmin(event)) {
+    // Super-admins can operate globally or within a specific organization context
+    return orgHeader
+  }
+
+  return orgHeader
 }
 
 export const requireOrganizationId = (event: H3Event): string => {
   const organizationId = getOrganizationId(event)
-  // If it's a super admin, they might not have a specific organization context
-  // but for specific actions (like creating a campaign), they might still need to provide one via header
-  if (!organizationId && getHeader(event, 'x-oasis-super-admin') !== 'true') {
+
+  if (!organizationId) {
     throw createError({
       statusCode: 400,
-      message: 'Organization ID is required. Please provide x-oasis-organization header.'
+      message: 'Organization context is missing. Please provide x-oasis-organization header.'
     })
   }
 
-  return organizationId!
+  return organizationId
 }

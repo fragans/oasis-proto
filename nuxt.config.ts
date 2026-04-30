@@ -23,6 +23,9 @@ export default defineNuxtConfig({
     s3Bucket: process.env.S3_BUCKET || '',
     s3Region: process.env.S3_REGION || 'ap-southeast-3',
     s3CdnUrl: process.env.S3_CDN_URL || '',
+    // Super Admin Security
+    superAdminEnabled: process.env.ENABLE_SUPER_ADMIN === 'true',
+    superAdminToken: process.env.SUPER_ADMIN_TOKEN || 'oasis-dev-admin',
 
     public: {
       // Multi-tenancy

@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const organizationId = requireOrganizationId(event)
+  const organizationId = parsed.data.organizationId || requireOrganizationId(event)
 
   const [campaign] = await db.insert(campaigns).values({
     organizationId: organizationId,
