@@ -839,7 +839,7 @@
             font-size="8"
             fill="#4f5d75"
             text-anchor="middle"
-          >tenant:{id}:campaigns</text>
+          >organization:{id}:campaigns</text>
 
           <!-- PATCH /status → KV write -->
           <line
@@ -1250,7 +1250,7 @@
           </div>
           <ul>
             <li>KV sync fires on every status change to active/paused/completed</li>
-            <li>Key: <code class="mono-text">tenant:{id}:campaigns</code></li>
+            <li>Key: <code class="mono-text">organization:{id}:campaigns</code></li>
             <li>Edge worker reads KV, evaluates targeting rules per request</li>
             <li>Injects campaign HTML into matching page responses</li>
           </ul>

@@ -1,6 +1,6 @@
 {
-  "id": "fd2dc308-3f0f-4a9e-a5bb-d1d3f928cfe9",
-  "prevId": "96359eff-1d18-4ee1-a916-47851bf1017f",
+  "id": "b6656bcb-933c-4636-8c11-01d6f18c9e34",
+  "prevId": "8d3026d5-e587-494d-a592-e03b9e16723b",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -76,8 +76,7 @@
           "name": "organization_id",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true,
-          "default": "'kompasid'"
+          "notNull": true
         },
         "name": {
           "name": "name",
@@ -163,12 +162,24 @@
           "primaryKey": false,
           "notNull": false
         },
+        "targeting": {
+          "name": "targeting",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "goal": {
+          "name": "goal",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
         "is_test_mode": {
           "name": "is_test_mode",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
-          "default": false
+          "default": true
         },
         "created_at": {
           "name": "created_at",
@@ -670,7 +681,13 @@
           "name": "campaign_id",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
+        },
+        "organization_id": {
+          "name": "organization_id",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
         },
         "type": {
           "name": "type",
@@ -749,6 +766,19 @@
           "tableTo": "campaigns",
           "columnsFrom": [
             "campaign_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "creatives_organization_id_organizations_id_fk": {
+          "name": "creatives_organization_id_organizations_id_fk",
+          "tableFrom": "creatives",
+          "tableTo": "organizations",
+          "columnsFrom": [
+            "organization_id"
           ],
           "columnsTo": [
             "id"
@@ -1441,6 +1471,80 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.organizations": {
+      "name": "organizations",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(255)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "hostname": {
+          "name": "hostname",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cookie_name": {
+          "name": "cookie_name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'oasis_guid'"
+        },
+        "api_url": {
+          "name": "api_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "auth_cookie_names": {
+          "name": "auth_cookie_names",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'[]'::jsonb"
+        },
+        "is_live": {
+          "name": "is_live",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "organizations_hostname_unique": {
+          "name": "organizations_hostname_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "hostname"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.segment_contacts": {
       "name": "segment_contacts",
       "schema": "",
@@ -1588,80 +1692,6 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.organizations": {
-      "name": "organizations",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(255)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "hostname": {
-          "name": "hostname",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "cookie_name": {
-          "name": "cookie_name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'oasis_guid'"
-        },
-        "api_url": {
-          "name": "api_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "auth_cookie_names": {
-          "name": "auth_cookie_names",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'[]'::jsonb"
-        },
-        "is_live": {
-          "name": "is_live",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "organizations_hostname_unique": {
-          "name": "organizations_hostname_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "hostname"
-          ]
-        }
-      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false

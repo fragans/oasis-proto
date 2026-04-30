@@ -28,7 +28,7 @@ export const triggerModeEnum = pgEnum('trigger_mode', [
   'exit-intent'
 ])
 
-export const tenants = pgTable('tenants', {
+export const organizations = pgTable('organizations', {
   id: varchar('id', { length: 255 }).primaryKey(), // e.g. 'kompasid'
   hostname: varchar('hostname', { length: 255 }).notNull().unique(), // e.g. 'www.kompas.id'
   cookieName: varchar('cookie_name', { length: 255 }).notNull().default('oasis_guid'),
@@ -41,8 +41,8 @@ export const tenants = pgTable('tenants', {
 
 export const campaigns = pgTable('campaigns', {
   id: uuid('id').primaryKey().defaultRandom(),
-  // Multi-tenant scope
-  tenantId: varchar('tenant_id', { length: 255 }).references(() => tenants.id, { onDelete: 'cascade' }).notNull(),
+  // Multi-organization scope
+  organizationId: varchar('organization_id', { length: 255 }).references(() => organizations.id, { onDelete: 'cascade' }).notNull(),
   // Basic metadata
   name: varchar('name', { length: 255 }).notNull(),
   description: text('description'),
@@ -69,7 +69,7 @@ export const campaigns = pgTable('campaigns', {
 export const creatives = pgTable('creatives', {
   id: uuid('id').primaryKey().defaultRandom(),
   campaignId: uuid('campaign_id').references(() => campaigns.id, { onDelete: 'set null' }),
-  tenantId: varchar('tenant_id', { length: 255 }).references(() => tenants.id, { onDelete: 'cascade' }),
+  organizationId: varchar('organization_id', { length: 255 }).references(() => organizations.id, { onDelete: 'cascade' }),
   type: varchar('type', { length: 50 }).notNull(),
   fileUrl: text('file_url').notNull(),
   fileName: varchar('file_name', { length: 255 }).notNull(),
@@ -83,14 +83,14 @@ export const creatives = pgTable('creatives', {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull()
 })
 
-export const tenantsRelations = relations(tenants, ({ many }) => ({
+export const organizationsRelations = relations(organizations, ({ many }) => ({
   campaigns: many(campaigns)
 }))
 
 export const campaignsRelations = relations(campaigns, ({ one, many }) => ({
-  tenant: one(tenants, {
-    fields: [campaigns.tenantId],
-    references: [tenants.id]
+  organization: one(organizations, {
+    fields: [campaigns.organizationId],
+    references: [organizations.id]
   }),
   creatives: many(creatives)
 }))

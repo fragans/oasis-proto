@@ -72,8 +72,8 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "tenant_id": {
-          "name": "tenant_id",
+        "organization_id": {
+          "name": "organization_id",
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true,
@@ -187,12 +187,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "campaigns_tenant_id_tenants_id_fk": {
-          "name": "campaigns_tenant_id_tenants_id_fk",
+        "campaigns_organization_id_organizations_id_fk": {
+          "name": "campaigns_organization_id_organizations_id_fk",
           "tableFrom": "campaigns",
-          "tableTo": "tenants",
+          "tableTo": "organizations",
           "columnsFrom": [
-            "tenant_id"
+            "organization_id"
           ],
           "columnsTo": [
             "id"
@@ -1592,8 +1592,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.tenants": {
-      "name": "tenants",
+    "public.organizations": {
+      "name": "organizations",
       "schema": "",
       "columns": {
         "id": {
@@ -1654,8 +1654,8 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "tenants_hostname_unique": {
-          "name": "tenants_hostname_unique",
+        "organizations_hostname_unique": {
+          "name": "organizations_hostname_unique",
           "nullsNotDistinct": false,
           "columns": [
             "hostname"

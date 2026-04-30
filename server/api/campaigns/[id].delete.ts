@@ -1,13 +1,19 @@
-import { eq } from 'drizzle-orm'
+import { getOrganizationId } from '../../utils/organization'
+import { eq, and } from 'drizzle-orm'
 import { campaigns } from '../../database/schema'
-import { syncTenantCampaignsToKV } from '../../utils/kv-sync'
+import { syncOrganizationCampaignsToKV } from '../../utils/kv-sync'
 
 export default defineEventHandler(async (event) => {
   const db = useDB()
   const id = getRouterParam(event, 'id')!
 
+  const organizationId = getOrganizationId(event)
+  const where = organizationId
+    ? and(eq(campaigns.id, id), eq(campaigns.organizationId, organizationId))
+    : eq(campaigns.id, id)
+
   const campaign = await db.query.campaigns.findFirst({
-    where: eq(campaigns.id, id),
+    where: where,
     with: { creatives: true }
   })
 
@@ -17,7 +23,7 @@ export default defineEventHandler(async (event) => {
 
   // Re-sync KV if active (removes from list)
   if (campaign.status === 'active') {
-    await syncTenantCampaignsToKV(campaign.tenantId)
+    await syncOrganizationCampaignsToKV(campaign.organizationId)
   }
 
   // Delete creative files from OBS
@@ -31,7 +37,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Cascade delete handles creatives
-  await db.delete(campaigns).where(eq(campaigns.id, id))
+  await db.delete(campaigns).where(where)
 
   return { success: true }
 })

@@ -1,5 +1,6 @@
 import { eq, ilike, and, sql, asc, desc, type AnyColumn } from 'drizzle-orm'
 import { campaigns, type campaignStatusEnum } from '../../database/schema'
+import { getOrganizationId } from '../../utils/organization'
 
 type CampaignStatus = (typeof campaignStatusEnum.enumValues)[number]
 
@@ -14,6 +15,11 @@ export default defineEventHandler(async (event) => {
   const sortOrder = query.sortOrder === 'asc' ? 'asc' : 'desc'
 
   const conditions = []
+  const organizationId = getOrganizationId(event)
+
+  if (organizationId) {
+    conditions.push(eq(campaigns.organizationId, organizationId))
+  }
 
   if (query.status && query.status !== 'all') {
     conditions.push(eq(campaigns.status, query.status as CampaignStatus))

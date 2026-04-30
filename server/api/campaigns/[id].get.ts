@@ -1,4 +1,5 @@
-import { eq } from 'drizzle-orm'
+import { getOrganizationId } from '../../utils/organization'
+import { eq, and } from 'drizzle-orm'
 import { campaigns } from '../../database/schema'
 import { STATUS_TRANSITIONS } from '~~/shared/types/campaign'
 import type { CampaignStatus } from '~~/shared/types/campaign'
@@ -7,8 +8,13 @@ export default defineEventHandler(async (event) => {
   const db = useDB()
   const id = getRouterParam(event, 'id')!
 
+  const organizationId = getOrganizationId(event)
+  const where = organizationId
+    ? and(eq(campaigns.id, id), eq(campaigns.organizationId, organizationId))
+    : eq(campaigns.id, id)
+
   const campaign = await db.query.campaigns.findFirst({
-    where: eq(campaigns.id, id),
+    where: where,
     with: { creatives: true }
   })
 

@@ -11,7 +11,7 @@ const form = reactive({
 
 const saving = ref(false)
 
-const { data: tenantsData } = await useFetch<{ tenants: { id: string }[] }>('/api/tenants')
+const { data: organizationsData } = await useFetch<{ organizations: { id: string }[] }>('/api/organizations')
 
 async function handleCreate() {
   if (!form.name.trim()) return
@@ -19,19 +19,19 @@ async function handleCreate() {
   saving.value = true
   try {
     const config = useRuntimeConfig()
-    let tenantId = config.public.defaultTenantId as string
+    let organizationId = config.public.defaultOrganizationId as string
 
-    // Fallback to first available tenant if default is 'no-tenant' or missing
-    if (tenantsData.value?.tenants?.length) {
-      const tenantIds = tenantsData.value.tenants.map(t => t.id)
-      if (!tenantIds.includes(tenantId)) {
-        tenantId = tenantIds[0]!
+    // Fallback to first available organization if default is 'no-organization' or missing
+    if (organizationsData.value?.organizations?.length) {
+      const organizationIds = organizationsData.value.organizations.map(t => t.id)
+      if (!organizationIds.includes(organizationId)) {
+        organizationId = organizationIds[0]!
       }
     }
 
     const campaign = await createCampaign({
       name: form.name,
-      tenantId,
+      organizationId,
       campaignType: 'popup',
       templateType: 'modal-with-cta-redirect'
     }) as { id: string }

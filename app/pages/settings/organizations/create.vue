@@ -23,12 +23,12 @@ const onCreated = async () => {
         Add New Property
       </h1>
       <p class="text-sm text-zinc-500 mt-1">
-        Configure a new tenant for your Oasis environment.
+        Configure a new organization for your Oasis environment.
       </p>
     </div>
 
     <UCard :ui="{ body: 'p-8' }">
-      <TenantCreateForm @success="onCreated">
+      <OrganizationCreateForm @success="onCreated">
         <template #actions="{ loading }">
           <UButton
             to="/settings"
@@ -37,12 +37,12 @@ const onCreated = async () => {
           />
           <UButton
             type="submit"
-            label="Create Tenant"
+            label="Create Organization"
             color="primary"
             :loading="loading"
           />
         </template>
-      </TenantCreateForm>
+      </OrganizationCreateForm>
     </UCard>
   </div>
 </template>

@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm'
 import { campaigns } from '../../../database/schema'
 import { changeStatusSchema, STATUS_TRANSITIONS } from '~~/shared/types/campaign'
 import type { CampaignStatus } from '~~/shared/types/campaign'
-import { syncTenantCampaignsToKV } from '../../../utils/kv-sync'
+import { syncOrganizationCampaignsToKV } from '../../../utils/kv-sync'
 
 export default defineEventHandler(async (event) => {
   const db = useDB()
@@ -50,11 +50,11 @@ export default defineEventHandler(async (event) => {
     .where(eq(campaigns.id, id))
     .returning()
 
-  // Sync tenant's campaign list to Cloudflare KV whenever active set changes
+  // Sync organization's campaign list to Cloudflare KV whenever active set changes
   const config = useRuntimeConfig()
-  const tenantId = campaign.tenantId || config.public.defaultTenantId
+  const organizationId = campaign.organizationId || config.public.defaultOrganizationId
   if (newStatus === 'active' || newStatus === 'paused' || newStatus === 'completed') {
-    await syncTenantCampaignsToKV(tenantId)
+    await syncOrganizationCampaignsToKV(organizationId)
   }
 
   return updated

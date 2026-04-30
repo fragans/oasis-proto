@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
   const db = useDB()
   const query = getQuery(event)
   const config = useRuntimeConfig()
-  const tenantId = (query.tenantId as string) || (config.public.defaultTenantId as string)
+  const organizationId = (query.organizationId as string) || (config.public.defaultOrganizationId as string)
 
   const rows = await db.select({
     id: creatives.id,
@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
     createdAt: creatives.createdAt
   })
     .from(creatives)
-    .where(eq(creatives.tenantId, tenantId))
+    .where(eq(creatives.organizationId, organizationId))
     .orderBy(desc(creatives.createdAt))
 
   return { creatives: rows }

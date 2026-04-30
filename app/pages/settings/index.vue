@@ -3,14 +3,14 @@ definePageMeta({ layout: 'default' })
 
 const toast = useToast()
 
-const { data: tenantsData, refresh: refreshTenants } = await useFetch('/api/tenants')
+const { data: organizationsData, refresh: refreshOrganizations } = await useFetch('/api/organizations')
 
 const updating = ref<Record<string, boolean>>({})
 
-async function toggleLive(tenantId: string, currentStatus: boolean) {
-  updating.value[tenantId] = true
+async function toggleLive(organizationId: string, currentStatus: boolean) {
+  updating.value[organizationId] = true
   try {
-    const response = await $fetch(`/api/tenants/${tenantId}/is-live`, {
+    const response = await $fetch(`/api/organizations/${organizationId}/is-live`, {
       method: 'PATCH',
       body: { isLive: !currentStatus }
     })
@@ -18,7 +18,7 @@ async function toggleLive(tenantId: string, currentStatus: boolean) {
     if (response.success) {
       toast.add({
         title: 'Success',
-        description: `Tenant ${tenantId} is now ${!currentStatus ? 'LIVE' : 'OFFLINE'}`,
+        description: `Organization ${organizationId} is now ${!currentStatus ? 'LIVE' : 'OFFLINE'}`,
         color: !currentStatus ? 'success' : 'neutral'
       })
       if (response.syncError) {
@@ -29,7 +29,7 @@ async function toggleLive(tenantId: string, currentStatus: boolean) {
         })
       }
     }
-    await refreshTenants()
+    await refreshOrganizations()
   } catch (err) {
     toast.add({
       title: 'Error',
@@ -37,11 +37,11 @@ async function toggleLive(tenantId: string, currentStatus: boolean) {
       color: 'error'
     })
   } finally {
-    updating.value[tenantId] = false
+    updating.value[organizationId] = false
   }
 }
 
-interface Tenant {
+interface Organization {
   id: string
   hostname: string
   apiUrl: string
@@ -49,29 +49,29 @@ interface Tenant {
   isLive: boolean
 }
 
-const deleteTarget = ref<Tenant | null>(null)
+const deleteTarget = ref<Organization | null>(null)
 const deleting = ref(false)
 
-async function removeTenant() {
+async function removeOrganization() {
   if (!deleteTarget.value) return
   deleting.value = true
   try {
-    const response = await $fetch<{ success: boolean, message: string }>(`/api/tenants/${deleteTarget.value.id}`, {
+    const response = await $fetch<{ success: boolean, message: string }>(`/api/organizations/${deleteTarget.value.id}`, {
       method: 'DELETE'
     })
 
     if (response.success) {
       toast.add({
-        title: 'Tenant Deleted',
+        title: 'Organization Deleted',
         description: response.message,
         color: 'success'
       })
-      await refreshTenants()
+      await refreshOrganizations()
     }
   } catch (err: unknown) {
     toast.add({
       title: 'Error',
-      description: err instanceof Error ? err.message : 'Failed to delete tenant',
+      description: err instanceof Error ? err.message : 'Failed to delete organization',
       color: 'error'
     })
   } finally {
@@ -94,17 +94,17 @@ async function removeTenant() {
       </div>
       <UButton
         icon="i-lucide-plus"
-        label="Add Tenant"
+        label="Add Organization"
         color="primary"
-        to="/settings/tenants/create"
+        to="/settings/organizations/create"
       />
     </div>
 
     <div class="grid gap-6">
-      <template v-if="tenantsData?.tenants">
+      <template v-if="organizationsData?.organizations">
         <UCard
-          v-for="tenant in tenantsData.tenants"
-          :key="tenant.id"
+          v-for="organization in organizationsData.organizations"
+          :key="organization.id"
           :ui="{
             root: 'rounded-xl overflow-hidden',
             footer: 'flex justify-between items-center'
@@ -113,9 +113,9 @@ async function removeTenant() {
           <div class="flex items-start justify-between">
             <div class="space-y-1">
               <h3 class="text-lg font-semibold flex items-center gap-2">
-                {{ tenant.id.toUpperCase() }}
+                {{ organization.id.toUpperCase() }}
                 <UBadge
-                  v-if="tenant.isLive"
+                  v-if="organization.isLive"
                   size="xs"
                   color="success"
                   variant="subtle"
@@ -132,7 +132,7 @@ async function removeTenant() {
                 </UBadge>
               </h3>
               <p class="text-sm">
-                {{ tenant.hostname }}
+                {{ organization.hostname }}
               </p>
             </div>
 
@@ -141,9 +141,9 @@ async function removeTenant() {
                 Live Mode
               </span>
               <USwitch
-                :model-value="tenant.isLive"
-                :loading="updating[tenant.id]"
-                @update:model-value="toggleLive(tenant.id, tenant.isLive)"
+                :model-value="organization.isLive"
+                :loading="updating[organization.id]"
+                @update:model-value="toggleLive(organization.id, organization.isLive)"
               />
             </div>
           </div>
@@ -159,7 +159,7 @@ async function removeTenant() {
                 size="lg"
                 class="font-mono"
               >
-                {{ tenant.cookieName }}
+                {{ organization.cookieName }}
               </UBadge>
             </div>
             <div class="space-y-1">
@@ -172,7 +172,7 @@ async function removeTenant() {
                 size="lg"
                 class="font-mono"
               >
-                {{ tenant.apiUrl }}
+                {{ organization.apiUrl }}
               </UBadge>
             </div>
           </div>
@@ -187,16 +187,16 @@ async function removeTenant() {
                 color="error"
                 size="xs"
                 icon="i-lucide-trash-2"
-                @click="deleteTarget = tenant"
+                @click="deleteTarget = organization"
               >
-                Delete Tenant
+                Delete Organization
               </UButton>
               <UButton
                 variant="link"
                 color="primary"
                 size="xs"
                 trailing-icon="i-lucide-external-link"
-                :to="`https://${tenant.hostname}`"
+                :to="`https://${organization.hostname}`"
                 target="_blank"
               >
                 Visit Site
@@ -253,13 +253,13 @@ async function removeTenant() {
     <!-- Delete Confirmation -->
     <CampaignConfirmDialog
       :open="!!deleteTarget"
-      title="Delete Tenant"
+      title="Delete Organization"
       :description="`Are you sure you want to delete ${deleteTarget?.id?.toUpperCase()}? This will permanently remove all related campaigns from the database and Cloudflare KV.`"
       confirm-label="Delete Everything"
       confirm-color="error"
       :loading="deleting"
       @update:open="deleteTarget = null"
-      @confirm="removeTenant"
+      @confirm="removeOrganization"
     />
   </div>
 </template>

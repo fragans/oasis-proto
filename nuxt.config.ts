@@ -26,7 +26,7 @@ export default defineNuxtConfig({
 
     public: {
       // Multi-tenancy
-      defaultTenantId: process.env.DEFAULT_TENANT_ID || 'no-tenant'
+      defaultOrganizationId: process.env.DEFAULT_ORGANIZATION_ID || 'no-organization'
     }
   },
 

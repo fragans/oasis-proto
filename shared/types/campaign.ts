@@ -31,7 +31,7 @@ export interface CampaignGoal {
 
 export interface Campaign {
   id: string
-  tenantId: string
+  organizationId: string
   name: string
   description: string | null
   objective: string | null
@@ -226,8 +226,8 @@ export const baseCampaignSchema = z.object({
   priority: z.enum(['low', 'medium', 'high', 'critical']),
   startDate: z.string().datetime().nullable().optional(),
   endDate: z.string().datetime().nullable().optional(),
-  // Multi-tenant
-  tenantId: z.string().min(1),
+  // Multi-organization
+  organizationId: z.string().min(1),
   // Edge-worker delivery fields
   templateType: z.enum(['promo-code', 'modal-with-cta-redirect']).nullable().optional(),
   campaignType: z.enum(['sticky', 'in-article', 'popup']),

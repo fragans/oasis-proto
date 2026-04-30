@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm'
-import { tenants } from '../../../database/schema'
-import { removeTenantCampaignsFromKV, removeTenantConfigFromKV } from '../../../utils/kv-sync'
+import { organizations } from '../../../database/schema'
+import { removeOrganizationCampaignsFromKV, removeOrganizationConfigFromKV } from '../../../utils/kv-sync'
 
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id')
@@ -9,39 +9,39 @@ export default defineEventHandler(async (event) => {
   if (!id) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Missing tenant ID'
+      statusMessage: 'Missing organization ID'
     })
   }
 
-  // 1. Fetch tenant first to get hostname (needed for KV cleanup)
-  const [tenant] = await db.select().from(tenants).where(eq(tenants.id, id))
+  // 1. Fetch organization first to get hostname (needed for KV cleanup)
+  const [organization] = await db.select().from(organizations).where(eq(organizations.id, id))
 
-  if (!tenant) {
+  if (!organization) {
     throw createError({
       statusCode: 404,
-      statusMessage: 'Tenant not found'
+      statusMessage: 'Organization not found'
     })
   }
 
   try {
     // 2. Delete from Postgres
     // NOTE: This will automatically delete all related campaigns because of onDelete: 'cascade'
-    await db.delete(tenants).where(eq(tenants.id, id))
+    await db.delete(organizations).where(eq(organizations.id, id))
 
     // 3. Clean up Cloudflare KV
     // We do this in parallel but don't strictly await if we want speed,
     // though for deletion it's better to ensure it's gone.
     await Promise.all([
-      removeTenantCampaignsFromKV(id),
-      removeTenantConfigFromKV(tenant.hostname)
+      removeOrganizationCampaignsFromKV(id),
+      removeOrganizationConfigFromKV(organization.hostname)
     ])
 
     return {
       success: true,
-      message: `Tenant ${id} and all related data removed successfully`
+      message: `Organization ${id} and all related data removed successfully`
     }
   } catch (err: unknown) {
-    console.error(`[Tenant Delete] Failed to remove tenant ${id}:`, err)
+    console.error(`[Organization Delete] Failed to remove organization ${id}:`, err)
     throw createError({
       statusCode: 500,
       statusMessage: 'Internal Server Error during deletion',

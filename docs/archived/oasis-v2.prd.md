@@ -13,7 +13,7 @@ KG Media operates multiple digital products (e.g., Kompas.id) with large, fragme
 
 ## Proposed Solution
 
-Oasis is a multi-tenant web platform that consolidates contact management, audience segmentation, in-app campaign creation, behavioral event tracking, and a data ingest API into a single workspace for marketing, CRM, and product teams.
+Oasis is a multi-organization web platform that consolidates contact management, audience segmentation, in-app campaign creation, behavioral event tracking, and a data ingest API into a single workspace for marketing, CRM, and product teams.
 
 ## Key Hypothesis
 
@@ -133,7 +133,7 @@ When I need to reach a specific customer segment with an in-app campaign, I want
 | `country` | string | |
 | `time_zone` | string | |
 | `crea_date` | date | Contact creation/join date in source system |
-| `account_id` | FK | Tenant scope |
+| `account_id` | FK | Organization scope |
 
 **Opt-in preferences** (directly on contacts table):
 
@@ -354,7 +354,7 @@ Pagination: configurable per_page (max 100).
 
 | Field | Type | Notes |
 |-------|------|-------|
-| `account_id` | FK | Tenant scope |
+| `account_id` | FK | Organization scope |
 | `name` | string (max 255) | Required |
 | `description` | string (max 255) | Optional |
 | `status` | enum | `draft`, `scheduled`, `active`, `passive`, `completed` |
@@ -498,7 +498,7 @@ Custom events: Full CRUD. Delete = soft-delete.
 
 | Field | Type | Notes |
 |-------|------|-------|
-| `account_id` | FK | Tenant scope |
+| `account_id` | FK | Organization scope |
 | `contact_id` | FK | |
 | `event_type_id` | FK | |
 | `occurred_at` | datetime | When the event happened |
@@ -746,10 +746,10 @@ user_invitations N──1 accounts
 
 | Table | Purpose | Key Constraints |
 |-------|---------|-----------------|
-| `accounts` | Tenant records | name unique, api_token encrypted |
+| `accounts` | Organization records | name unique, api_token encrypted |
 | `users` | Platform operators | email unique, FK to user_levels |
 | `user_levels` | Role definitions | level_name unique: super_admin, administrator, editor, viewer |
-| `user_account_access` | Multi-tenant pivot | unique(user_id, account_id), includes role, expires_on, can_access_pii |
+| `user_account_access` | Multi-organization pivot | unique(user_id, account_id), includes role, expires_on, can_access_pii |
 | `user_invitations` | Invitation tokens | token, email, role, account_id, accepted_at, expires_at |
 | `contacts` | Customer records | account_id scoped, reachability_status auto-computed |
 | `contact_segment` | Contact-segment pivot | contact_id, segment_id, assigned_at |
@@ -778,7 +778,7 @@ user_invitations N──1 accounts
 **Feasibility**: HIGH - This is a well-understood CRUD + data platform with clear domain boundaries.
 
 **Architecture Notes**:
-- Multi-tenant via `account_id` scoping on all queries. Middleware enforces account selection.
+- Multi-organization via `account_id` scoping on all queries. Middleware enforces account selection.
 - Session-based auth for web UI. Token-based auth for ingest API (separate middleware).
 - EAV pattern for custom attributes (typed value columns: string, number, boolean, date, json).
 - JSON configuration storage for campaign editor state.
@@ -876,7 +876,7 @@ user_invitations N──1 accounts
 | API token storage | Encrypted (reversible) | Hashed (one-way) | All admins need to view the token. Reversible encryption enables display without regeneration. |
 | Segment contact storage | Pivot table (contact_segment) | JSON array on segment, materialized view | Pivot table enables efficient counting, pagination, and individual contact management. |
 | Attribute deletion | Soft delete (is_active = false) | Hard delete | Preserves historical data integrity. Custom values remain queryable for reporting. |
-| Multi-tenancy | account_id column scoping | Schema-per-tenant, row-level security | Column scoping is simpler to implement, sufficient for expected account count, and compatible with shared hosting. |
+| Multi-tenancy | account_id column scoping | Schema-per-organization, row-level security | Column scoping is simpler to implement, sufficient for expected account count, and compatible with shared hosting. |
 | Tag system | Polymorphic (global tag pool) | Per-entity tag tables | Enables consistent tagging UX across segments, campaigns, and attributes with shared tag pool. |
 
 ---

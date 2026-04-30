@@ -4,7 +4,7 @@ definePageMeta({
 })
 
 const onCreated = async () => {
-  // After the first tenant is created, redirect to the dashboard
+  // After the first organization is created, redirect to the dashboard
   await navigateTo('/campaigns')
 }
 </script>
@@ -17,15 +17,15 @@ const onCreated = async () => {
           Welcome to Oasis
         </h1>
         <p class="mt-2 text-sm text-muted">
-          To get started, please initialize your first tenant.
+          To get started, please initialize your first organization.
         </p>
       </div>
 
       <UCard variant="soft">
-        <TenantCreateForm @success="onCreated" />
+        <OrganizationCreateForm @success="onCreated" />
       </UCard>
       <p class="text-center text-xs text-muted">
-        You can manage more tenants later in the settings.
+        You can manage more organizations later in the settings.
       </p>
     </div>
   </div>

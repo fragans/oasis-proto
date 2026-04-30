@@ -1,5 +1,5 @@
 import { migrate } from 'drizzle-orm/postgres-js/migrator'
-import { tenants } from '../database/schema'
+import { organizations } from '../database/schema'
 import { eq } from 'drizzle-orm'
 
 export default defineNitroPlugin(async () => {
@@ -12,17 +12,17 @@ export default defineNitroPlugin(async () => {
       })
       console.log('[DB] Migrations applied successfully')
 
-      // Ensure default tenant exists
+      // Ensure default organization exists
       const config = useRuntimeConfig()
-      const tenantId = config.public.defaultTenantId as string
+      const organizationId = config.public.defaultOrganizationId as string
 
-      if (tenantId && tenantId !== 'no-tenant') {
-        const existing = await db.select().from(tenants).where(eq(tenants.id, tenantId)).limit(1)
+      if (organizationId && organizationId !== 'no-organization') {
+        const existing = await db.select().from(organizations).where(eq(organizations.id, organizationId)).limit(1)
 
         if (existing.length === 0) {
-          console.log(`[DB] Seeding default tenant: ${tenantId}`)
-          await db.insert(tenants).values({
-            id: tenantId,
+          console.log(`[DB] Seeding default organization: ${organizationId}`)
+          await db.insert(organizations).values({
+            id: organizationId,
             hostname: 'localhost',
             apiUrl: 'http://localhost:3000',
             cookieName: 'oasis_guid',

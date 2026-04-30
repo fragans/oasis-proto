@@ -1,7 +1,8 @@
-import { eq } from 'drizzle-orm'
+import { getOrganizationId } from '../../utils/organization'
+import { eq, and } from 'drizzle-orm'
 import { campaigns } from '../../database/schema'
 import { updateCampaignSchema } from '~~/shared/types/campaign'
-import { syncTenantCampaignsToKV } from '../../utils/kv-sync'
+import { syncOrganizationCampaignsToKV } from '../../utils/kv-sync'
 import z from 'zod'
 
 export default defineEventHandler(async (event) => {
@@ -19,8 +20,13 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  const organizationId = getOrganizationId(event)
+  const where = organizationId
+    ? and(eq(campaigns.id, id), eq(campaigns.organizationId, organizationId))
+    : eq(campaigns.id, id)
+
   const existing = await db.query.campaigns.findFirst({
-    where: eq(campaigns.id, id)
+    where: where
   })
 
   if (!existing) {
@@ -28,7 +34,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const updateData: Record<string, unknown> = { updatedAt: new Date() }
-  if (parsed.data.tenantId !== undefined) updateData.tenantId = parsed.data.tenantId
+  if (parsed.data.organizationId !== undefined) updateData.organizationId = parsed.data.organizationId
   if (parsed.data.name !== undefined) updateData.name = parsed.data.name
   if (parsed.data.description !== undefined) updateData.description = parsed.data.description
   if (parsed.data.objective !== undefined) updateData.objective = parsed.data.objective
@@ -52,13 +58,13 @@ export default defineEventHandler(async (event) => {
 
   const [updated] = await db.update(campaigns)
     .set(updateData)
-    .where(eq(campaigns.id, id))
+    .where(where)
     .returning()
 
   if (updated && updated.status === 'active') {
     const config = useRuntimeConfig()
-    const tenantId = (updated.tenantId as string | undefined) || existing.tenantId || config.public.defaultTenantId
-    await syncTenantCampaignsToKV(tenantId)
+    const organizationId = (updated.organizationId as string | undefined) || existing.organizationId || config.public.defaultOrganizationId
+    await syncOrganizationCampaignsToKV(organizationId as string)
   }
 
   return updated
