@@ -61,7 +61,7 @@ export default defineEventHandler(async (event) => {
     .where(where)
     .returning()
 
-  if (updated && updated.status === 'active') {
+  if (updated && (updated.status === 'active' || updated.status === 'scheduled')) {
     const config = useRuntimeConfig()
     const organizationId = (updated.organizationId as string | undefined) || existing.organizationId || config.public.defaultOrganizationId
     await syncOrganizationCampaignsToKV(organizationId as string)

@@ -21,8 +21,8 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: 'Campaign not found' })
   }
 
-  // Re-sync KV if active (removes from list)
-  if (campaign.status === 'active') {
+  // Re-sync KV if active or scheduled (removes from list)
+  if (campaign.status === 'active' || campaign.status === 'scheduled') {
     await syncOrganizationCampaignsToKV(campaign.organizationId)
   }
 
