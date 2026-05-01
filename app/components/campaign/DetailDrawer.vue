@@ -40,9 +40,6 @@ const isOpen = computed({
       <div class="space-y-8">
         <!-- Header: Title + Campaign ID -->
         <div class="space-y-3">
-          <p class="text-xs font-mono  px-1.5 py-0.5 rounded">
-            ID: {{ campaign.id }}
-          </p>
           <h2 class="text-xl font-bold">
             {{ campaign.name }}
           </h2>
@@ -51,13 +48,18 @@ const isOpen = computed({
 
         <!-- Metadata Section: Created On, Priority, ID -->
         <section>
-          <h3 class="text-xs font-semibold uppercase tracking-wider mb-4 flex items-center gap-2 text-muted">
-            <UIcon
-              name="i-lucide-info"
-              class="w-4 h-4"
-            />
-            Metadata
-          </h3>
+          <div class="mb-4 space-y-2">
+            <h3 class="text-xs font-semibold uppercase tracking-wider flex items-center gap-2 text-muted">
+              <UIcon
+                name="i-lucide-info"
+                class="w-4 h-4"
+              />
+              Metadata
+            </h3>
+            <p class="text-xs font-mono py-0.5 rounded">
+              ID: {{ campaign.id }}
+            </p>
+          </div>
           <div class="grid grid-cols-2 gap-4">
             <div class="space-y-1">
               <p class="text-xs text-muted ">
