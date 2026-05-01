@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   const db = useDB()
   const config = useRuntimeConfig()
   const query = getQuery(event)
-  const tenantId = (query.tenantId as string) || (config.public.defaultTenantId as string)
+  const organizationId = (query.organizationId as string) || (config.public.defaultOrganizationId as string)
 
   const files = await readMultipartFormData(event)
 
@@ -46,7 +46,7 @@ export default defineEventHandler(async (event) => {
 
   // Save to database
   const [creative] = await db.insert(creatives).values({
-    tenantId,
+    organizationId,
     campaignId,
     type: 'image',
     fileUrl: url,

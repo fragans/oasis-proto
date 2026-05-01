@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
 
   const [creative] = await db.insert(creatives).values({
     campaignId,
-    tenantId: campaign.tenantId,
+    organizationId: campaign.organizationId,
     type,
     fileUrl: parsed.data.fileUrl,
     fileName: parsed.data.fileName,

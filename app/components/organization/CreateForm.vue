@@ -4,34 +4,34 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  success: [tenantId: string]
+  success: [organizationId: string]
 }>()
 
 const toast = useToast()
 const creating = ref(false)
-const newTenant = ref({
+const newOrganization = ref({
   id: '',
   hostname: '',
   apiUrl: '',
   cookieName: 'oasis_guid'
 })
 
-async function createTenant() {
+async function createOrganization() {
   creating.value = true
   try {
-    const response = await $fetch<{ success: boolean, message?: string }>('/api/tenants', {
+    const response = await $fetch<{ success: boolean, message?: string }>('/api/organizations', {
       method: 'POST',
-      body: newTenant.value
+      body: newOrganization.value
     })
 
     if (response.success) {
       toast.add({
         title: 'Success',
-        description: `Tenant ${newTenant.value.id} created successfully`,
+        description: `Organization ${newOrganization.value.id} created successfully`,
         color: 'success'
       })
 
-      const createdId = newTenant.value.id
+      const createdId = newOrganization.value.id
       emit('success', createdId)
 
       if (props.redirectOnSuccess) {
@@ -41,7 +41,7 @@ async function createTenant() {
   } catch (err: unknown) {
     toast.add({
       title: 'Error',
-      description: err instanceof Error ? err.message : 'Failed to create tenant',
+      description: err instanceof Error ? err.message : 'Failed to create organization',
       color: 'error'
     })
   } finally {
@@ -53,15 +53,15 @@ async function createTenant() {
 <template>
   <form
     class="space-y-4"
-    @submit.prevent="createTenant"
+    @submit.prevent="createOrganization"
   >
     <UFormField
       label="Unique ID"
       help="Internal slug, e.g. 'kompasid-staging'"
     >
       <UInput
-        v-model="newTenant.id"
-        placeholder="tenant-id"
+        v-model="newOrganization.id"
+        placeholder="organization-id"
         required
       />
     </UFormField>
@@ -71,7 +71,7 @@ async function createTenant() {
       help="The domain bound to the Cloudflare Worker"
     >
       <UInput
-        v-model="newTenant.hostname"
+        v-model="newOrganization.hostname"
         placeholder="oasis-edge.example.com"
         required
       />
@@ -82,7 +82,7 @@ async function createTenant() {
       help="Where the worker fetches content from"
     >
       <UInput
-        v-model="newTenant.apiUrl"
+        v-model="newOrganization.apiUrl"
         placeholder="https://www.example.com"
         required
       />
@@ -93,7 +93,7 @@ async function createTenant() {
       help="Name of the cookie to store the GUID"
     >
       <UInput
-        v-model="newTenant.cookieName"
+        v-model="newOrganization.cookieName"
         placeholder="oasis_guid"
         required
       />
@@ -106,7 +106,7 @@ async function createTenant() {
       >
         <UButton
           type="submit"
-          label="Create Tenant"
+          label="Create Organization"
           color="primary"
           :loading="creating"
           block

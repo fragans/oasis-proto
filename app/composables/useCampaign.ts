@@ -7,7 +7,7 @@ export function useCampaign() {
 
   async function createCampaign(data: {
     name: string
-    tenantId?: string
+    organizationId?: string
     campaignType?: string
     templateType?: string
     description?: string

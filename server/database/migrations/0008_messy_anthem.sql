@@ -1,1 +1,1 @@
-ALTER TABLE "campaigns" ALTER COLUMN "tenant_id" DROP DEFAULT;
+ALTER TABLE "campaigns" ALTER COLUMN "organization_id" DROP DEFAULT;

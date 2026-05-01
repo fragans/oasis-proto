@@ -1,5 +1,6 @@
 import { campaigns } from '../../database/schema'
 import { createCampaignSchema } from '~~/shared/types/campaign'
+import { requireOrganizationId } from '../../utils/organization'
 
 export default defineEventHandler(async (event) => {
   const db = useDB()
@@ -14,8 +15,10 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  const organizationId = parsed.data.organizationId || requireOrganizationId(event)
+
   const [campaign] = await db.insert(campaigns).values({
-    tenantId: parsed.data.tenantId,
+    organizationId: organizationId,
     name: parsed.data.name,
     description: parsed.data.description || null,
     objective: parsed.data.objective || null,

@@ -11,7 +11,7 @@ interface Creative {
 
 const config = useRuntimeConfig()
 const { data, status, refresh } = useAsyncData('creatives-picker', () => $fetch<{ creatives: Creative[] }>('/api/creatives', {
-  query: { tenantId: config.public.defaultTenantId }
+  query: { organizationId: config.public.defaultOrganizationId }
 }))
 const creatives = computed(() => data.value?.creatives || [])
 const loading = computed(() => status.value === 'pending')

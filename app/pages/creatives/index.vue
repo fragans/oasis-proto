@@ -11,7 +11,7 @@ interface Creative {
 
 const config = useRuntimeConfig()
 const { data, status, refresh } = useFetch<{ creatives: Creative[] }>('/api/creatives', {
-  query: { tenantId: config.public.defaultTenantId }
+  query: { organizationId: config.public.defaultOrganizationId }
 })
 const creatives = computed(() => data.value?.creatives || [])
 const loading = computed(() => status.value === 'pending')
@@ -37,7 +37,7 @@ async function handleFileUpload(event: Event) {
     await $fetch('/api/upload/creative', {
       method: 'POST',
       body: formData,
-      query: { tenantId: config.public.defaultTenantId }
+      query: { organizationId: config.public.defaultOrganizationId }
     })
     await refresh()
   } catch (error) {

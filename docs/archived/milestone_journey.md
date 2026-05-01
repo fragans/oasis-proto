@@ -368,7 +368,7 @@
 
 ## Goal 5: User & Account Management
 
-> Multi-tenant access control with roles, invitations, and PII restrictions.
+> Multi-organization access control with roles, invitations, and PII restrictions.
 
 ### Milestone 5.1 — Accounts & Roles `~4 days`
 

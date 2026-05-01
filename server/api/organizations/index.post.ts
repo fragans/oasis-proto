@@ -1,12 +1,20 @@
-import { tenants } from '../../database/schema'
-import { createTenantSchema } from '~~/shared/types/tenant'
-import { syncTenantConfigToKV } from '../../utils/kv-sync'
+import { organizations } from '../../database/schema'
+import { createOrganizationSchema } from '~~/shared/types/organization'
+import { syncOrganizationConfigToKV } from '../../utils/kv-sync'
 
 export default defineEventHandler(async (event) => {
+  const isSuperAdmin = getHeader(event, 'x-oasis-super-admin') === 'true'
+  if (!isSuperAdmin) {
+    throw createError({
+      statusCode: 403,
+      message: 'Only Super Admins can create new organizations.'
+    })
+  }
+
   const db = useDB()
   const body = await readBody(event)
 
-  const parsed = createTenantSchema.safeParse(body)
+  const parsed = createOrganizationSchema.safeParse(body)
   if (!parsed.success) {
     throw createError({
       statusCode: 400,
@@ -16,7 +24,7 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const [tenant] = await db.insert(tenants).values({
+    const [organization] = await db.insert(organizations).values({
       id: parsed.data.id,
       hostname: parsed.data.hostname,
       apiUrl: parsed.data.apiUrl,
@@ -25,31 +33,31 @@ export default defineEventHandler(async (event) => {
       isLive: false // Default to maintenance
     }).returning()
 
-    if (!tenant) {
+    if (!organization) {
       throw createError({
         statusCode: 500,
-        statusMessage: 'Failed to create tenant'
+        statusMessage: 'Failed to create organization'
       })
     }
 
-    // Sync to KV immediately so the edge worker knows about this tenant config
+    // Sync to KV immediately so the edge worker knows about this organization config
     try {
-      await syncTenantConfigToKV(tenant.id)
+      await syncOrganizationConfigToKV(organization.id)
     } catch (kvErr) {
-      console.error(`[API] Tenant created but KV sync failed for ${tenant.id}:`, kvErr)
+      console.error(`[API] Organization created but KV sync failed for ${organization.id}:`, kvErr)
       // We don't fail the request here, but the UI might show a warning
     }
 
     setResponseStatus(event, 201)
     return {
       success: true,
-      tenant
+      organization
     }
   } catch (err: unknown) {
     if (err && typeof err === 'object' && 'code' in err && err.code === '23505') { // Unique constraint violation
       throw createError({
         statusCode: 409,
-        statusMessage: 'Tenant ID or Hostname already exists'
+        statusMessage: 'Organization ID or Hostname already exists'
       })
     }
     throw err

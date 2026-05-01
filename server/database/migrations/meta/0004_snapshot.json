@@ -72,8 +72,8 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "tenant_id": {
-          "name": "tenant_id",
+        "organization_id": {
+          "name": "organization_id",
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true,

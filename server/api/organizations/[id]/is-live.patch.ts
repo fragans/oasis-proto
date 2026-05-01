@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm'
-import { tenants } from '../../../database/schema'
-import { syncTenantConfigToKV } from '../../../utils/kv-sync'
+import { organizations } from '../../../database/schema'
+import { syncOrganizationConfigToKV } from '../../../utils/kv-sync'
 
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id')
@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   if (!id) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Missing tenant ID'
+      statusMessage: 'Missing organization ID'
     })
   }
 
@@ -24,37 +24,37 @@ export default defineEventHandler(async (event) => {
   }
 
   // 1. Update database
-  const updated = await db.update(tenants)
+  const updated = await db.update(organizations)
     .set({
       isLive,
       updatedAt: new Date()
     })
-    .where(eq(tenants.id, id))
+    .where(eq(organizations.id, id))
     .returning()
 
   if (updated.length === 0) {
     throw createError({
       statusCode: 404,
-      statusMessage: 'Tenant not found'
+      statusMessage: 'Organization not found'
     })
   }
 
   // 2. Sync to KV
   try {
-    await syncTenantConfigToKV(id)
+    await syncOrganizationConfigToKV(id)
   } catch (err) {
     // We still return success for DB update, but warn about sync failure
-    console.error(`[API] Failed to sync tenant ${id} to KV:`, err)
+    console.error(`[API] Failed to sync organization ${id} to KV:`, err)
     return {
       success: true,
-      tenant: updated[0],
+      organization: updated[0],
       syncError: 'Failed to sync to Edge (KV)'
     }
   }
 
   return {
     success: true,
-    tenant: updated[0],
+    organization: updated[0],
     syncError: null as string | null
   }
 })

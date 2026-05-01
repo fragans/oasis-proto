@@ -1,17 +1,17 @@
-import { eq, and } from 'drizzle-orm'
-import { campaigns, tenants } from '../database/schema'
+import { eq, and, sql } from 'drizzle-orm'
+import { organizations, campaigns } from '../database/schema'
 import type { KVCampaign, CampaignType, CampaignTrigger, Targeting, CampaignGoal } from '~~/shared/types/campaign'
 
 /**
- * Syncs all ACTIVE campaigns for a given tenant to Cloudflare KV.
+ * Syncs all ACTIVE and SCHEDULED campaigns for a given organization to Cloudflare KV.
  *
- * KV Key written: `tenant:{tenantId}:campaigns`
+ * KV Key written: `organization:{organizationId}:campaigns`
  * Namespace:      staging-OASIS_DATA (id from CLOUDFLARE_KV_NAMESPACE_ID env)
  *
  * The edge worker (oasis-edge) reads this key to decide which banners to inject.
  */
-export async function syncTenantCampaignsToKV(tenantId: string): Promise<void> {
-  console.log('syncTenantCampaignsToKV')
+export async function syncOrganizationCampaignsToKV(organizationId: string): Promise<void> {
+  console.log('syncOrganizationCampaignsToKV')
 
   const config = useRuntimeConfig()
   const db = useDB()
@@ -25,11 +25,11 @@ export async function syncTenantCampaignsToKV(tenantId: string): Promise<void> {
     return
   }
 
-  // 1. Fetch all active campaigns for this tenant from Postgres
+  // 1. Fetch all active and scheduled campaigns for this organization from Postgres
   const activeCampaigns = await db.select().from(campaigns).where(
     and(
-      eq(campaigns.tenantId, tenantId),
-      eq(campaigns.status, 'active')
+      eq(campaigns.organizationId, organizationId),
+      sql`${campaigns.status} IN ('active', 'scheduled')`
     )
   )
 
@@ -43,11 +43,13 @@ export async function syncTenantCampaignsToKV(tenantId: string): Promise<void> {
     goal: (c.goal as unknown as CampaignGoal) ?? null,
     element_selector: c.elementSelector || 'body',
     html: c.html || '',
-    isTestMode: c.isTestMode
+    isTestMode: c.isTestMode,
+    startTime: c.startDate?.toISOString() ?? null,
+    endTime: c.endDate?.toISOString() ?? null
   }))
 
   // 3. Write to Cloudflare KV via REST API
-  const kvKey = `tenant:${tenantId}:campaigns`
+  const kvKey = `organization:${organizationId}:campaigns`
   const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/storage/kv/namespaces/${namespaceId}/values/${encodeURIComponent(kvKey)}`
 
   try {
@@ -60,7 +62,7 @@ export async function syncTenantCampaignsToKV(tenantId: string): Promise<void> {
       body: JSON.stringify(kvPayload)
     })
 
-    console.log(`[KV Sync] ✅ Wrote ${kvPayload.length} active campaign(s) to KV key "${kvKey}"`)
+    console.log(`[KV Sync] ✅ Wrote ${kvPayload.length} active/scheduled campaign(s) to KV key "${kvKey}"`)
   } catch (err) {
     console.error(`[KV Sync] ❌ Failed to write to Cloudflare KV:`, err)
     throw err
@@ -68,11 +70,11 @@ export async function syncTenantCampaignsToKV(tenantId: string): Promise<void> {
 }
 
 /**
- * Removes a tenant's campaign list from KV entirely.
- * Call when all campaigns for a tenant are paused/completed.
- * (Usually syncTenantCampaignsToKV will just write an empty array.)
+ * Removes an organization's campaign list from KV entirely.
+ * Call when all campaigns for an organization are paused/completed.
+ * (Usually syncOrganizationCampaignsToKV will just write an empty array.)
  */
-export async function removeTenantCampaignsFromKV(tenantId: string): Promise<void> {
+export async function removeOrganizationCampaignsFromKV(organizationId: string): Promise<void> {
   const config = useRuntimeConfig()
   const accountId = config.cloudflareAccountId as string
   const namespaceId = config.cloudflareKvNamespaceId as string
@@ -80,7 +82,7 @@ export async function removeTenantCampaignsFromKV(tenantId: string): Promise<voi
 
   if (!accountId || !namespaceId || !apiToken) return
 
-  const kvKey = `tenant:${tenantId}:campaigns`
+  const kvKey = `organization:${organizationId}:campaigns`
   const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/storage/kv/namespaces/${namespaceId}/values/${encodeURIComponent(kvKey)}`
 
   try {
@@ -95,11 +97,11 @@ export async function removeTenantCampaignsFromKV(tenantId: string): Promise<voi
 }
 
 /**
- * Syncs a tenant's global configuration to Cloudflare KV.
+ * Syncs an organization's global configuration to Cloudflare KV.
  *
- * KV Key written: `tenant:{hostname}:config`
+ * KV Key written: `organization:{hostname}:config`
  */
-export async function syncTenantConfigToKV(tenantId: string): Promise<void> {
+export async function syncOrganizationConfigToKV(organizationId: string): Promise<void> {
   const config = useRuntimeConfig()
   const db = useDB()
 
@@ -112,26 +114,26 @@ export async function syncTenantConfigToKV(tenantId: string): Promise<void> {
     return
   }
 
-  // 1. Fetch tenant config from Postgres
-  const [tenant] = await db.select().from(tenants).where(eq(tenants.id, tenantId))
+  // 1. Fetch organization config from Postgres
+  const [organization] = await db.select().from(organizations).where(eq(organizations.id, organizationId))
 
-  if (!tenant) {
-    console.warn(`[KV Sync] No tenant found with ID "${tenantId}" — skipping config sync`)
+  if (!organization) {
+    console.warn(`[KV Sync] No organization found with ID "${organizationId}" — skipping config sync`)
     return
   }
 
   // 2. Map to the KV format the oasis-edge worker expects
   const kvPayload = {
-    tenant_id: tenant.id,
-    cookie_name: tenant.cookieName,
-    api_url: tenant.apiUrl,
-    auth_cookie_names: tenant.authCookieNames || [],
-    is_live: tenant.isLive
+    organization_id: organization.id,
+    cookie_name: organization.cookieName,
+    api_url: organization.apiUrl,
+    auth_cookie_names: organization.authCookieNames || [],
+    is_live: organization.isLive
   }
 
   // 3. Write to Cloudflare KV via REST API
-  // Note: We use the hostname from the tenant config as the key for resolution
-  const kvKey = `tenant:${tenant.hostname}:config`
+  // Note: We use the hostname from the organization config as the key for resolution
+  const kvKey = `organization:${organization.hostname}:config`
   const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/storage/kv/namespaces/${namespaceId}/values/${encodeURIComponent(kvKey)}`
 
   try {
@@ -144,18 +146,18 @@ export async function syncTenantConfigToKV(tenantId: string): Promise<void> {
       body: JSON.stringify(kvPayload)
     })
 
-    console.log(`[KV Sync] ✅ Wrote config for tenant "${tenant.id}" to KV key "${kvKey}"`)
+    console.log(`[KV Sync] ✅ Wrote config for organization "${organization.id}" to KV key "${kvKey}"`)
   } catch (err) {
-    console.error(`[KV Sync] ❌ Failed to write tenant config to Cloudflare KV:`, err)
+    console.error(`[KV Sync] ❌ Failed to write organization config to Cloudflare KV:`, err)
     throw err
   }
 }
 
 /**
- * Removes a tenant's global configuration from Cloudflare KV.
- * Call when a tenant is deleted from the database.
+ * Removes an organization's global configuration from Cloudflare KV.
+ * Call when an organization is deleted from the database.
  */
-export async function removeTenantConfigFromKV(hostname: string): Promise<void> {
+export async function removeOrganizationConfigFromKV(hostname: string): Promise<void> {
   const config = useRuntimeConfig()
 
   const accountId = config.cloudflareAccountId as string
@@ -164,7 +166,7 @@ export async function removeTenantConfigFromKV(hostname: string): Promise<void> 
 
   if (!accountId || !namespaceId || !apiToken) return
 
-  const kvKey = `tenant:${hostname}:config`
+  const kvKey = `organization:${hostname}:config`
   const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/storage/kv/namespaces/${namespaceId}/values/${encodeURIComponent(kvKey)}`
 
   try {
@@ -172,8 +174,8 @@ export async function removeTenantConfigFromKV(hostname: string): Promise<void> 
       method: 'DELETE',
       headers: { Authorization: `Bearer ${apiToken}` }
     })
-    console.log(`[KV Sync] 🗑️ Removed config for tenant hostname "${hostname}" from KV key "${kvKey}"`)
+    console.log(`[KV Sync] 🗑️ Removed config for organization hostname "${hostname}" from KV key "${kvKey}"`)
   } catch (err) {
-    console.error(`[KV Sync] ❌ Failed to delete tenant config from Cloudflare KV:`, err)
+    console.error(`[KV Sync] ❌ Failed to delete organization config from Cloudflare KV:`, err)
   }
 }

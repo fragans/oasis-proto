@@ -9,7 +9,7 @@
 
 ## 1. Introduction
 
-OASIS is an internal customer engagement and ad-serving platform built for KG Media. It provides marketing and CRM teams with a unified workspace to manage contacts, define audience segments, launch campaigns across multiple channels, and track customer behavior — all within a secure, multi-tenant environment.
+OASIS is an internal customer engagement and ad-serving platform built for KG Media. It provides marketing and CRM teams with a unified workspace to manage contacts, define audience segments, launch campaigns across multiple channels, and track customer behavior — all within a secure, multi-organization environment.
 
 The platform serves the KG Media digital product portfolio — including **Kompas.com** (Indonesia's largest online news portal), **Kompas.id** (Harian Kompas digital subscription), and other KG Media-owned media properties. These sites and apps are the primary consumers of banner creatives served via OASIS-DELIVERY.
 
@@ -93,7 +93,7 @@ To support expected massive growth, the platform must be decoupled into two dist
 - Input validation on all form submissions and API payloads.
 
 ### Scalability
-- Multi-tenant data isolation via `account_id` scoping on all queries.
+- Multi-organization data isolation via `account_id` scoping on all queries.
 - Queue-based background processing for bulk operations (imports, segment refreshes).
 - Cloud object storage (Huawei OBS / AWS S3) for all user-uploaded assets.
 
@@ -369,7 +369,7 @@ Allow admins to manage API credentials for the Ingest API.
 
 | Entity | Purpose |
 |---|---|
-| `accounts` | Top-level tenant — all data is scoped here |
+| `accounts` | Top-level organization — all data is scoped here |
 | `contacts` | Individual customer records |
 | `segments` | Named groups of contacts (static or dynamic) |
 | `contact_attributes` | Attribute schema definitions (default + custom) |
