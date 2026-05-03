@@ -5,7 +5,7 @@ Campaigns Management is the primary functional domain of the Oasis platform. It 
 
 ## Components
 
-### 1. Management Dashboard (`oasis-proto`)
+### 1. Management Dashboard (`oasis-dashboard`)
 The dashboard provides a 5-step **Campaign Wizard** for high-velocity campaign creation:
 
 *   **Step 1: Template Selection**

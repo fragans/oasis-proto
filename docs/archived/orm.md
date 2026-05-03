@@ -228,7 +228,7 @@ await db.delete(campaigns).where(eq(campaigns.id, id))
 ## File Locations
 
 ```
-oasis-proto/
+oasis-dashboard/
 ├── drizzle.config.ts                    # Drizzle Kit config
 ├── server/
 │   ├── database/

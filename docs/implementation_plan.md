@@ -25,7 +25,7 @@ Build the **Campaign Management** module (PRD §8.1) as the first deliverable of
 
 #### [NEW] Nuxt 4 Project (`oasis-dashboard`)
 
-Scaffold inside the current `oasis-proto` workspace:
+Scaffold inside the current `oasis-dashboard` workspace:
 
 ```bash
 npx nuxi@latest init ./ --package-manager npm --git-init false
@@ -35,7 +35,7 @@ npm install @nuxt/ui tailwindcss
 **Nuxt 4 directory structure:**
 
 ```
-oasis-proto/
+oasis-dashboard/
 ├── app/                          # Frontend (Vue)
 │   ├── assets/css/main.css       # Tailwind + Nuxt UI imports
 │   ├── components/               # Vue components

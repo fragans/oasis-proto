@@ -1,5 +1,5 @@
 {
-  "name": "oasis-proto",
+  "name": "oasis-dashboard",
   "private": true,
   "type": "module",
   "scripts": {

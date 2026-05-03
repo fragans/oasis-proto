@@ -6,7 +6,7 @@
       </p>
       <h1>Campaign Creation to Delivery</h1>
       <p class="subtitle">
-        From marketer input in oasis-proto through edge delivery to the visitor's browser.
+        From marketer input in oasis-dashboard through edge delivery to the visitor's browser.
       </p>
 
       <div class="diagram-wrap">
@@ -193,7 +193,7 @@
             font-weight="500"
             letter-spacing="0.14em"
             fill="#4f5d75"
-          >OASIS-PROTO API</text>
+          >OASIS-DASHBOARD API</text>
           <text
             transform="translate(16, 340) rotate(-90)"
             text-anchor="middle"
@@ -1230,7 +1230,7 @@
           </p>
           <div class="card-header">
             <span class="card-dot coral" />
-            <h3>oasis-proto</h3>
+            <h3>oasis-dashboard</h3>
           </div>
           <ul>
             <li>5-step wizard: template → target → trigger → goal → launch</li>
@@ -1274,7 +1274,7 @@
       </div>
 
       <footer>
-        OASIS PLATFORM · CAMPAIGN LIFECYCLE · oasis-proto → Cloudflare KV → oasis-edge → visitor browser
+        OASIS PLATFORM · CAMPAIGN LIFECYCLE · oasis-dashboard → Cloudflare KV → oasis-edge → visitor browser
       </footer>
     </div>
   </div>

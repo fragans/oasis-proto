@@ -1,6 +1,6 @@
-# Oasis Proto
+# Oasis Dashboard
 
-Oasis Proto adalah platform berbasis Nuxt 4 untuk mengelola kampanye pemasaran, aset kreatif, audiens, dan alur kerja (workflow). Platform ini dilengkapi dengan arsitektur multi-organisasi dan sinkronisasi edge menggunakan Cloudflare KV untuk mengirimkan logika kampanye secara global pada edge.
+Oasis Dashboard adalah platform berbasis Nuxt 4 untuk mengelola kampanye pemasaran, aset kreatif, audiens, dan alur kerja (workflow). Platform ini dilengkapi dengan arsitektur multi-organisasi dan sinkronisasi edge menggunakan Cloudflare KV untuk mengirimkan logika kampanye secara global pada edge.
 
 <!-- i18n-selector:start -->
 [English](./README.md) | **Bahasa Indonesia**
@@ -26,7 +26,7 @@ Oasis Proto adalah platform berbasis Nuxt 4 untuk mengelola kampanye pemasaran, 
 
 ### Prasyarat
 
-- Node.js 20+
+- Node.js 22+
 - Database PostgreSQL
 - Akun Cloudflare (untuk sinkronisasi edge KV)
 - Bucket penyimpanan yang kompatibel dengan S3
