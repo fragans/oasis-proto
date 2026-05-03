@@ -115,6 +115,10 @@ const columns = [
     }
   }
 ]
+
+onMounted(() => {
+  refresh()
+})
 </script>
 
 <template>

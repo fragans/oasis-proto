@@ -11,7 +11,8 @@ interface Creative {
 
 const config = useRuntimeConfig()
 const { data, status, refresh } = useFetch<{ creatives: Creative[] }>('/api/creatives', {
-  query: { organizationId: config.public.defaultOrganizationId }
+  query: { organizationId: config.public.defaultOrganizationId },
+  immediate: false
 })
 const creatives = computed(() => data.value?.creatives || [])
 const loading = computed(() => status.value === 'pending')
@@ -55,6 +56,10 @@ function formatSize(bytes: number) {
   const i = Math.floor(Math.log(bytes) / Math.log(k))
   return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i]
 }
+
+onMounted(() => {
+  refresh()
+})
 </script>
 
 <template>
