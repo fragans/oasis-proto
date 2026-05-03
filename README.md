@@ -1,64 +1,79 @@
-# Nuxt Starter Template
+# Oasis Proto
 
-[![Nuxt UI](https://img.shields.io/badge/Made%20with-Nuxt%20UI-00DC82?logo=nuxt&labelColor=020420)](https://ui.nuxt.com)
+Oasis Proto is a Nuxt 4-based platform for managing marketing campaigns, creatives, audiences, and workflows. It features a multi-organization architecture and edge synchronization with Cloudflare KV to deliver campaign logic globally at the edge.
 
-Use this template to get started with [Nuxt UI](https://ui.nuxt.com) quickly.
+<!-- i18n-selector:start -->
+**English** | [Bahasa Indonesia](./README.id.md)
+<!-- i18n-selector:end -->
 
-- [Live demo](https://starter-template.nuxt.dev/)
-- [Documentation](https://ui.nuxt.com/docs/getting-started/installation/nuxt)
+## Features
 
-<a href="https://starter-template.nuxt.dev/" target="_blank">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://ui.nuxt.com/assets/templates/nuxt/starter-dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="https://ui.nuxt.com/assets/templates/nuxt/starter-light.png">
-    <img alt="Nuxt Starter Template" src="https://ui.nuxt.com/assets/templates/nuxt/starter-light.png" width="830" height="466">
-  </picture>
-</a>
+- **Multi-Organization Architecture**: Robust multi-tenancy support for managing diverse organizations and campaigns within a single deployment.
+- **Super Admin Mode**: Built-in super admin capabilities for cross-organization initialization and oversight.
+- **Edge Synchronization**: Integrates directly with Cloudflare KV to push scheduled campaigns and state updates to the edge (`oasis-edge`).
+- **Visual Workflow Builder**: Interactive journey mapping and logic building powered by Vue Flow.
+- **Object Storage**: S3-compatible cloud storage support for creatives and assets.
 
-> The starter template for Vue is on https://github.com/nuxt-ui-templates/starter-vue.
+## Tech Stack
 
-## Quick Start
+- **Framework**: [Nuxt 4](https://nuxt.com/) & [Vue 3](https://vuejs.org/)
+- **UI Components**: [@nuxt/ui](https://ui.nuxt.com/) (Tailwind CSS)
+- **Database**: PostgreSQL with [Drizzle ORM](https://orm.drizzle.team/)
+- **Edge Storage**: [Cloudflare KV](https://developers.cloudflare.com/kv/)
+- **Asset Storage**: S3 Compatible Storage (AWS / OBS)
 
-```bash [Terminal]
-npm create nuxt@latest -- -t ui
-```
+## Getting Started
 
-## Deploy your own
+### Prerequisites
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-name=starter&repository-url=https%3A%2F%2Fgithub.com%2Fnuxt-ui-templates%2Fstarter&demo-image=https%3A%2F%2Fui.nuxt.com%2Fassets%2Ftemplates%2Fnuxt%2Fstarter-dark.png&demo-url=https%3A%2F%2Fstarter-template.nuxt.dev%2F&demo-title=Nuxt%20Starter%20Template&demo-description=A%20minimal%20template%20to%20get%20started%20with%20Nuxt%20UI.)
+- Node.js 20+
+- PostgreSQL database
+- Cloudflare account (for KV edge sync)
+- S3-compatible storage bucket
 
-## Setup
+### Installation
 
-Make sure to install the dependencies:
-
-```bash
-pnpm install
-```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
+1. Install dependencies:
 
 ```bash
-pnpm dev
+npm install
 ```
 
-## Production
-
-Build the application for production:
+2. Copy `.env.example` to `.env` and fill in your variables:
 
 ```bash
-pnpm build
+cp .env.example .env
 ```
 
-Locally preview production build:
+3. Run database migrations:
 
 ```bash
-pnpm preview
+npx drizzle-kit push
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+4. Start the development server:
 
-## Renovate integration
+```bash
+npm run dev
+```
 
-Install [Renovate GitHub app](https://github.com/apps/renovate/installations/select_target) on your repository and you are good to go.
+## Environment Variables
+
+Key configuration variables needed in your `.env` file:
+
+```env
+DATABASE_URL=postgresql://user:password@localhost:5432/oasis
+CLOUDFLARE_ACCOUNT_ID=
+CLOUDFLARE_API_TOKEN=
+CLOUDFLARE_KV_NAMESPACE_ID=
+ENABLE_SUPER_ADMIN=true
+SUPER_ADMIN_TOKEN=oasis-dev-admin
+S3_ENDPOINT=
+S3_ACCESS_KEY_ID=
+S3_SECRET_ACCESS_KEY=
+S3_BUCKET=
+```
+
+## License
+
+Refer to the [LICENSE](./LICENSE) file for more information.
