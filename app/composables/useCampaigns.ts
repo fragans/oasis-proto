@@ -24,7 +24,8 @@ export function useCampaigns() {
 
   const { data, status, refresh } = useFetch<CampaignListResponse>('/api/campaigns', {
     query,
-    watch: [query]
+    watch: [query],
+    immediate: false
   })
 
   const campaigns = computed(() => data.value?.campaigns || [])
