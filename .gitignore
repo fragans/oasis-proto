@@ -28,3 +28,6 @@ RULES.md
 .agent/*
 .agents/*
 .claude/*
+.clauderules
+.claudeignore
+.cursorrules
