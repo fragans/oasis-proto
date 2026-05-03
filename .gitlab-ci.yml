@@ -1,0 +1,21 @@
+image:node:22-slim
+
+# Cache node_modules and npm cache for faster builds
+cache:
+  key:
+    files:
+      - package-lock.json
+  paths:
+    - .npm/
+
+ci:
+  stage: test
+  before_script:
+    - npm config set cache "$(pwd)/.npm"
+  script:
+    - npm ci
+    - npm run lint
+    - npm run typecheck
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main"
