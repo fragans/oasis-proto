@@ -20,10 +20,10 @@ const onCreated = async () => {
         class="-ml-2 mb-4"
       />
       <h1 class="text-2xl font-bold">
-        Add New Property
+        Add New Organization
       </h1>
       <p class="text-sm text-zinc-500 mt-1">
-        Configure a new organization for your Oasis environment.
+        Configure a new organization.
       </p>
     </div>
 
