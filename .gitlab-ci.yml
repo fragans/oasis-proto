@@ -1,10 +1,4 @@
-image: node:22-slim
-
-# Use a default tag for all jobs. 
-# This is often required for runners on private GitLab instances to pick up jobs.
-default:
-  tags:
-    - docker
+image: node:20-slim
 
 stages:
   - test
