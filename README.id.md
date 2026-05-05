@@ -6,6 +6,11 @@ Oasis Dashboard adalah platform berbasis Nuxt 4 untuk mengelola kampanye pemasar
 [English](./README.md) | **Bahasa Indonesia**
 <!-- i18n-selector:end -->
 
+## Deployment
+
+- **Staging**: [https://staging-oasis.kgmedia.id/](https://staging-oasis.kgmedia.id/)
+- **Production**: [https://oasis.kgmedia.id/](https://oasis.kgmedia.id/)
+
 ## Fitur Utama
 
 - **Arsitektur Multi-Organisasi**: Dukungan multi-tenancy yang andal untuk mengelola beragam organisasi dan kampanye dalam satu penerapan (deployment).

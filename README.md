@@ -6,6 +6,11 @@ Oasis Dashboard is a Nuxt 4-based platform for managing marketing campaigns, cre
 **English** | [Bahasa Indonesia](./README.id.md)
 <!-- i18n-selector:end -->
 
+## Deployment
+
+- **Staging**: [https://staging-oasis.kgmedia.id/](https://staging-oasis.kgmedia.id/)
+- **Production**: [https://oasis.kgmedia.id/](https://oasis.kgmedia.id/)
+
 ## Features
 
 - **Multi-Organization Architecture**: Robust multi-tenancy support for managing diverse organizations and campaigns within a single deployment.
