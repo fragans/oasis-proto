@@ -1,8 +1,5 @@
 export default defineNuxtConfig({
-  modules: [
-    '@nuxt/eslint',
-    '@nuxt/ui'
-  ],
+  modules: ['@nuxt/eslint', '@nuxt/ui', 'nuxt-skill-hub'],
 
   devtools: {
     enabled: true
