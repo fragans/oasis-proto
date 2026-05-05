@@ -1,5 +1,11 @@
 image: node:22-slim
 
+# Use a default tag for all jobs. 
+# This is often required for runners on private GitLab instances to pick up jobs.
+default:
+  tags:
+    - docker
+
 stages:
   - test
   - build
@@ -7,10 +13,6 @@ stages:
 
 variables:
   OBSUTIL_URL: "https://obs-community-intl.obs.ap-southeast-1.myhuaweicloud.com/obsutil/current/obsutil_linux_amd64.tar.gz"
-  # Cloudflare Variables (Should be set in GitLab CI/CD Variables UI for security)
-  # CLOUDFLARE_ACCOUNT_ID: ""
-  # CLOUDFLARE_API_TOKEN: ""
-  # CLOUDFLARE_KV_NAMESPACE_ID: ""
 
 # Cache node_modules and npm cache for faster builds
 cache:
@@ -48,7 +50,6 @@ ci:
 build:staging:
   extends: .build_template
   variables:
-    # Ensure build uses staging-specific env if needed
     NODE_ENV: "staging"
   rules:
     - if: $CI_COMMIT_BRANCH == "staging"
