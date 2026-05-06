@@ -1,1 +1,0 @@
-ALTER TABLE "campaigns" ALTER COLUMN "organization_id" DROP DEFAULT;
