@@ -3,6 +3,7 @@
 stages:
   - test
   - build
+  - migrate
   - deploy
 
 variables:
@@ -35,6 +36,7 @@ ci:
   stage: build
   script:
     - npm ci
+    - cp $ENV_FILE .env
     - npx nuxi generate
   artifacts:
     paths:
@@ -45,6 +47,7 @@ build:staging:
   extends: .build_template
   variables:
     NODE_ENV: "staging"
+    ENV_FILE: ".env.staging"
   rules:
     - if: $CI_COMMIT_BRANCH == "staging"
 
@@ -52,8 +55,35 @@ build:prod:
   extends: .build_template
   variables:
     NODE_ENV: "production"
+    ENV_FILE: ".env.prod"
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
+
+# Migration Templates
+.migrate_template:
+  stage: migrate
+  script:
+    - npm ci
+    - cp $ENV_FILE .env
+    - npx drizzle-kit migrate
+  rules:
+    - if: $CI_COMMIT_BRANCH == "staging"
+    - if: $CI_COMMIT_BRANCH == "main"
+
+migrate:staging:
+  extends: .migrate_template
+  variables:
+    ENV_FILE: ".env.staging"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "staging"
+
+migrate:production:
+  extends: .migrate_template
+  variables:
+    ENV_FILE: ".env.prod"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: manual
 
 # Deploy Templates
 .deploy_template:

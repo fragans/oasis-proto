@@ -3,8 +3,7 @@ import { createOrganizationSchema } from '~~/shared/types/organization'
 import { syncOrganizationConfigToKV } from '../../utils/kv-sync'
 
 export default defineEventHandler(async (event) => {
-  const isSuperAdmin = getHeader(event, 'x-oasis-super-admin') === 'true'
-  if (!isSuperAdmin) {
+  if (!isSuperAdmin(event)) {
     throw createError({
       statusCode: 403,
       message: 'Only Super Admins can create new organizations.'
