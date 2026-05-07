@@ -22,8 +22,15 @@ export function useCampaigns() {
     return q
   })
 
+  const { activeOrgId } = useOrganization()
+  const fetchHeaders = computed(() => ({
+    ...useRequestHeaders(['cookie', 'x-oasis-organization', 'x-oasis-super-admin']),
+    ...(activeOrgId.value ? { 'x-oasis-organization': activeOrgId.value } : {})
+  }))
+
   const { data, status, refresh } = useFetch<CampaignListResponse>('/api/campaigns', {
     query,
+    headers: fetchHeaders,
     watch: [query],
     immediate: false
   })

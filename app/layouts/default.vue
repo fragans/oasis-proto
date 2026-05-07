@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const route = useRoute()
+const { isSuperAdmin } = useOrganization()
 
 const isSidebarOpen = ref(true)
 
@@ -89,6 +90,16 @@ const breadcrumbs = computed(() => {
         <UBreadcrumb :items="breadcrumbs" />
 
         <div class="flex items-center gap-4">
+          <UTooltip
+            v-if="isSuperAdmin"
+            text="Super Admin Mode"
+          >
+            <UIcon
+              name="i-simple-icons-auth0"
+              class="w-5 h-5 text-indigo-600 dark:text-indigo-400"
+            />
+          </UTooltip>
+          <OrganizationSwitcher />
           <UButton
             to="/workflow"
             icon="i-lucide-book-open-text"

@@ -2,6 +2,7 @@
 const open = defineModel<boolean>('open', { default: false })
 
 const { createCampaign } = useCampaign()
+const { activeOrgId } = useOrganization()
 const router = useRouter()
 const toast = useToast()
 
@@ -11,30 +12,29 @@ const form = reactive({
 
 const saving = ref(false)
 
-const { data: organizationsData } = await useFetch<{ organizations: { id: string }[] }>('/api/organizations')
-
 async function handleCreate() {
   if (!form.name.trim()) return
+  if (!activeOrgId.value) {
+    toast.add({
+      title: 'No organization selected',
+      description: 'Please select an organization before creating a campaign.',
+      color: 'warning'
+    })
+    return
+  }
 
   saving.value = true
   try {
-    const config = useRuntimeConfig()
-    let organizationId = config.public.defaultOrganizationId as string
-
-    // Fallback to first available organization if default is 'no-organization' or missing
-    if (organizationsData.value?.organizations?.length) {
-      const organizationIds = organizationsData.value.organizations.map(t => t.id)
-      if (!organizationIds.includes(organizationId)) {
-        organizationId = organizationIds[0]!
-      }
-    }
-
     const campaign = await createCampaign({
       name: form.name,
-      organizationId,
+      organizationId: activeOrgId.value,
       campaignType: 'popup',
       templateType: 'modal-with-cta-redirect'
-    }) as { id: string }
+    })
+
+    if (!campaign?.id) {
+      throw new Error('Failed to retrieve new campaign ID')
+    }
 
     open.value = false
     form.name = ''
@@ -46,9 +46,10 @@ async function handleCreate() {
 
     router.push(`/campaigns/on-site-messages/${campaign.id}/wizard/template`)
   } catch (err: unknown) {
+    console.error('[CreateCampaign] Error:', err)
     toast.add({
       title: 'Failed to create campaign',
-      description: err instanceof Error ? err.message : String(err),
+      description: err instanceof Error ? err.message : 'An unexpected error occurred',
       color: 'error'
     })
   } finally {

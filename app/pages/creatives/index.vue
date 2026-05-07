@@ -9,9 +9,11 @@ interface Creative {
   createdAt: string
 }
 
-const config = useRuntimeConfig()
+const { activeOrgId } = useOrganization()
 const { data, status, refresh } = useFetch<{ creatives: Creative[] }>('/api/creatives', {
-  query: { organizationId: config.public.defaultOrganizationId },
+  query: computed(() => ({ organizationId: activeOrgId.value })),
+  headers: useRequestHeaders(['cookie', 'x-oasis-organization', 'x-oasis-super-admin']),
+  watch: [activeOrgId],
   immediate: false
 })
 const creatives = computed(() => data.value?.creatives || [])
@@ -38,7 +40,7 @@ async function handleFileUpload(event: Event) {
     await $fetch('/api/upload/creative', {
       method: 'POST',
       body: formData,
-      query: { organizationId: config.public.defaultOrganizationId }
+      query: { organizationId: activeOrgId.value }
     })
     await refresh()
   } catch (error) {

@@ -9,14 +9,26 @@ export const isSuperAdmin = (event: H3Event): boolean => {
 }
 
 export const getOrganizationId = (event: H3Event): string | null => {
+  // 1. Priority: x-oasis-organization header
   const orgHeader = getHeader(event, 'x-oasis-organization') || null
-
-  if (isSuperAdmin(event)) {
-    // Super-admins can operate globally or within a specific organization context
+  if (orgHeader) {
     return orgHeader
   }
 
-  return orgHeader
+  // 2. Priority: oasis_org_id cookie
+  const orgCookie = getCookie(event, 'oasis_org_id')
+  if (orgCookie) {
+    return orgCookie
+  }
+
+  // 3. Fallback for Super Admin
+  if (isSuperAdmin(event)) {
+    return null
+  }
+
+  // 4. Default Fallback
+  const config = useRuntimeConfig()
+  return (config.public.defaultOrganizationId as string) || null
 }
 
 export const requireOrganizationId = (event: H3Event): string => {
