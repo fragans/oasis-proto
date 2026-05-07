@@ -17,11 +17,11 @@ CREATE DATABASE oasis_v2;
 ```
 
 ### 2. Configure Local Environment
-Update your `.env` file to point to the new database using the credentials from `.env.old-oasis`.
+Update your `.env` and `.env.staging` files to point to the new RDS instance.
 
 **[MODIFY] [.env](file:///Users/surya/kompas/oasis-dashboard/.env)**
 ```env
-# Database (Huawei Cloud - New Fresh DB)
+# Database (Huawei RDS - New Fresh DB)
 DATABASE_URL=postgresql://oasis_app:P4lm_Tr33@172.18.64.143:5432/oasis_v2
 ```
 

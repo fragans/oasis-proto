@@ -9,7 +9,12 @@
     "postinstall": "nuxt prepare",
     "lint": "eslint . --fix",
     "typecheck": "nuxt typecheck",
-    "pgweb": "pgweb --url 'postgresql://oasis:oasis_dev@localhost:5432/oasis'"
+    "pgweb": "pgweb --url 'postgresql://oasis:oasis_dev@localhost:5432/oasis'",
+    "pgweb:remote": "pgweb --url 'postgresql://oasis_app:P4lm_Tr33@172.18.64.143:5432/oasis_v2'",
+    "db:migrate": "drizzle-kit migrate",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1029.0",

@@ -6,7 +6,8 @@ export default withNuxt(
   {
     ignores: [
       'server/database/migrations/relations.ts',
-      'server/database/migrations/schema.ts'
+      'server/database/migrations/schema.ts',
+      'scratch/**'
     ]
   }
 )

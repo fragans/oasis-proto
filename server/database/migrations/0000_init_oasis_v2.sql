@@ -1,16 +1,64 @@
-CREATE TYPE "public"."attribute_source" AS ENUM('api', 'email', 'mobile_sdk', 'web', 'manual', 'import');--> statement-breakpoint
-CREATE TYPE "public"."attribute_type" AS ENUM('string', 'number', 'boolean', 'date');--> statement-breakpoint
-CREATE TYPE "public"."campaign_priority" AS ENUM('low', 'medium', 'high', 'critical');--> statement-breakpoint
-CREATE TYPE "public"."campaign_status" AS ENUM('draft', 'scheduled', 'active', 'paused', 'completed');--> statement-breakpoint
-CREATE TYPE "public"."campaign_type" AS ENUM('sticky', 'in-article', 'popup');--> statement-breakpoint
-CREATE TYPE "public"."gender" AS ENUM('male', 'female', 'other', 'unknown');--> statement-breakpoint
-CREATE TYPE "public"."journey_enrollment_status" AS ENUM('active', 'completed', 'exited', 'failed');--> statement-breakpoint
-CREATE TYPE "public"."journey_execution_status" AS ENUM('pending', 'executing', 'completed', 'failed', 'skipped');--> statement-breakpoint
-CREATE TYPE "public"."journey_node_type" AS ENUM('trigger', 'action_email', 'action_push', 'action_banner', 'action_webhook', 'condition', 'delay', 'split');--> statement-breakpoint
-CREATE TYPE "public"."journey_status" AS ENUM('draft', 'active', 'paused', 'completed', 'archived');--> statement-breakpoint
-CREATE TYPE "public"."segment_type" AS ENUM('static', 'dynamic');--> statement-breakpoint
-CREATE TYPE "public"."trigger_mode" AS ENUM('immediate', 'scroll', 'exit-intent');--> statement-breakpoint
-CREATE TABLE "api_tokens" (
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'attribute_source') THEN
+        CREATE TYPE "public"."attribute_source" AS ENUM('api', 'email', 'mobile_sdk', 'web', 'manual', 'import');
+    END IF;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'attribute_type') THEN
+        CREATE TYPE "public"."attribute_type" AS ENUM('string', 'number', 'boolean', 'date');
+    END IF;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'campaign_priority') THEN
+        CREATE TYPE "public"."campaign_priority" AS ENUM('low', 'medium', 'high', 'critical');
+    END IF;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'campaign_status') THEN
+        CREATE TYPE "public"."campaign_status" AS ENUM('draft', 'scheduled', 'active', 'paused', 'completed');
+    END IF;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'campaign_type') THEN
+        CREATE TYPE "public"."campaign_type" AS ENUM('sticky', 'in-article', 'popup');
+    END IF;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'gender') THEN
+        CREATE TYPE "public"."gender" AS ENUM('male', 'female', 'other', 'unknown');
+    END IF;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'journey_enrollment_status') THEN
+        CREATE TYPE "public"."journey_enrollment_status" AS ENUM('active', 'completed', 'exited', 'failed');
+    END IF;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'journey_execution_status') THEN
+        CREATE TYPE "public"."journey_execution_status" AS ENUM('pending', 'executing', 'completed', 'failed', 'skipped');
+    END IF;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'journey_node_type') THEN
+        CREATE TYPE "public"."journey_node_type" AS ENUM('trigger', 'action_email', 'action_push', 'action_banner', 'action_webhook', 'condition', 'delay', 'split');
+    END IF;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'journey_status') THEN
+        CREATE TYPE "public"."journey_status" AS ENUM('draft', 'active', 'paused', 'completed', 'archived');
+    END IF;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'segment_type') THEN
+        CREATE TYPE "public"."segment_type" AS ENUM('static', 'dynamic');
+    END IF;
+END $$;--> statement-breakpoint
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'trigger_mode') THEN
+        CREATE TYPE "public"."trigger_mode" AS ENUM('immediate', 'scroll', 'exit-intent');
+    END IF;
+END $$;--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "api_tokens" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name" varchar(255) NOT NULL,
 	"token_hash" varchar(255) NOT NULL,
@@ -20,7 +68,7 @@ CREATE TABLE "api_tokens" (
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "campaigns" (
+CREATE TABLE IF NOT EXISTS "campaigns" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"organization_id" varchar(255) NOT NULL,
 	"name" varchar(255) NOT NULL,
@@ -43,7 +91,7 @@ CREATE TABLE "campaigns" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "contact_attributes" (
+CREATE TABLE IF NOT EXISTS "contact_attributes" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"key" varchar(255) NOT NULL,
 	"label" varchar(255) NOT NULL,
@@ -55,7 +103,7 @@ CREATE TABLE "contact_attributes" (
 	CONSTRAINT "contact_attributes_key_unique" UNIQUE("key")
 );
 --> statement-breakpoint
-CREATE TABLE "contact_custom_values" (
+CREATE TABLE IF NOT EXISTS "contact_custom_values" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"contact_id" uuid NOT NULL,
 	"attribute_id" uuid NOT NULL,
@@ -64,7 +112,7 @@ CREATE TABLE "contact_custom_values" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "contact_devices" (
+CREATE TABLE IF NOT EXISTS "contact_devices" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"contact_id" uuid NOT NULL,
 	"platform" varchar(50) NOT NULL,
@@ -76,7 +124,7 @@ CREATE TABLE "contact_devices" (
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "contact_events" (
+CREATE TABLE IF NOT EXISTS "contact_events" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"contact_id" uuid NOT NULL,
 	"event_type_id" uuid NOT NULL,
@@ -86,7 +134,7 @@ CREATE TABLE "contact_events" (
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "contacts" (
+CREATE TABLE IF NOT EXISTS "contacts" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"external_id" varchar(255),
 	"email" varchar(255),
@@ -106,7 +154,7 @@ CREATE TABLE "contacts" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "creatives" (
+CREATE TABLE IF NOT EXISTS "creatives" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"campaign_id" uuid,
 	"organization_id" varchar(255),
@@ -123,7 +171,7 @@ CREATE TABLE "creatives" (
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "email_templates" (
+CREATE TABLE IF NOT EXISTS "email_templates" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name" varchar(255) NOT NULL,
 	"subject" varchar(500) NOT NULL,
@@ -135,7 +183,7 @@ CREATE TABLE "email_templates" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "event_types" (
+CREATE TABLE IF NOT EXISTS "event_types" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"key" varchar(255) NOT NULL,
 	"label" varchar(255) NOT NULL,
@@ -147,7 +195,7 @@ CREATE TABLE "event_types" (
 	CONSTRAINT "event_types_key_unique" UNIQUE("key")
 );
 --> statement-breakpoint
-CREATE TABLE "journey_edges" (
+CREATE TABLE IF NOT EXISTS "journey_edges" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"journey_id" uuid NOT NULL,
 	"source_node_id" uuid NOT NULL,
@@ -157,7 +205,7 @@ CREATE TABLE "journey_edges" (
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "journey_enrollments" (
+CREATE TABLE IF NOT EXISTS "journey_enrollments" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"journey_id" uuid NOT NULL,
 	"contact_id" uuid NOT NULL,
@@ -170,7 +218,7 @@ CREATE TABLE "journey_enrollments" (
 	"metadata" jsonb DEFAULT '{}'::jsonb
 );
 --> statement-breakpoint
-CREATE TABLE "journey_executions" (
+CREATE TABLE IF NOT EXISTS "journey_executions" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"enrollment_id" uuid NOT NULL,
 	"node_id" uuid NOT NULL,
@@ -182,7 +230,7 @@ CREATE TABLE "journey_executions" (
 	"completed_at" timestamp with time zone
 );
 --> statement-breakpoint
-CREATE TABLE "journey_nodes" (
+CREATE TABLE IF NOT EXISTS "journey_nodes" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"journey_id" uuid NOT NULL,
 	"type" "journey_node_type" NOT NULL,
@@ -193,7 +241,7 @@ CREATE TABLE "journey_nodes" (
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "journeys" (
+CREATE TABLE IF NOT EXISTS "journeys" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name" varchar(255) NOT NULL,
 	"description" text,
@@ -213,7 +261,7 @@ CREATE TABLE "journeys" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "organizations" (
+CREATE TABLE IF NOT EXISTS "organizations" (
 	"id" varchar(255) PRIMARY KEY NOT NULL,
 	"hostname" varchar(255) NOT NULL,
 	"cookie_name" varchar(255) DEFAULT 'oasis_guid' NOT NULL,
@@ -225,14 +273,14 @@ CREATE TABLE "organizations" (
 	CONSTRAINT "organizations_hostname_unique" UNIQUE("hostname")
 );
 --> statement-breakpoint
-CREATE TABLE "segment_contacts" (
+CREATE TABLE IF NOT EXISTS "segment_contacts" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"segment_id" uuid NOT NULL,
 	"contact_id" uuid NOT NULL,
 	"added_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "segments" (
+CREATE TABLE IF NOT EXISTS "segments" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name" varchar(255) NOT NULL,
 	"description" text,
@@ -246,23 +294,63 @@ CREATE TABLE "segments" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-ALTER TABLE "campaigns" ADD CONSTRAINT "campaigns_organization_id_organizations_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "contact_custom_values" ADD CONSTRAINT "contact_custom_values_contact_id_contacts_id_fk" FOREIGN KEY ("contact_id") REFERENCES "public"."contacts"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "contact_custom_values" ADD CONSTRAINT "contact_custom_values_attribute_id_contact_attributes_id_fk" FOREIGN KEY ("attribute_id") REFERENCES "public"."contact_attributes"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "contact_devices" ADD CONSTRAINT "contact_devices_contact_id_contacts_id_fk" FOREIGN KEY ("contact_id") REFERENCES "public"."contacts"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "contact_events" ADD CONSTRAINT "contact_events_contact_id_contacts_id_fk" FOREIGN KEY ("contact_id") REFERENCES "public"."contacts"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "contact_events" ADD CONSTRAINT "contact_events_event_type_id_event_types_id_fk" FOREIGN KEY ("event_type_id") REFERENCES "public"."event_types"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "creatives" ADD CONSTRAINT "creatives_campaign_id_campaigns_id_fk" FOREIGN KEY ("campaign_id") REFERENCES "public"."campaigns"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "creatives" ADD CONSTRAINT "creatives_organization_id_organizations_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "journey_edges" ADD CONSTRAINT "journey_edges_journey_id_journeys_id_fk" FOREIGN KEY ("journey_id") REFERENCES "public"."journeys"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "journey_edges" ADD CONSTRAINT "journey_edges_source_node_id_journey_nodes_id_fk" FOREIGN KEY ("source_node_id") REFERENCES "public"."journey_nodes"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "journey_edges" ADD CONSTRAINT "journey_edges_target_node_id_journey_nodes_id_fk" FOREIGN KEY ("target_node_id") REFERENCES "public"."journey_nodes"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "journey_enrollments" ADD CONSTRAINT "journey_enrollments_journey_id_journeys_id_fk" FOREIGN KEY ("journey_id") REFERENCES "public"."journeys"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "journey_enrollments" ADD CONSTRAINT "journey_enrollments_contact_id_contacts_id_fk" FOREIGN KEY ("contact_id") REFERENCES "public"."contacts"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "journey_enrollments" ADD CONSTRAINT "journey_enrollments_current_node_id_journey_nodes_id_fk" FOREIGN KEY ("current_node_id") REFERENCES "public"."journey_nodes"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "journey_executions" ADD CONSTRAINT "journey_executions_enrollment_id_journey_enrollments_id_fk" FOREIGN KEY ("enrollment_id") REFERENCES "public"."journey_enrollments"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "journey_executions" ADD CONSTRAINT "journey_executions_node_id_journey_nodes_id_fk" FOREIGN KEY ("node_id") REFERENCES "public"."journey_nodes"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "journey_nodes" ADD CONSTRAINT "journey_nodes_journey_id_journeys_id_fk" FOREIGN KEY ("journey_id") REFERENCES "public"."journeys"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "journeys" ADD CONSTRAINT "journeys_segment_id_segments_id_fk" FOREIGN KEY ("segment_id") REFERENCES "public"."segments"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "segment_contacts" ADD CONSTRAINT "segment_contacts_segment_id_segments_id_fk" FOREIGN KEY ("segment_id") REFERENCES "public"."segments"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "segment_contacts" ADD CONSTRAINT "segment_contacts_contact_id_contacts_id_fk" FOREIGN KEY ("contact_id") REFERENCES "public"."contacts"("id") ON DELETE cascade ON UPDATE no action;
+DO $$ BEGIN
+    ALTER TABLE "campaigns" ADD CONSTRAINT "campaigns_organization_id_organizations_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION WHEN duplicate_object THEN RAISE NOTICE 'constraint campaigns_organization_id_organizations_id_fk already exists'; END $$;--> statement-breakpoint
+DO $$ BEGIN
+    ALTER TABLE "contact_custom_values" ADD CONSTRAINT "contact_custom_values_contact_id_contacts_id_fk" FOREIGN KEY ("contact_id") REFERENCES "public"."contacts"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION WHEN duplicate_object THEN RAISE NOTICE 'constraint contact_custom_values_contact_id_contacts_id_fk already exists'; END $$;--> statement-breakpoint
+DO $$ BEGIN
+    ALTER TABLE "contact_custom_values" ADD CONSTRAINT "contact_custom_values_attribute_id_contact_attributes_id_fk" FOREIGN KEY ("attribute_id") REFERENCES "public"."contact_attributes"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION WHEN duplicate_object THEN RAISE NOTICE 'constraint contact_custom_values_attribute_id_contact_attributes_id_fk already exists'; END $$;--> statement-breakpoint
+DO $$ BEGIN
+    ALTER TABLE "contact_devices" ADD CONSTRAINT "contact_devices_contact_id_contacts_id_fk" FOREIGN KEY ("contact_id") REFERENCES "public"."contacts"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION WHEN duplicate_object THEN RAISE NOTICE 'constraint contact_devices_contact_id_contacts_id_fk already exists'; END $$;--> statement-breakpoint
+DO $$ BEGIN
+    ALTER TABLE "contact_events" ADD CONSTRAINT "contact_events_contact_id_contacts_id_fk" FOREIGN KEY ("contact_id") REFERENCES "public"."contacts"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION WHEN duplicate_object THEN RAISE NOTICE 'constraint contact_events_contact_id_contacts_id_fk already exists'; END $$;--> statement-breakpoint
+DO $$ BEGIN
+    ALTER TABLE "contact_events" ADD CONSTRAINT "contact_events_event_type_id_event_types_id_fk" FOREIGN KEY ("event_type_id") REFERENCES "public"."event_types"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION WHEN duplicate_object THEN RAISE NOTICE 'constraint contact_events_event_type_id_event_types_id_fk already exists'; END $$;--> statement-breakpoint
+DO $$ BEGIN
+    ALTER TABLE "creatives" ADD CONSTRAINT "creatives_campaign_id_campaigns_id_fk" FOREIGN KEY ("campaign_id") REFERENCES "public"."campaigns"("id") ON DELETE set null ON UPDATE no action;
+EXCEPTION WHEN duplicate_object THEN RAISE NOTICE 'constraint creatives_campaign_id_campaigns_id_fk already exists'; END $$;--> statement-breakpoint
+DO $$ BEGIN
+    ALTER TABLE "creatives" ADD CONSTRAINT "creatives_organization_id_organizations_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION WHEN duplicate_object THEN RAISE NOTICE 'constraint creatives_organization_id_organizations_id_fk already exists'; END $$;--> statement-breakpoint
+DO $$ BEGIN
+    ALTER TABLE "journey_edges" ADD CONSTRAINT "journey_edges_journey_id_journeys_id_fk" FOREIGN KEY ("journey_id") REFERENCES "public"."journeys"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION WHEN duplicate_object THEN RAISE NOTICE 'constraint journey_edges_journey_id_journeys_id_fk already exists'; END $$;--> statement-breakpoint
+DO $$ BEGIN
+    ALTER TABLE "journey_edges" ADD CONSTRAINT "journey_edges_source_node_id_journey_nodes_id_fk" FOREIGN KEY ("source_node_id") REFERENCES "public"."journey_nodes"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION WHEN duplicate_object THEN RAISE NOTICE 'constraint journey_edges_source_node_id_journey_nodes_id_fk already exists'; END $$;--> statement-breakpoint
+DO $$ BEGIN
+    ALTER TABLE "journey_edges" ADD CONSTRAINT "journey_edges_target_node_id_journey_nodes_id_fk" FOREIGN KEY ("target_node_id") REFERENCES "public"."journey_nodes"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION WHEN duplicate_object THEN RAISE NOTICE 'constraint journey_edges_target_node_id_journey_nodes_id_fk already exists'; END $$;--> statement-breakpoint
+DO $$ BEGIN
+    ALTER TABLE "journey_enrollments" ADD CONSTRAINT "journey_enrollments_journey_id_journeys_id_fk" FOREIGN KEY ("journey_id") REFERENCES "public"."journeys"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION WHEN duplicate_object THEN RAISE NOTICE 'constraint journey_enrollments_journey_id_journeys_id_fk already exists'; END $$;--> statement-breakpoint
+DO $$ BEGIN
+    ALTER TABLE "journey_enrollments" ADD CONSTRAINT "journey_enrollments_contact_id_contacts_id_fk" FOREIGN KEY ("contact_id") REFERENCES "public"."contacts"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION WHEN duplicate_object THEN RAISE NOTICE 'constraint journey_enrollments_contact_id_contacts_id_fk already exists'; END $$;--> statement-breakpoint
+DO $$ BEGIN
+    ALTER TABLE "journey_enrollments" ADD CONSTRAINT "journey_enrollments_current_node_id_journey_nodes_id_fk" FOREIGN KEY ("current_node_id") REFERENCES "public"."journey_nodes"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION WHEN duplicate_object THEN RAISE NOTICE 'constraint journey_enrollments_current_node_id_journey_nodes_id_fk already exists'; END $$;--> statement-breakpoint
+DO $$ BEGIN
+    ALTER TABLE "journey_executions" ADD CONSTRAINT "journey_executions_enrollment_id_journey_enrollments_id_fk" FOREIGN KEY ("enrollment_id") REFERENCES "public"."journey_enrollments"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION WHEN duplicate_object THEN RAISE NOTICE 'constraint journey_executions_enrollment_id_journey_enrollments_id_fk already exists'; END $$;--> statement-breakpoint
+DO $$ BEGIN
+    ALTER TABLE "journey_executions" ADD CONSTRAINT "journey_executions_node_id_journey_nodes_id_fk" FOREIGN KEY ("node_id") REFERENCES "public"."journey_nodes"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION WHEN duplicate_object THEN RAISE NOTICE 'constraint journey_executions_node_id_journey_nodes_id_fk already exists'; END $$;--> statement-breakpoint
+DO $$ BEGIN
+    ALTER TABLE "journey_nodes" ADD CONSTRAINT "journey_nodes_journey_id_journeys_id_fk" FOREIGN KEY ("journey_id") REFERENCES "public"."journeys"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION WHEN duplicate_object THEN RAISE NOTICE 'constraint journey_nodes_journey_id_journeys_id_fk already exists'; END $$;--> statement-breakpoint
+DO $$ BEGIN
+    ALTER TABLE "journeys" ADD CONSTRAINT "journeys_segment_id_segments_id_fk" FOREIGN KEY ("segment_id") REFERENCES "public"."segments"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION WHEN duplicate_object THEN RAISE NOTICE 'constraint journeys_segment_id_segments_id_fk already exists'; END $$;--> statement-breakpoint
+DO $$ BEGIN
+    ALTER TABLE "segment_contacts" ADD CONSTRAINT "segment_contacts_segment_id_segments_id_fk" FOREIGN KEY ("segment_id") REFERENCES "public"."segments"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION WHEN duplicate_object THEN RAISE NOTICE 'constraint segment_contacts_segment_id_segments_id_fk already exists'; END $$;--> statement-breakpoint
+DO $$ BEGIN
+    ALTER TABLE "segment_contacts" ADD CONSTRAINT "segment_contacts_contact_id_contacts_id_fk" FOREIGN KEY ("contact_id") REFERENCES "public"."contacts"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION WHEN duplicate_object THEN RAISE NOTICE 'constraint segment_contacts_contact_id_contacts_id_fk already exists'; END $$;
