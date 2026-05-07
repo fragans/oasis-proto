@@ -3,6 +3,14 @@ import { organizations } from '../../../database/schema'
 import { removeOrganizationCampaignsFromKV, removeOrganizationConfigFromKV } from '../../../utils/kv-sync'
 
 export default defineEventHandler(async (event) => {
+  // Guard: only Super Admins may delete organizations
+  if (!isSuperAdmin(event)) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: 'Forbidden: Super Admin access required to delete an organization'
+    })
+  }
+
   const id = getRouterParam(event, 'id')
   const db = useDB()
 

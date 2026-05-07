@@ -7,6 +7,16 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const db = useDB()
 
+  if (!isSuperAdmin(event)) {
+    const contextOrgId = requireOrganizationId(event)
+    if (id !== contextOrgId) {
+      throw createError({
+        statusCode: 403,
+        statusMessage: 'Forbidden: You do not have access to this organization'
+      })
+    }
+  }
+
   if (!id) {
     throw createError({
       statusCode: 400,

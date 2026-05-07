@@ -1,9 +1,34 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'default' })
 
+const { isSuperAdmin } = useOrganization()
 const toast = useToast()
+const router = useRouter()
 
-const { data: organizationsData, refresh: refreshOrganizations } = await useFetch('/api/organizations')
+function requireSuperAdmin(): boolean {
+  if (isSuperAdmin.value) return true
+  toast.add({
+    title: 'Permission Denied',
+    description: 'You don\'t have permission for this action. Contact your Super Admin.',
+    color: 'error',
+    icon: 'i-lucide-shield-off'
+  })
+  return false
+}
+
+function handleAddOrg() {
+  if (!requireSuperAdmin()) return
+  router.push('/settings/organizations/create')
+}
+
+function handleDelete(organization: Organization) {
+  if (!requireSuperAdmin()) return
+  deleteTarget.value = organization
+}
+
+const { data: organizationsData, refresh: refreshOrganizations } = await useFetch('/api/organizations', {
+  headers: useRequestHeaders(['x-oasis-super-admin', 'x-oasis-organization'])
+})
 
 const updating = ref<Record<string, boolean>>({})
 
@@ -96,7 +121,7 @@ async function removeOrganization() {
         icon="i-lucide-plus"
         label="Add Organization"
         color="primary"
-        to="/settings/organizations/create"
+        @click="handleAddOrg"
       />
     </div>
 
@@ -187,7 +212,7 @@ async function removeOrganization() {
                 color="error"
                 size="xs"
                 icon="i-lucide-trash-2"
-                @click="deleteTarget = organization"
+                @click="handleDelete(organization)"
               >
                 Delete Organization
               </UButton>
