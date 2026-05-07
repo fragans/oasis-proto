@@ -215,6 +215,7 @@ export const segmentContacts = pgTable('segment_contacts', {
 
 export const apiTokens = pgTable('api_tokens', {
   id: uuid('id').primaryKey().defaultRandom(),
+  organizationId: varchar('organization_id', { length: 255 }).references(() => organizations.id, { onDelete: 'cascade' }).notNull(),
   name: varchar('name', { length: 255 }).notNull(),
   tokenHash: varchar('token_hash', { length: 255 }).notNull(),
   prefix: varchar('prefix', { length: 32 }).notNull(),
