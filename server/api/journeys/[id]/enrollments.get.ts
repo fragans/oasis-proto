@@ -1,5 +1,5 @@
 import { eq, and, sql, desc } from 'drizzle-orm'
-import { journeyEnrollments, contacts } from '../../../database/schema'
+import { journeyEnrollments, contacts, journeyEnrollmentStatusEnum } from '../../../database/schema'
 
 export default defineEventHandler(async (event) => {
   const db = useDB()
@@ -12,8 +12,10 @@ export default defineEventHandler(async (event) => {
 
   const conditions = [eq(journeyEnrollments.journeyId, id)]
 
-  if (query.status) {
-    conditions.push(eq(journeyEnrollments.status, query.status as string))
+  const validStatuses = journeyEnrollmentStatusEnum.enumValues
+  const status = query.status as string
+  if (status && (validStatuses as readonly string[]).includes(status)) {
+    conditions.push(eq(journeyEnrollments.status, status as (typeof journeyEnrollmentStatusEnum.enumValues)[number]))
   }
 
   const where = and(...conditions)

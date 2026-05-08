@@ -29,7 +29,8 @@ export async function syncOrganizationCampaignsToKV(organizationId: string): Pro
   const activeCampaigns = await db.select().from(campaigns).where(
     and(
       eq(campaigns.organizationId, organizationId),
-      sql`${campaigns.status} IN ('active', 'scheduled')`
+      sql`${campaigns.status} IN ('active', 'scheduled')`,
+      sql`(${campaigns.endDate} IS NULL OR ${campaigns.endDate} > NOW())`
     )
   )
 
@@ -177,5 +178,29 @@ export async function removeOrganizationConfigFromKV(hostname: string): Promise<
     console.log(`[KV Sync] 🗑️ Removed config for organization hostname "${hostname}" from KV key "${kvKey}"`)
   } catch (err) {
     console.error(`[KV Sync] ❌ Failed to delete organization config from Cloudflare KV:`, err)
+  }
+}
+
+/**
+ * Maintenance function to purge "Ghost Campaigns" across the entire system.
+ * Scans all organizations and re-syncs their KV state to ensure it only
+ * contains truly active campaigns.
+ */
+export async function cleanUpAllGhostCampaigns(): Promise<void> {
+  const db = useDB()
+
+  console.log('[KV Cleanup] 🧹 Starting global ghost campaign cleanup...')
+
+  try {
+    const orgs = await db.select({ id: organizations.id }).from(organizations)
+
+    for (const org of orgs) {
+      await syncOrganizationCampaignsToKV(org.id)
+    }
+
+    console.log(`[KV Cleanup] ✅ Global cleanup completed for ${orgs.length} organization(s)`)
+  } catch (err) {
+    console.error('[KV Cleanup] ❌ Global cleanup failed:', err)
+    throw err
   }
 }

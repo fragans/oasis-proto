@@ -16,7 +16,8 @@ export default defineEventHandler(async (event) => {
   const [usageCount] = await db.select({ count: sql<number>`count(*)` })
     .from(contactCustomValues)
     .where(eq(contactCustomValues.attributeId, id))
-  const hasData = Number(usageCount.count) > 0
+  const count = Number(usageCount?.count ?? 0)
+  const hasData = count > 0
 
   await db.delete(contactAttributes).where(eq(contactAttributes.id, id))
 

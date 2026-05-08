@@ -1,6 +1,36 @@
 <script setup lang="ts">
-import type { JourneyNodeType } from '~~/shared/types/journey'
+import type {
+  JourneyNodeType,
+  TriggerConfig,
+  EmailActionConfig,
+  PushActionConfig,
+  BannerActionConfig,
+  WebhookActionConfig,
+  ConditionConfig,
+  DelayConfig,
+  SplitConfig
+} from '~~/shared/types/journey'
 import { NODE_TYPE_LABELS, NODE_TYPE_ICONS } from '~~/shared/types/journey'
+
+// Resolve property conflicts between different node configs using an intersection type
+type FullNodeConfig
+  = & Omit<Partial<TriggerConfig>, 'type' | 'duration' | 'body'>
+    & Omit<Partial<EmailActionConfig>, 'type' | 'duration' | 'body'>
+    & Omit<Partial<PushActionConfig>, 'type' | 'duration' | 'body'>
+    & Omit<Partial<BannerActionConfig>, 'type' | 'duration' | 'body'>
+    & Omit<Partial<WebhookActionConfig>, 'type' | 'duration' | 'body'>
+    & Omit<Partial<ConditionConfig>, 'type' | 'duration' | 'body'>
+    & Omit<Partial<DelayConfig>, 'type' | 'duration' | 'body'>
+    & Omit<Partial<SplitConfig>, 'type' | 'duration' | 'body'>
+    & {
+      type?: string
+      duration?: unknown
+      body?: unknown
+      [key: string]: unknown
+    }
+
+interface DurationStruct { value: number, unit: string }
+interface VariantStruct { label: string, percentage: number }
 
 const props = defineProps<{
   nodeId: string
@@ -17,7 +47,13 @@ const emit = defineEmits<{
 }>()
 
 const localLabel = ref(props.label)
-const localConfig = ref<Record<string, unknown>>({ ...props.config })
+const localConfig = ref<FullNodeConfig>({ ...props.config } as FullNodeConfig)
+
+// Computed helpers for conflicting fields used in v-model
+const bodyModel = computed({
+  get: () => localConfig.value.body as string | undefined,
+  set: (val) => { localConfig.value.body = val }
+})
 
 watch(() => props.config, (val) => {
   localConfig.value = { ...val }
@@ -108,7 +144,7 @@ const selectClass = 'w-full rounded-lg border border-zinc-300 dark:border-zinc-7
         </UFormField>
         <UFormField label="Body">
           <textarea
-            v-model="localConfig.body"
+            v-model="bodyModel"
             :class="selectClass"
             rows="3"
             @blur="save"
@@ -281,10 +317,10 @@ const selectClass = 'w-full rounded-lg border border-zinc-300 dark:border-zinc-7
               class="flex-1"
             >
               <input
-                :value="localConfig.duration?.value || 1"
+                :value="(localConfig.duration as DurationStruct)?.value || 1"
                 type="number"
                 :class="selectClass"
-                @input="localConfig.duration = { ...(localConfig.duration || {}), value: Number(($event.target as HTMLInputElement).value) }; save()"
+                @input="localConfig.duration = { ...((localConfig.duration as DurationStruct) || {}), value: Number(($event.target as HTMLInputElement).value) }; save()"
               >
             </UFormField>
             <UFormField
@@ -292,9 +328,9 @@ const selectClass = 'w-full rounded-lg border border-zinc-300 dark:border-zinc-7
               class="flex-1"
             >
               <select
-                :value="localConfig.duration?.unit || 'hours'"
+                :value="(localConfig.duration as DurationStruct)?.unit || 'hours'"
                 :class="selectClass"
-                @change="localConfig.duration = { ...(localConfig.duration || {}), unit: ($event.target as HTMLSelectElement).value }; save()"
+                @change="localConfig.duration = { ...((localConfig.duration as DurationStruct) || {}), unit: ($event.target as HTMLSelectElement).value }; save()"
               >
                 <option value="minutes">
                   Minutes
@@ -342,7 +378,7 @@ const selectClass = 'w-full rounded-lg border border-zinc-300 dark:border-zinc-7
           Define A/B test variants with percentage splits.
         </p>
         <div
-          v-for="(variant, idx) in (localConfig.variants || [{ label: 'A', percentage: 50 }, { label: 'B', percentage: 50 }])"
+          v-for="(variant, idx) in ((localConfig.variants as VariantStruct[]) || [{ label: 'A', percentage: 50 }, { label: 'B', percentage: 50 }])"
           :key="idx"
           class="flex gap-2 items-end"
         >

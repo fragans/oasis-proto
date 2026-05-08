@@ -66,7 +66,7 @@ export function useCanvasHistory(
     redoStack.value = [...redoStack.value, current]
     const prev = undoStack.value[undoStack.value.length - 1]
     undoStack.value = undoStack.value.slice(0, -1)
-    restoreSnapshot(prev)
+    if (prev) restoreSnapshot(prev)
   }
 
   function redo() {
@@ -75,7 +75,7 @@ export function useCanvasHistory(
     undoStack.value = [...undoStack.value, current]
     const next = redoStack.value[redoStack.value.length - 1]
     redoStack.value = redoStack.value.slice(0, -1)
-    restoreSnapshot(next)
+    if (next) restoreSnapshot(next)
   }
 
   return { pushSnapshot, undo, redo, canUndo, canRedo }

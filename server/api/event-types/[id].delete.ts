@@ -16,12 +16,13 @@ export default defineEventHandler(async (event) => {
   const [usageCount] = await db.select({ count: sql<number>`count(*)` })
     .from(contactEvents)
     .where(eq(contactEvents.eventTypeId, id))
-  const hasData = Number(usageCount.count) > 0
+  const count = Number(usageCount?.count ?? 0)
+  const hasData = count > 0
 
   if (hasData) {
     throw createError({
       statusCode: 409,
-      message: `Cannot delete event type: ${usageCount.count} events exist. Remove events first.`
+      message: `Cannot delete event type: ${count} events exist. Remove events first.`
     })
   }
 

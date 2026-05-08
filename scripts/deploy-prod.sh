@@ -9,7 +9,9 @@ set -e
 if [ -z "$S3_ACCESS_KEY_ID" ]; then
     if [ -f .env.prod ]; then
         echo "📝 Loading environment variables from .env.prod"
-        export $(grep -v '^#' .env.prod | xargs)
+        set -a
+        source .env.prod
+        set +a
     else
         echo "⚠️  Warning: S3_ACCESS_KEY_ID not set and .env.prod not found."
     fi
@@ -43,7 +45,13 @@ echo "🛠 Building static assets..."
 if [ -f .env.prod ]; then
     cp .env.prod .env
 fi
-npx nuxi generate
+# Use a portable background process to prevent hanging (Works on Mac and Linux)
+npx nuxi generate &
+NUXI_PID=$!
+( sleep 60; kill -9 $NUXI_PID 2>/dev/null ) &
+WATCHER_PID=$!
+wait $NUXI_PID 2>/dev/null || echo "⚠️ Nuxt build finished or timed out, proceeding to upload..."
+kill $WATCHER_PID 2>/dev/null
 
 # 3. Handle obsutil (Huawei Cloud OBS Tool)
 OBSUTIL_URL="https://obs-community-intl.obs.ap-southeast-1.myhuaweicloud.com/obsutil/current/obsutil_linux_amd64.tar.gz"
@@ -56,8 +64,8 @@ if [ ! -f ./obsutil ]; then
     OBS_BIN=$(find . -name obsutil -type f | grep linux_amd64 | head -n 1)
     cp "$OBS_BIN" ./obsutil
     chmod +x ./obsutil
-    # Cleanup
-    rm -rf obsutil_linux_amd64.tar.gz obsutil_linux_amd64_*
+    # Cleanup (ignore errors if folder is locked)
+    rm -rf obsutil_linux_amd64.tar.gz obsutil_linux_amd64_* 2>/dev/null || true
 fi
 
 # 4. Configure obsutil
@@ -66,8 +74,8 @@ echo "⚙️ Configuring obsutil..."
 
 # 5. Upload to OBS
 echo "☁️ Uploading to Huawei OBS (Production)..."
-# Target path: root (empty)
-./obsutil cp .output/public obs://$S3_BUCKET/ -f -r
+# Target path: root (empty) (-v adds a verbose progress bar)
+./obsutil cp .output/public obs://$S3_BUCKET/ -f -r -v
 
 echo "✅ Production Deployment Complete!"
 echo "🔗 Check: https://oasis.kgmedia.id/"

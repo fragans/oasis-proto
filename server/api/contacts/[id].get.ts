@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { eq, sql } from 'drizzle-orm'
 import { contacts, segments } from '../../database/schema'
 
 export default defineEventHandler(async (event) => {

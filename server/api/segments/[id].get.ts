@@ -17,6 +17,6 @@ export default defineEventHandler(async (event) => {
 
   return {
     ...segment[0],
-    contactCount: Number(countResult.count)
+    contactCount: Number(countResult?.count ?? 0)
   }
 })

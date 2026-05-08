@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
 
   return {
     contacts: rows,
-    total: Number(countResult.count),
+    total: Number(countResult?.count ?? 0),
     page,
     limit
   }
