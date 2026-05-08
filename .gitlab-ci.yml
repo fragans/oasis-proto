@@ -1,5 +1,9 @@
 # image: node:20-slim (Disabled because runner is monolithic/shell)
 
+default:
+  tags:
+    - gomed
+
 stages:
   - test
   - build
