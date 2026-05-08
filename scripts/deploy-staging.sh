@@ -5,22 +5,44 @@
 
 set -e
 
-# 1. Load environment variables from .env.staging
-if [ -f .env.staging ]; then
-    export $(grep -v '^#' .env.staging | xargs)
-else
-    echo "Error: .env.staging file not found!"
-    exit 1
+# 1. Load environment variables from .env.staging (only if not already set by CI)
+if [ -z "$S3_ACCESS_KEY_ID" ]; then
+    if [ -f .env.staging ]; then
+        echo "📝 Loading environment variables from .env.staging"
+        export $(grep -v '^#' .env.staging | xargs)
+    else
+        echo "⚠️  Warning: S3_ACCESS_KEY_ID not set and .env.staging not found."
+    fi
 fi
 
-echo "🚀 Starting Manual Deployment to Staging..."
+echo "🚀 Starting Deployment to STAGING..."
+
+# Skip confirmation if running in CI, Jenkins, or if -y flag is passed
+if [[ "$1" == "-y" ]] || [[ -n "$CI" ]] || [[ -n "$JENKINS_URL" ]]; then
+    echo "⏩ Non-interactive mode detected. Skipping confirmation."
+else
+    echo "⚠️  WARNING: You are about to deploy to the staging environment!"
+    read -p "Are you sure you want to proceed? (y/n) " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "Deployment cancelled."
+        exit 1
+    fi
+fi
 
 # 2. Build the project
 echo "📦 Installing dependencies..."
-npm install
+if [[ -n "$JENKINS_URL" ]] || [[ -n "$CI" ]]; then
+    npm ci
+else
+    npm install
+fi
 
 echo "🛠 Building static assets..."
-cp .env.staging .env
+# Only copy .env.staging if it exists; otherwise rely on environment variables
+if [ -f .env.staging ]; then
+    cp .env.staging .env
+fi
 npx nuxi generate
 
 # 3. Handle obsutil (Huawei Cloud OBS Tool)

@@ -21,6 +21,16 @@ pipeline {
             }
         }
 
+        stage('Deploy to Staging') {
+            when {
+                branch 'staging'
+            }
+            steps {
+                echo '🚀 Starting Staging Deployment...'
+                sh 'bash scripts/deploy-staging.sh -y'
+            }
+        }
+
         stage('Deploy to Production') {
             when {
                 branch 'main'
