@@ -5,30 +5,44 @@
 
 set -e
 
-# 1. Load environment variables from .env.prod
-if [ -f .env.prod ]; then
-    export $(grep -v '^#' .env.prod | xargs)
-else
-    echo "Error: .env.prod file not found!"
-    exit 1
+# 1. Load environment variables from .env.prod (only if not already set by CI)
+if [ -z "$S3_ACCESS_KEY_ID" ]; then
+    if [ -f .env.prod ]; then
+        echo "📝 Loading environment variables from .env.prod"
+        export $(grep -v '^#' .env.prod | xargs)
+    else
+        echo "⚠️  Warning: S3_ACCESS_KEY_ID not set and .env.prod not found."
+    fi
 fi
 
-echo "🚀 Starting Manual Deployment to PRODUCTION..."
-echo "⚠️  WARNING: You are about to deploy to the live production site!"
-read -p "Are you sure you want to proceed? (y/n) " -n 1 -r
-echo
-if [[ ! $REPLY =~ ^[Yy]$ ]]
-then
-    echo "Deployment cancelled."
-    exit 1
+echo "🚀 Starting Deployment to PRODUCTION..."
+
+# Skip confirmation if running in CI, Jenkins, or if -y flag is passed
+if [[ "$1" == "-y" ]] || [[ -n "$CI" ]] || [[ -n "$JENKINS_URL" ]]; then
+    echo "⏩ Non-interactive mode detected. Skipping confirmation."
+else
+    echo "⚠️  WARNING: You are about to deploy to the live production site!"
+    read -p "Are you sure you want to proceed? (y/n) " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "Deployment cancelled."
+        exit 1
+    fi
 fi
 
 # 2. Build the project
 echo "📦 Installing dependencies..."
-npm install
+if [[ -n "$JENKINS_URL" ]] || [[ -n "$CI" ]]; then
+    npm ci
+else
+    npm install
+fi
 
 echo "🛠 Building static assets..."
-cp .env.prod .env
+# Only copy .env.prod if it exists; otherwise rely on environment variables
+if [ -f .env.prod ]; then
+    cp .env.prod .env
+fi
 npx nuxi generate
 
 # 3. Handle obsutil (Huawei Cloud OBS Tool)

@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   const parsed = ingestContactSchema.parse(body)
 
   // Resolve contact: email → phone → contactId
-  let contact = null
+  let existingContact = null
   const lookupConditions = []
   if (parsed.contactId) lookupConditions.push(eq(contacts.id, parsed.contactId))
   if (parsed.email) lookupConditions.push(eq(contacts.email, parsed.email))
@@ -16,29 +16,36 @@ export default defineEventHandler(async (event) => {
 
   if (lookupConditions.length > 0) {
     const found = await db.select().from(contacts).where(or(...lookupConditions)).limit(1)
-    contact = found[0] ?? null
+    existingContact = found[0] ?? null
   }
 
   // Upsert contact
-  if (!contact) {
+  let contact: typeof contacts.$inferSelect
+  if (!existingContact) {
     const [created] = await db.insert(contacts).values({
       email: parsed.email,
       phone: parsed.phone,
       lastSeenAt: new Date()
     }).returning()
+
+    if (!created) {
+      throw createError({ statusCode: 500, statusMessage: 'Failed to create contact' })
+    }
     contact = created
   } else {
     await db.update(contacts)
       .set({ lastSeenAt: new Date(), updatedAt: new Date() })
-      .where(eq(contacts.id, contact.id))
+      .where(eq(contacts.id, existingContact.id))
+    contact = existingContact
   }
 
   // Process custom attributes
   if (parsed.attributes) {
     for (const [key, value] of Object.entries(parsed.attributes)) {
-      let attr = await db.select().from(contactAttributes).where(eq(contactAttributes.key, key)).limit(1)
+      const results = await db.select().from(contactAttributes).where(eq(contactAttributes.key, key)).limit(1)
+      let attribute = results[0]
 
-      if (!attr[0]) {
+      if (!attribute) {
         const inferredType = typeof value === 'number'
           ? 'number'
           : typeof value === 'boolean'
@@ -50,39 +57,44 @@ export default defineEventHandler(async (event) => {
           type: inferredType as AttributeType,
           category: 'auto'
         }).returning()
-        attr = [created]
+        attribute = created
       }
 
-      await db.insert(contactCustomValues).values({
-        contactId: contact.id,
-        attributeId: attr[0].id,
-        value: String(value),
-        source: 'api'
-      }).onConflictDoNothing()
+      if (attribute) {
+        await db.insert(contactCustomValues).values({
+          contactId: contact.id,
+          attributeId: attribute.id,
+          value: String(value),
+          source: 'api'
+        }).onConflictDoNothing()
+      }
     }
   }
 
   // Process events
   if (parsed.events) {
     for (const ev of parsed.events) {
-      let evType = await db.select().from(eventTypes).where(eq(eventTypes.key, ev.event)).limit(1)
+      const results = await db.select().from(eventTypes).where(eq(eventTypes.key, ev.event)).limit(1)
+      let evType = results[0]
 
-      if (!evType[0]) {
+      if (!evType) {
         const [created] = await db.insert(eventTypes).values({
           key: ev.event,
           label: ev.event.replace(/[_.]/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
           category: 'auto'
         }).returning()
-        evType = [created]
+        evType = created
       }
 
-      await db.insert(contactEvents).values({
-        contactId: contact.id,
-        eventTypeId: evType[0].id,
-        properties: ev.properties,
-        source: 'api',
-        occurredAt: ev.occurredAt ? new Date(ev.occurredAt) : new Date()
-      })
+      if (evType) {
+        await db.insert(contactEvents).values({
+          contactId: contact.id,
+          eventTypeId: evType.id,
+          properties: ev.properties,
+          source: 'api',
+          occurredAt: ev.occurredAt ? new Date(ev.occurredAt) : new Date()
+        })
+      }
     }
   }
 
@@ -90,7 +102,7 @@ export default defineEventHandler(async (event) => {
   if (parsed.segmentIds && parsed.segmentIds.length > 0) {
     const values = parsed.segmentIds.map(segmentId => ({
       segmentId,
-      contactId: contact!.id
+      contactId: contact.id
     }))
     await db.insert(segmentContacts).values(values).onConflictDoNothing()
   }
