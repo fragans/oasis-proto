@@ -1,5 +1,5 @@
 import { getOrganizationId } from '../../utils/organization'
-import { eq, and } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { campaigns } from '../../database/schema'
 import { STATUS_TRANSITIONS } from '~~/shared/types/campaign'
 import type { CampaignStatus } from '~~/shared/types/campaign'
@@ -9,17 +9,26 @@ export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id')!
 
   const organizationId = getOrganizationId(event)
-  const where = organizationId
-    ? and(eq(campaigns.id, id), eq(campaigns.organizationId, organizationId))
-    : eq(campaigns.id, id)
 
+  // Fetch by ID first to check existence
   const campaign = await db.query.campaigns.findFirst({
-    where: where,
+    where: eq(campaigns.id, id),
     with: { creatives: true }
   })
 
   if (!campaign) {
-    throw createError({ statusCode: 404, message: 'Campaign not found' })
+    throw createError({ statusCode: 404, message: `Campaign with ID ${id} not found in database.` })
+  }
+
+  // Then check organization context if enforced
+  // Super Admins can bypass this check to view any campaign
+  const isAdmin = isSuperAdmin(event)
+  if (!isAdmin && organizationId && campaign.organizationId !== organizationId) {
+    console.warn(`[GET /api/campaigns/${id}] Organization mismatch. Campaign belongs to ${campaign.organizationId}, but request context is ${organizationId}`)
+    throw createError({
+      statusCode: 403,
+      message: `Organization mismatch. This campaign belongs to ${campaign.organizationId}.`
+    })
   }
 
   const availableTransitions = STATUS_TRANSITIONS[campaign.status as CampaignStatus] || []

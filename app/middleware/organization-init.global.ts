@@ -1,24 +1,27 @@
-import type { Organization } from '~~/shared/types/organization'
-
 export default defineNuxtRouteMiddleware(async (to) => {
-  // 1. Skip if we are on the initiate-organization page or within settings
+  // 1. Skip if we are on the initiate-organization page
   if (to.path === '/initiate-organization') {
     return
   }
 
-  // 2. Check if we have organizations
-  // We use a simple $fetch to the organizations API
-  // In a real app, this should be cached in a shared state or store
+  const { allOrganizations, activeOrgId, refresh, status } = useOrganization()
+
+  // 2. Only fetch organizations if they aren't already loaded
+  // This prevents redundant /api/organizations calls on every internal route change
   try {
-    const { organizations } = await $fetch<{ organizations: Organization[] }>('/api/organizations', {
-      // mock req headers for development stage
-      headers: useRequestHeaders(['x-oasis-super-admin', 'x-oasis-organization'])
-    })
-    if (organizations.length === 0) {
+    if (status.value !== 'success' || allOrganizations.value.length === 0) {
+      await refresh()
+    }
+    if (allOrganizations.value.length === 0 && status.value === 'success') {
       return navigateTo('/initiate-organization')
     }
+
+    // 3. Ensure activeOrgId is settled
+    const firstOrg = allOrganizations.value[0]
+    if (!activeOrgId.value && firstOrg) {
+      activeOrgId.value = firstOrg.id
+    }
   } catch (err) {
-    console.error('[Middleware] Failed to check organizations:', err)
-    // If API fails, we don't want to block the app, but maybe log it
+    console.error('[Middleware] Failed to initialize organizations:', err)
   }
 })

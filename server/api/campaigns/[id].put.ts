@@ -1,5 +1,5 @@
 import { getOrganizationId } from '../../utils/organization'
-import { eq, and } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { campaigns } from '../../database/schema'
 import { updateCampaignSchema } from '~~/shared/types/campaign'
 import { syncOrganizationCampaignsToKV } from '../../utils/kv-sync'
@@ -21,16 +21,22 @@ export default defineEventHandler(async (event) => {
   }
 
   const organizationId = getOrganizationId(event)
-  const where = organizationId
-    ? and(eq(campaigns.id, id), eq(campaigns.organizationId, organizationId))
-    : eq(campaigns.id, id)
 
-  const existing = await db.query.campaigns.findFirst({
-    where: where
+  const campaign = await db.query.campaigns.findFirst({
+    where: eq(campaigns.id, id),
+    with: { creatives: true }
   })
 
-  if (!existing) {
-    throw createError({ statusCode: 404, message: 'Campaign not found' })
+  if (!campaign) {
+    throw createError({ statusCode: 404, message: `Campaign with ID ${id} not found.` })
+  }
+
+  const isAdmin = isSuperAdmin(event)
+  if (!isAdmin && organizationId && campaign.organizationId !== organizationId) {
+    throw createError({
+      statusCode: 403,
+      message: `Organization mismatch. This campaign belongs to ${campaign.organizationId}.`
+    })
   }
 
   const updateData: Record<string, unknown> = { updatedAt: new Date() }
@@ -58,12 +64,12 @@ export default defineEventHandler(async (event) => {
 
   const [updated] = await db.update(campaigns)
     .set(updateData)
-    .where(where)
+    .where(eq(campaigns.id, id))
     .returning()
 
   if (updated && (updated.status === 'active' || updated.status === 'scheduled')) {
     const config = useRuntimeConfig()
-    const organizationId = (updated.organizationId as string | undefined) || existing.organizationId || config.public.defaultOrganizationId
+    const organizationId = (updated.organizationId as string | undefined) || campaign.organizationId || config.public.defaultOrganizationId
     await syncOrganizationCampaignsToKV(organizationId as string)
   }
 

@@ -1,5 +1,5 @@
 import { getOrganizationId } from '../../utils/organization'
-import { eq, and } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { campaigns } from '../../database/schema'
 import { syncOrganizationCampaignsToKV } from '../../utils/kv-sync'
 
@@ -8,17 +8,22 @@ export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id')!
 
   const organizationId = getOrganizationId(event)
-  const where = organizationId
-    ? and(eq(campaigns.id, id), eq(campaigns.organizationId, organizationId))
-    : eq(campaigns.id, id)
 
   const campaign = await db.query.campaigns.findFirst({
-    where: where,
+    where: eq(campaigns.id, id),
     with: { creatives: true }
   })
 
   if (!campaign) {
-    throw createError({ statusCode: 404, message: 'Campaign not found' })
+    throw createError({ statusCode: 404, message: `Campaign with ID ${id} not found.` })
+  }
+
+  const isAdmin = isSuperAdmin(event)
+  if (!isAdmin && organizationId && campaign.organizationId !== organizationId) {
+    throw createError({
+      statusCode: 403,
+      message: `Organization mismatch. This campaign belongs to ${campaign.organizationId}.`
+    })
   }
 
   // Re-sync KV if active or scheduled (removes from list)
@@ -37,7 +42,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Cascade delete handles creatives
-  await db.delete(campaigns).where(where)
+  await db.delete(campaigns).where(eq(campaigns.id, id))
 
   return { success: true }
 })
