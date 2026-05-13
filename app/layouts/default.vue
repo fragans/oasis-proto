@@ -12,7 +12,7 @@ const navigation = computed(() => {
       label: 'Campaigns',
       icon: 'i-lucide-megaphone',
       to: `${prefix}/campaigns`,
-      active: route.path.includes('/campaigns') || route.path.includes('/creatives'),
+      active: route.path.startsWith(`${prefix}/campaigns`) || route.path.startsWith(`${prefix}/creatives`),
       defaultOpen: true,
       children: [
         { label: 'On Site Message', to: `${prefix}/campaigns/on-site-messages`, icon: 'i-lucide-app-window' },
@@ -23,7 +23,7 @@ const navigation = computed(() => {
       label: 'Settings',
       icon: 'i-lucide-settings',
       to: `${prefix}/settings`,
-      active: route.path.includes('/settings'),
+      active: route.path.startsWith(`${prefix}/settings`),
       defaultOpen: true,
       children: [
         { label: 'General', to: `${prefix}/settings`, icon: 'i-lucide-layers' }

@@ -19,7 +19,7 @@ const currentStep = computed(() => {
 
 function onStepChange(value: string | number | undefined) {
   if (value) {
-    router.push(`/campaigns/on-site-messages/${route.params.id}/wizard/${value}`)
+    router.push(`/${route.params.org}/campaigns/on-site-messages/${route.params.id}/wizard/${value}`)
   }
 }
 </script>

@@ -3,9 +3,25 @@ const open = defineModel<boolean>('open', { default: false })
 
 const { createCampaign } = useCampaign()
 const { session } = useUserSession()
+interface Organization {
+  id: string
+  name: string
+  slug: string
+}
+
 const activeOrgId = computed(() => session.value?.activeOrganizationId)
+const { data: userOrganizations } = useNuxtData<Organization[]>('user-organizations')
+const orgIdFromSlug = computed(() => {
+  if (!orgSlug.value || !userOrganizations.value) return null
+  return userOrganizations.value.find(o => o.slug === orgSlug.value)?.id
+})
+
+const targetOrgId = computed(() => activeOrgId.value || orgIdFromSlug.value)
+
+const route = useRoute()
 const router = useRouter()
 const toast = useToast()
+const orgSlug = computed(() => route.params.org as string)
 
 const form = reactive({
   name: ''
@@ -15,7 +31,7 @@ const saving = ref(false)
 
 async function handleCreate() {
   if (!form.name.trim()) return
-  if (!activeOrgId.value) {
+  if (!targetOrgId.value) {
     toast.add({
       title: 'No organization selected',
       description: 'Please select an organization before creating a campaign.',
@@ -28,7 +44,7 @@ async function handleCreate() {
   try {
     const campaign = await createCampaign({
       name: form.name,
-      organizationId: activeOrgId.value,
+      organizationId: targetOrgId.value,
       campaignType: 'popup',
       templateType: 'modal-with-cta-redirect'
     })
@@ -45,7 +61,7 @@ async function handleCreate() {
       color: 'success'
     })
 
-    router.push(`/campaigns/on-site-messages/${campaign.id}/wizard/template`)
+    router.push(`/${orgSlug.value}/campaigns/on-site-messages/${campaign.id}/wizard/template`)
   } catch (err: unknown) {
     console.error('[CreateCampaign] Error:', err)
     toast.add({

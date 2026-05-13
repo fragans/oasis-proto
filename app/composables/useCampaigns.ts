@@ -22,12 +22,17 @@ export function useCampaigns() {
     return q
   })
 
+  const route = useRoute()
+  const orgSlug = computed(() => route.params.org as string)
   const { session } = useUserSession()
   const activeOrgId = computed(() => session.value?.activeOrganizationId)
 
   const { data, status, refresh } = useFetch<CampaignListResponse>('/api/campaigns', {
-    query,
-    watch: [query, activeOrgId],
+    query: computed(() => ({
+      ...query.value,
+      orgSlug: orgSlug.value
+    })),
+    watch: [query, activeOrgId, orgSlug],
     immediate: false
   })
 

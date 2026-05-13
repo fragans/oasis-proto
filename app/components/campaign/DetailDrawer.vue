@@ -10,6 +10,8 @@ const props = defineProps<{
 
 const emit = defineEmits(['update:open', 'refresh'])
 
+const route = useRoute()
+
 function formatDate(date: string | null) {
   if (!date) return '—'
   return new Date(date).toLocaleDateString('en-US', {
@@ -322,7 +324,7 @@ const statusActions = computed(() => {
           label="Edit Campaign"
           icon="i-lucide-pencil"
           color="primary"
-          :to="`/campaigns/on-site-messages/${campaign.id}/wizard/template`"
+          :to="`/${route.params.org}/campaigns/on-site-messages/${campaign.id}/wizard/template`"
         />
       </div>
     </template>

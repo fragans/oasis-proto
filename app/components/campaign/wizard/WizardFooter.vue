@@ -42,7 +42,7 @@ const isLastStep = computed(() => steps[steps.length - 1] === currentStepId.valu
         <UButton
           variant="ghost"
           color="neutral"
-          @click="router.push('/campaigns/on-site-messages')"
+          @click="router.push(`/${route.params.org}/campaigns/on-site-messages`)"
         >
           Exit Wizard
         </UButton>

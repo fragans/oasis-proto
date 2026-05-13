@@ -5,26 +5,49 @@ const toast = useToast()
 const isSuperAdmin = computed(() => user.value?.role === 'super_admin')
 
 // Fetch organizations the user belongs to
-// We use useAsyncData to handle the promise and provide reactivity
 const { data: userOrganizations } = await useAsyncData('user-organizations', async () => {
-  if (!client) return []
-
-  // If Super Admin, fetch ALL organizations from our custom API
-  if (isSuperAdmin.value) {
-    const res = await $fetch<{ organizations: Organization[] }>('/api/organizations')
-    return res.organizations || []
+  // Always attempt to fetch from our organizations API first.
+  // The server-side API correctly handles Super Admin (returns all)
+  // and regular users (returns only active or joined if implemented).
+  try {
+    const res = await $fetch<{ organizations: Organization[] }>('/api/organizations', {
+      headers: useRequestHeaders(['cookie'])
+    })
+    if (res.organizations?.length > 0) {
+      return res.organizations
+    }
+  } catch (e: unknown) {
+    console.log(e instanceof Error ? e.message : 'Error fetching /api/organizations')
   }
 
-  // Otherwise, fetch only joined organizations via Better Auth client
-  const res = await client.organization.list()
-  return (res.data as unknown as Organization[]) || []
+  // Fallback: Fetch joined organizations via Better Auth client (Client-side only)
+  if (import.meta.client && client) {
+    const res = await client.organization.list()
+    return (res.data as unknown as Organization[]) || []
+  }
+
+  return []
+}, {
+  watch: [user]
 })
 
 const organizations = computed(() => userOrganizations.value || [])
 
+const route = useRoute()
 const activeOrg = computed(() => {
   const activeId = session.value?.activeOrganizationId
-  return organizations.value.find(o => o.id === activeId)
+  if (activeId) {
+    const org = organizations.value.find(o => o.id === activeId)
+    if (org) return org
+  }
+
+  // Fallback: Use URL slug for Super Admin "Browsing Mode"
+  const slug = route.params.org as string
+  if (isSuperAdmin.value && slug) {
+    return organizations.value.find(o => o.slug === slug)
+  }
+
+  return null
 })
 
 interface Organization {
@@ -38,6 +61,17 @@ async function switchOrganization(org: Organization) {
   const activeId = session.value?.activeOrganizationId
   if (org.id !== activeId) {
     try {
+      // Super Admins skip setActive to avoid membership errors and rely on Browsing Mode
+      if (isSuperAdmin.value) {
+        navigateTo({
+          name: route.name as string,
+          params: { ...route.params, org: org.slug },
+          query: route.query,
+          hash: route.hash
+        })
+        return
+      }
+
       if (!client) return
       await client.organization.setActive({ organizationId: org.id })
 
@@ -47,7 +81,13 @@ async function switchOrganization(org: Organization) {
         color: 'success'
       })
 
-      navigateTo(`/${org.slug}/campaigns/on-site-messages`)
+      // Preserve current path by replacing the :org param
+      navigateTo({
+        name: route.name as string,
+        params: { ...route.params, org: org.slug },
+        query: route.query,
+        hash: route.hash
+      })
     } catch (err) {
       toast.add({
         title: 'Failed to switch organization',
@@ -74,7 +114,8 @@ const showSwitcher = computed(() => isSuperAdmin.value || organizations.value.le
     <UDropdownMenu
       v-if="showSwitcher"
       :items="dropdownItems"
-      :content="{ align: 'start' }"
+      :content="{ align: 'end' }"
+      :ui="{ content: 'min-w-(--reka-dropdown-menu-trigger-width)' }"
     >
       <UButton
         color="neutral"

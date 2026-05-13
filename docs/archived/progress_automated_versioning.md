@@ -47,7 +47,7 @@ Store release notes in Postgres so they can be queried by the Nuxt 4 frontend.
 ---
 
 ## 🎯 Goal 3: In-App User Notifications
-Expose the release data to users within the Oasis-Proto dashboard.
+Expose the release data to users within the oasis-dashboard
 
 ### 📍 Milestone 3.1: API & Component Integration
 *Fetching and displaying the data.*

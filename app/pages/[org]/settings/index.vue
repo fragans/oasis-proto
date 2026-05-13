@@ -267,16 +267,6 @@ async function removeOrganization() {
                 act as
                 a transparent proxy.
               </p>
-              <USeparator />
-              <div class="text-xs text-zinc-500 pt-2">
-                Current Environment: <UBadge
-                  size="xs"
-                  variant="soft"
-                  color="neutral"
-                >
-                  Staging
-                </UBadge>
-              </div>
             </div>
           </div>
         </UCard>

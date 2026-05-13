@@ -1,3 +1,5 @@
+import { eq } from 'drizzle-orm'
+import { organization } from '../database/schema'
 import type { H3Event } from 'h3'
 
 /**
@@ -5,7 +7,11 @@ import type { H3Event } from 'h3'
  */
 export const isSuperAdmin = async (event: H3Event): Promise<boolean> => {
   const auth = serverAuth(event)
-  const session = await auth.api.getSession({ headers: event.headers })
+  const session = await auth.api.getSession({ headers: event.headers }) as {
+    user: { role?: string }
+    session: { activeOrganizationId?: string | null }
+  } | null
+
   return session?.user.role === 'super_admin'
 }
 
@@ -19,15 +25,47 @@ export const isSuperAdmin = async (event: H3Event): Promise<boolean> => {
  */
 export const getOrganizationId = async (event: H3Event): Promise<string | null> => {
   const auth = serverAuth(event)
-  const session = await auth.api.getSession({ headers: event.headers })
+  const session = await auth.api.getSession({ headers: event.headers }) as {
+    user: { role?: string }
+    session: { activeOrganizationId?: string | null }
+  } | null
 
   // 1. Priority: Better Auth Active Organization from the session
   if (session?.session.activeOrganizationId) {
     return session.session.activeOrganizationId
   }
 
-  // 2. Global View for Super Admins
+  // 2. Fallback: Super Admin Context (Browsing Mode)
   if (session?.user.role === 'super_admin') {
+    // A. Check for explicit route param or query param
+    let orgSlug = getRouterParam(event, 'org') || getQuery(event).orgSlug as string
+
+    // B. Check for Referer (helpful for API calls made from a tenant page like /[org]/campaigns)
+    if (!orgSlug) {
+      const referer = getRequestHeader(event, 'referer')
+      if (referer) {
+        try {
+          const url = new URL(referer)
+          const parts = url.pathname.split('/').filter(Boolean)
+          const firstPart = parts[0]
+          // If the first part of the path is likely an org slug (not a reserved route)
+          if (firstPart && !['login', 'organizations', 'no-organization', 'initiate-organization'].includes(firstPart)) {
+            orgSlug = firstPart
+          }
+        } catch (e: unknown) {
+          console.error(e instanceof Error ? e.message : 'Invalid referer URL')
+          // Ignore invalid referer URLs
+        }
+      }
+    }
+
+    if (orgSlug) {
+      const db = useDB()
+      const org = await db.select().from(organization).where(eq(organization.slug, orgSlug)).limit(1)
+      if (org[0]) {
+        return org[0].id
+      }
+    }
     return null
   }
 

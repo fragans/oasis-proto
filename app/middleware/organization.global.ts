@@ -33,6 +33,9 @@ export default defineNuxtRouteMiddleware(async (to) => {
       if (import.meta.server || !client) return
 
       try {
+        // Super Admins bypass setActive membership requirements and rely on Browsing Mode
+        if (isSuperAdmin) return
+
         // Attempt to set the active organization by slug
         const { error } = await client.organization.setActive({
           organizationSlug: orgSlugFromUrl
@@ -40,10 +43,12 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
         if (error) {
           console.warn('Invalid organization slug in URL:', orgSlugFromUrl)
+          if (isSuperAdmin) return // Allow Super Admins to continue in "Browsing Mode"
           return navigateTo('/organizations/select')
         }
       } catch (err) {
         console.error('Failed to sync organization context:', err)
+        if (isSuperAdmin) return // Allow Super Admins to continue in "Browsing Mode"
         return navigateTo('/organizations/select')
       }
     }
