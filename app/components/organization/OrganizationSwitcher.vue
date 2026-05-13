@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { DropdownMenuItem } from '@nuxt/ui'
+
 const { session, client, user } = useUserSession()
 const toast = useToast()
 
@@ -98,10 +100,11 @@ async function switchOrganization(org: Organization) {
   }
 }
 
-const dropdownItems = computed(() => [
+const dropdownItems = computed<DropdownMenuItem[][]>(() => [
   organizations.value.map(org => ({
     label: org.name,
-    icon: 'i-lucide-building-2',
+    type: 'checkbox',
+    checked: activeOrg.value?.id === org.id,
     onSelect: () => switchOrganization(org)
   }))
 ])
@@ -114,7 +117,7 @@ const showSwitcher = computed(() => isSuperAdmin.value || organizations.value.le
     <UDropdownMenu
       v-if="showSwitcher"
       :items="dropdownItems"
-      :content="{ align: 'end' }"
+      :content="{ align: 'start' }"
       :ui="{ content: 'min-w-(--reka-dropdown-menu-trigger-width)' }"
     >
       <UButton
