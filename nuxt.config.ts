@@ -1,5 +1,10 @@
 export default defineNuxtConfig({
-  modules: ['@nuxt/eslint', '@nuxt/ui', 'nuxt-skill-hub'],
+  modules: [
+    '@nuxt/eslint',
+    '@nuxt/ui',
+    '@onmax/nuxt-better-auth',
+    'nuxt-skill-hub'
+  ],
 
   devtools: {
     enabled: true
@@ -25,13 +30,17 @@ export default defineNuxtConfig({
     superAdminToken: process.env.SUPER_ADMIN_TOKEN || 'oasis-dev-admin',
 
     public: {
-      // Multi-tenancy
-      defaultOrganizationId: process.env.DEFAULT_ORGANIZATION_ID || 'no-organization'
     }
   },
 
   routeRules: {
-    '/': { redirect: '/campaigns' }
+    '/login': { auth: 'guest' },
+    '/no-organization': { auth: 'user' },
+    '/initiate-organization': { auth: 'user' },
+    '/organizations/select': { auth: 'user' },
+    // All organization-context routes are protected
+    '/[org]/**': { auth: 'user' },
+    '/workflow': { auth: 'user' }
   },
 
   compatibilityDate: '2025-01-15',
@@ -45,8 +54,10 @@ export default defineNuxtConfig({
   vite: {
     optimizeDeps: {
       include: [
+        '@better-auth/api-key',
         '@vue/devtools-core',
         '@vue/devtools-kit',
+        'better-auth/client/plugins',
         'zod'
       ]
     }

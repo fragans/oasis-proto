@@ -6,9 +6,8 @@ const MAX_SIZE = 10 * 1024 * 1024 // 10MB
 
 export default defineEventHandler(async (event) => {
   const db = useDB()
-  const config = useRuntimeConfig()
   const query = getQuery(event)
-  const organizationId = (query.organizationId as string) || (config.public.defaultOrganizationId as string)
+  const organizationId = await requireOrganizationId(event)
 
   const files = await readMultipartFormData(event)
 

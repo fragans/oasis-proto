@@ -1,9 +1,10 @@
-import { organizations } from '../../database/schema'
+import { organization as organizationTable } from '../../database/schema'
 import { createOrganizationSchema } from '~~/shared/types/organization'
 import { syncOrganizationConfigToKV } from '../../utils/kv-sync'
+import { isSuperAdmin } from '../../utils/organization'
 
 export default defineEventHandler(async (event) => {
-  if (!isSuperAdmin(event)) {
+  if (!await isSuperAdmin(event)) {
     throw createError({
       statusCode: 403,
       message: 'Only Super Admins can create new organizations.'
@@ -23,16 +24,18 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const [organization] = await db.insert(organizations).values({
+    const [newOrg] = await db.insert(organizationTable).values({
       id: parsed.data.id,
+      name: parsed.data.id, // Fallback to ID as name
+      slug: parsed.data.id,
       hostname: parsed.data.hostname,
       apiUrl: parsed.data.apiUrl,
       cookieName: parsed.data.cookieName,
-      authCookieNames: parsed.data.authCookieNames,
-      isLive: false // Default to maintenance
+      isLive: false, // Default to maintenance
+      createdAt: new Date()
     }).returning()
 
-    if (!organization) {
+    if (!newOrg) {
       throw createError({
         statusCode: 500,
         statusMessage: 'Failed to create organization'
@@ -41,16 +44,16 @@ export default defineEventHandler(async (event) => {
 
     // Sync to KV immediately so the edge worker knows about this organization config
     try {
-      await syncOrganizationConfigToKV(organization.id)
+      await syncOrganizationConfigToKV(newOrg.id)
     } catch (kvErr) {
-      console.error(`[API] Organization created but KV sync failed for ${organization.id}:`, kvErr)
+      console.error(`[API] Organization created but KV sync failed for ${newOrg.id}:`, kvErr)
       // We don't fail the request here, but the UI might show a warning
     }
 
     setResponseStatus(event, 201)
     return {
       success: true,
-      organization
+      organization: newOrg
     }
   } catch (err: unknown) {
     if (err && typeof err === 'object' && 'code' in err && err.code === '23505') { // Unique constraint violation

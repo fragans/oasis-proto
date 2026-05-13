@@ -4,8 +4,19 @@ import { creatives } from '../../database/schema'
 export default defineEventHandler(async (event) => {
   const db = useDB()
   const query = getQuery(event)
-  const config = useRuntimeConfig()
-  const organizationId = (query.organizationId as string) || (config.public.defaultOrganizationId as string)
+  // 1. Resolve organizationId (Priority: Query > Session)
+  const organizationId = (query.organizationId as string) || await getOrganizationId(event)
+
+  // 2. Validate context (Super Admins can skip, others get 400)
+  if (!organizationId && !(await isSuperAdmin(event))) {
+    throw createError({
+      statusCode: 400,
+      message: 'Organization ID is required to fetch creatives.'
+    })
+  }
+
+  // 3. Define filter (If no ID, fetch all for Super Admin Global View)
+  const filter = organizationId ? eq(creatives.organizationId, organizationId) : undefined
 
   const rows = await db.select({
     id: creatives.id,
@@ -18,7 +29,7 @@ export default defineEventHandler(async (event) => {
     createdAt: creatives.createdAt
   })
     .from(creatives)
-    .where(eq(creatives.organizationId, organizationId))
+    .where(filter)
     .orderBy(desc(creatives.createdAt))
 
   return { creatives: rows }

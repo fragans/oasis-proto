@@ -1,8 +1,9 @@
 import { campaigns } from '../../database/schema'
 import { createCampaignSchema } from '~~/shared/types/campaign'
-import { requireOrganizationId } from '../../utils/organization'
+import { requireOrganizationId, requireAdmin } from '../../utils/organization'
 
 export default defineEventHandler(async (event) => {
+  await requireAdmin(event)
   const db = useDB()
   const body = await readBody(event)
 
@@ -15,7 +16,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const organizationId = parsed.data.organizationId || requireOrganizationId(event)
+  const organizationId = parsed.data.organizationId || await requireOrganizationId(event)
 
   try {
     const [campaign] = await db.insert(campaigns).values({

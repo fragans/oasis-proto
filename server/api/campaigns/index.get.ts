@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
   const sortOrder = query.sortOrder === 'asc' ? 'asc' : 'desc'
 
   const conditions = []
-  const organizationId = getOrganizationId(event)
+  const organizationId = await getOrganizationId(event)
 
   if (organizationId) {
     conditions.push(eq(campaigns.organizationId, organizationId))

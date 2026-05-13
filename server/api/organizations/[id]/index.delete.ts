@@ -1,10 +1,11 @@
 import { eq } from 'drizzle-orm'
-import { organizations } from '../../../database/schema'
+import { organization as organizationTable } from '../../../database/schema'
 import { removeOrganizationCampaignsFromKV, removeOrganizationConfigFromKV } from '../../../utils/kv-sync'
+import { isSuperAdmin } from '../../../utils/organization'
 
 export default defineEventHandler(async (event) => {
   // Guard: only Super Admins may delete organizations
-  if (!isSuperAdmin(event)) {
+  if (!await isSuperAdmin(event)) {
     throw createError({
       statusCode: 403,
       statusMessage: 'Forbidden: Super Admin access required to delete an organization'
@@ -22,7 +23,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // 1. Fetch organization first to get hostname (needed for KV cleanup)
-  const [organization] = await db.select().from(organizations).where(eq(organizations.id, id))
+  const [organization] = await db.select().from(organizationTable).where(eq(organizationTable.id, id))
 
   if (!organization) {
     throw createError({
@@ -34,14 +35,14 @@ export default defineEventHandler(async (event) => {
   try {
     // 2. Delete from Postgres
     // NOTE: This will automatically delete all related campaigns because of onDelete: 'cascade'
-    await db.delete(organizations).where(eq(organizations.id, id))
+    await db.delete(organizationTable).where(eq(organizationTable.id, id))
 
     // 3. Clean up Cloudflare KV
     // We do this in parallel but don't strictly await if we want speed,
     // though for deletion it's better to ensure it's gone.
     await Promise.all([
       removeOrganizationCampaignsFromKV(id),
-      removeOrganizationConfigFromKV(organization.hostname)
+      removeOrganizationConfigFromKV(organization.hostname || '')
     ])
 
     return {

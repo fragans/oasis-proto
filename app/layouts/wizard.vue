@@ -3,11 +3,12 @@ const route = useRoute()
 const campaignId = computed(() => route.params.id as string)
 
 const { campaign, error } = useWizardDraft(campaignId.value)
+const orgSlug = computed(() => route.params.org as string)
 
 // Guard: if campaign not found, redirect to list
 watchEffect(() => {
-  if (error.value && error.value.statusCode === 404) {
-    useRouter().push('/campaigns/on-site-messages')
+  if (error.value && error.value.status === 404) {
+    useRouter().push(`/${orgSlug.value}/campaigns/on-site-messages`)
   }
 })
 </script>
@@ -24,7 +25,7 @@ watchEffect(() => {
             variant="ghost"
             color="neutral"
             icon="i-lucide-arrow-left"
-            to="/campaigns/on-site-messages"
+            :to="`/${orgSlug}/campaigns/on-site-messages`"
           />
           <div>
             <h1 class="text-sm font-semibold text-zinc-900 dark:text-white truncate max-w-[300px]">

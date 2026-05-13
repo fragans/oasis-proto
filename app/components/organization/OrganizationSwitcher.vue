@@ -1,64 +1,100 @@
 <script setup lang="ts">
-const { allOrganizations, currentOrganization, switchOrganization, isSuperAdmin } = useOrganization()
+const { session, client, user } = useUserSession()
+const toast = useToast()
 
-const items = computed(() => allOrganizations.value.map(org => ({
-  label: org.id,
-  description: org.hostname,
-  value: org.id,
-  icon: 'i-lucide-building-2'
-})))
+const isSuperAdmin = computed(() => user.value?.role === 'super_admin')
 
-const selected = computed({
-  get: () => items.value.find(i => i.value === currentOrganization.value?.id),
-  set: (val) => {
-    if (val?.value && val.value !== currentOrganization.value?.id) {
-      switchOrganization(val.value)
-    }
+// Fetch organizations the user belongs to
+// We use useAsyncData to handle the promise and provide reactivity
+const { data: userOrganizations } = await useAsyncData('user-organizations', async () => {
+  if (!client) return []
+
+  // If Super Admin, fetch ALL organizations from our custom API
+  if (isSuperAdmin.value) {
+    const res = await $fetch<{ organizations: Organization[] }>('/api/organizations')
+    return res.organizations || []
   }
+
+  // Otherwise, fetch only joined organizations via Better Auth client
+  const res = await client.organization.list()
+  return (res.data as unknown as Organization[]) || []
 })
 
-const showSwitcher = computed(() => isSuperAdmin.value || allOrganizations.value.length > 1)
+const organizations = computed(() => userOrganizations.value || [])
+
+const activeOrg = computed(() => {
+  const activeId = session.value?.activeOrganizationId
+  return organizations.value.find(o => o.id === activeId)
+})
+
+interface Organization {
+  id: string
+  name: string
+  slug: string | null
+  logo?: string | null
+}
+
+async function switchOrganization(org: Organization) {
+  const activeId = session.value?.activeOrganizationId
+  if (org.id !== activeId) {
+    try {
+      if (!client) return
+      await client.organization.setActive({ organizationId: org.id })
+
+      toast.add({
+        title: 'Organization switched',
+        description: `Switched to ${org.name}`,
+        color: 'success'
+      })
+
+      navigateTo(`/${org.slug}/campaigns/on-site-messages`)
+    } catch (err) {
+      toast.add({
+        title: 'Failed to switch organization',
+        description: err instanceof Error ? err.message : 'Unknown error',
+        color: 'error'
+      })
+    }
+  }
+}
+
+const dropdownItems = computed(() => [
+  organizations.value.map(org => ({
+    label: org.name,
+    icon: 'i-lucide-building-2',
+    onSelect: () => switchOrganization(org)
+  }))
+])
+
+const showSwitcher = computed(() => isSuperAdmin.value || organizations.value.length > 1)
 </script>
 
 <template>
   <div class="flex items-center gap-3">
-    <USelectMenu
+    <UDropdownMenu
       v-if="showSwitcher"
-      v-model="selected"
-      :items="items"
-      placeholder="Switch Organization"
-      class="w-56"
-      color="neutral"
-      variant="subtle"
-      :ui="{
-        trailingIcon: 'i-lucide-chevrons-up-down',
-        itemLeadingIcon: 'text-primary'
-      }"
+      :items="dropdownItems"
+      :content="{ align: 'start' }"
     >
-      <template #leading>
-        <UIcon
-          name="i-lucide-building"
-          class="size-4 text-muted-foreground"
-        />
-      </template>
-
-      <template #item-label="{ item }">
-        <div class="flex flex-col gap-0.5">
-          <span class="font-medium text-sm">{{ item.label }}</span>
-          <span class="text-xs text-muted-foreground">{{ item.description }}</span>
-        </div>
-      </template>
-    </USelectMenu>
+      <UButton
+        color="neutral"
+        variant="subtle"
+        icon="i-lucide-building"
+        :label="activeOrg?.name || 'Switch Organization'"
+        trailing-icon="i-lucide-chevrons-up-down"
+        class="w-56 justify-between"
+      />
+    </UDropdownMenu>
 
     <div
-      v-else-if="currentOrganization"
+      v-else-if="activeOrg"
       class="flex items-center gap-2 px-3 py-1.5 rounded-md bg-muted/50 border border-muted text-xs font-medium"
     >
       <UIcon
         name="i-lucide-building"
         class="size-3.5 text-muted-foreground"
       />
-      <span>{{ currentOrganization.id }}</span>
+      <span>{{ activeOrg.name }}</span>
     </div>
   </div>
 </template>

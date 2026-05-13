@@ -3,6 +3,7 @@ import { campaigns } from '../../database/schema'
 import { bulkActionSchema, STATUS_TRANSITIONS } from '~~/shared/types/campaign'
 import type { CampaignStatus } from '~~/shared/types/campaign'
 import { syncOrganizationCampaignsToKV } from '../../utils/kv-sync'
+import { requireAdmin } from '../../utils/organization'
 
 const ACTION_TO_STATUS: Record<string, CampaignStatus> = {
   pause: 'paused',
@@ -11,6 +12,7 @@ const ACTION_TO_STATUS: Record<string, CampaignStatus> = {
 }
 
 export default defineEventHandler(async (event) => {
+  await requireAdmin(event)
   const db = useDB()
   const body = await readBody(event)
 

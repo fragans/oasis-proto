@@ -9,15 +9,23 @@ interface Creative {
   fileUrl: string
 }
 
-const config = useRuntimeConfig()
-const { data, status, refresh } = useAsyncData('creatives-picker', () => $fetch<{ creatives: Creative[] }>('/api/creatives', {
-  query: { organizationId: config.public.defaultOrganizationId }
-}))
+const { session } = useUserSession()
+const activeOrgId = computed(() => session.value?.activeOrganizationId)
+
+const { data, status, refresh } = useFetch<{ creatives: Creative[] }>(
+  '/api/creatives',
+  {
+    query: computed(() => ({ organizationId: activeOrgId.value })),
+    watch: [activeOrgId],
+    immediate: false
+  }
+)
 const creatives = computed(() => data.value?.creatives || [])
 const loading = computed(() => status.value === 'pending')
 
-watch(open, (isOpen) => {
-  if (isOpen) {
+watch(open, (newValue) => {
+  console.log('opened', activeOrgId.value)
+  if (newValue && activeOrgId.value) {
     refresh()
   }
 })
@@ -29,7 +37,10 @@ function handleSelect(creative: Creative) {
 </script>
 
 <template>
-  <UModal v-model:open="open">
+  <UModal
+    v-model:open="open"
+    :dismissable="false"
+  >
     <template #header>
       <div class="flex items-center justify-between w-full">
         <h3 class="text-lg font-semibold">

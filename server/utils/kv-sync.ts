@@ -1,5 +1,5 @@
 import { eq, and, sql } from 'drizzle-orm'
-import { organizations, campaigns } from '../database/schema'
+import { organization as organizationTable, campaigns } from '../database/schema'
 import type { KVCampaign, CampaignType, CampaignTrigger, Targeting, CampaignGoal } from '~~/shared/types/campaign'
 
 /**
@@ -116,7 +116,7 @@ export async function syncOrganizationConfigToKV(organizationId: string): Promis
   }
 
   // 1. Fetch organization config from Postgres
-  const [organization] = await db.select().from(organizations).where(eq(organizations.id, organizationId))
+  const [organization] = await db.select().from(organizationTable).where(eq(organizationTable.id, organizationId))
 
   if (!organization) {
     console.warn(`[KV Sync] No organization found with ID "${organizationId}" — skipping config sync`)
@@ -128,7 +128,7 @@ export async function syncOrganizationConfigToKV(organizationId: string): Promis
     organization_id: organization.id,
     cookie_name: organization.cookieName,
     api_url: organization.apiUrl,
-    auth_cookie_names: organization.authCookieNames || [],
+    auth_cookie_names: [], // Better Auth handles this differently now
     is_live: organization.isLive
   }
 
@@ -192,7 +192,7 @@ export async function cleanUpAllGhostCampaigns(): Promise<void> {
   console.log('[KV Cleanup] 🧹 Starting global ghost campaign cleanup...')
 
   try {
-    const orgs = await db.select({ id: organizations.id }).from(organizations)
+    const orgs = await db.select({ id: organizationTable.id }).from(organizationTable)
 
     for (const org of orgs) {
       await syncOrganizationCampaignsToKV(org.id)

@@ -1,7 +1,9 @@
 import { eq } from 'drizzle-orm'
 import { campaigns, creatives } from '../../../database/schema'
+import { requireAdmin } from '../../../utils/organization'
 
 export default defineEventHandler(async (event) => {
+  await requireAdmin(event)
   const db = useDB()
   const id = getRouterParam(event, 'id')!
 

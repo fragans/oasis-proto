@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   const db = useDB()
   const id = getRouterParam(event, 'id')!
 
-  const organizationId = getOrganizationId(event)
+  const organizationId = await getOrganizationId(event)
 
   // Fetch by ID first to check existence
   const campaign = await db.query.campaigns.findFirst({
@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
 
   // Then check organization context if enforced
   // Super Admins can bypass this check to view any campaign
-  const isAdmin = isSuperAdmin(event)
+  const isAdmin = await isSuperAdmin(event)
   if (!isAdmin && organizationId && campaign.organizationId !== organizationId) {
     console.warn(`[GET /api/campaigns/${id}] Organization mismatch. Campaign belongs to ${campaign.organizationId}, but request context is ${organizationId}`)
     throw createError({

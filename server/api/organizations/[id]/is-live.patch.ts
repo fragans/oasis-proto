@@ -1,14 +1,15 @@
 import { eq } from 'drizzle-orm'
-import { organizations } from '../../../database/schema'
+import { organization as organizationTable } from '../../../database/schema'
 import { syncOrganizationConfigToKV } from '../../../utils/kv-sync'
+import { requireOrganizationId, isSuperAdmin } from '../../../utils/organization'
 
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id')
   const body = await readBody(event)
   const db = useDB()
 
-  if (!isSuperAdmin(event)) {
-    const contextOrgId = requireOrganizationId(event)
+  if (!await isSuperAdmin(event)) {
+    const contextOrgId = await requireOrganizationId(event)
     if (id !== contextOrgId) {
       throw createError({
         statusCode: 403,
@@ -34,12 +35,11 @@ export default defineEventHandler(async (event) => {
   }
 
   // 1. Update database
-  const updated = await db.update(organizations)
+  const updated = await db.update(organizationTable)
     .set({
-      isLive,
-      updatedAt: new Date()
+      isLive
     })
-    .where(eq(organizations.id, id))
+    .where(eq(organizationTable.id, id))
     .returning()
 
   if (updated.length === 0) {

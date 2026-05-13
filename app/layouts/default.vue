@@ -1,39 +1,52 @@
 <script setup lang="ts">
 const route = useRoute()
-const { isSuperAdmin } = useOrganization()
-
 const isSidebarOpen = ref(true)
 
-const navigation = computed(() => [
-  {
-    label: 'Campaigns',
-    icon: 'i-lucide-megaphone',
-    to: '/campaigns',
-    active: route.path.startsWith('/campaigns') || route.path.startsWith('/creatives'),
-    defaultOpen: true,
-    children: [
-      { label: 'On Site Message', to: '/campaigns/on-site-messages', icon: 'i-lucide-app-window' },
-      { label: 'Creatives', to: '/creatives', icon: 'i-lucide-image' }
-    ]
-  },
-  {
-    label: 'Settings',
-    icon: 'i-lucide-settings',
-    to: '/settings',
-    active: route.path.startsWith('/settings'),
-    defaultOpen: true,
-    children: [
-      { label: 'General', to: '/settings', icon: 'i-lucide-layers' }
-    ]
-  }
-])
+const orgSlug = computed(() => route.params.org as string)
+
+const navigation = computed(() => {
+  const prefix = orgSlug.value ? `/${orgSlug.value}` : ''
+
+  return [
+    {
+      label: 'Campaigns',
+      icon: 'i-lucide-megaphone',
+      to: `${prefix}/campaigns`,
+      active: route.path.includes('/campaigns') || route.path.includes('/creatives'),
+      defaultOpen: true,
+      children: [
+        { label: 'On Site Message', to: `${prefix}/campaigns/on-site-messages`, icon: 'i-lucide-app-window' },
+        { label: 'Creatives', to: `${prefix}/creatives`, icon: 'i-lucide-image' }
+      ]
+    },
+    {
+      label: 'Settings',
+      icon: 'i-lucide-settings',
+      to: `${prefix}/settings`,
+      active: route.path.includes('/settings'),
+      defaultOpen: true,
+      children: [
+        { label: 'General', to: `${prefix}/settings`, icon: 'i-lucide-layers' }
+      ]
+    }
+  ]
+})
 
 const breadcrumbs = computed(() => {
   const parts = route.path.split('/').filter(Boolean)
-  return parts.map((part, index) => ({
-    label: part.charAt(0).toUpperCase() + part.slice(1).replace(/-/g, ' '),
-    to: '/' + parts.slice(0, index + 1).join('/')
-  }))
+  return parts.map((part, index) => {
+    // Skip organization slug in label if it's the first part
+    if (index === 0 && orgSlug.value === part) {
+      return {
+        label: 'Dashboard',
+        to: '/' + part
+      }
+    }
+    return {
+      label: part.charAt(0).toUpperCase() + part.slice(1).replace(/-/g, ' '),
+      to: '/' + parts.slice(0, index + 1).join('/')
+    }
+  })
 })
 </script>
 
@@ -85,21 +98,11 @@ const breadcrumbs = computed(() => {
     <div class="flex-1 flex flex-col overflow-hidden relative z-10">
       <!-- Header -->
       <header
-        class="flex items-center justify-between h-16 px-6 shrink-0"
+        class="flex items-center justify-between h-16 px-6 shrink-0 border-b border-muted"
       >
         <UBreadcrumb :items="breadcrumbs" />
 
-        <div class="flex items-center gap-4">
-          <UTooltip
-            v-if="isSuperAdmin"
-            text="Super Admin Mode"
-          >
-            <UIcon
-              name="i-simple-icons-auth0"
-              class="w-5 h-5 text-indigo-600 dark:text-indigo-400"
-            />
-          </UTooltip>
-          <OrganizationSwitcher />
+        <div class="flex items-center gap-2">
           <UButton
             to="/workflow"
             icon="i-lucide-book-open-text"
@@ -107,11 +110,13 @@ const breadcrumbs = computed(() => {
             variant="outline"
             size="sm"
           />
+          <OrganizationSwitcher />
+          <UserDropdown />
         </div>
       </header>
 
       <!-- Page content -->
-      <main class="flex-1 overflow-y-auto p-6">
+      <main class="flex-1 overflow-y-auto p-4">
         <slot />
       </main>
     </div>

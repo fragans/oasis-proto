@@ -3,8 +3,10 @@ import { campaigns } from '../../../database/schema'
 import { changeStatusSchema, STATUS_TRANSITIONS } from '~~/shared/types/campaign'
 import type { CampaignStatus } from '~~/shared/types/campaign'
 import { syncOrganizationCampaignsToKV } from '../../../utils/kv-sync'
+import { requireAdmin } from '../../../utils/organization'
 
 export default defineEventHandler(async (event) => {
+  await requireAdmin(event)
   const db = useDB()
   const id = getRouterParam(event, 'id')!
   const body = await readBody(event)
@@ -51,8 +53,7 @@ export default defineEventHandler(async (event) => {
     .returning()
 
   // Sync organization's campaign list to Cloudflare KV whenever active set changes
-  const config = useRuntimeConfig()
-  const organizationId = campaign.organizationId || config.public.defaultOrganizationId
+  const organizationId = campaign.organizationId
   if (['active', 'scheduled', 'paused', 'completed'].includes(newStatus)) {
     await syncOrganizationCampaignsToKV(organizationId)
   }

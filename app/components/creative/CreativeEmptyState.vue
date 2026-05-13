@@ -4,6 +4,10 @@ defineProps<{
   description?: string
   icon?: string
 }>()
+
+const { session } = useUserSession()
+const orgSlug = computed(() => session.value?.activeOrganizationId)
+const prefix = computed(() => orgSlug.value ? `/${orgSlug.value}` : '')
 </script>
 
 <template>
@@ -28,7 +32,7 @@ defineProps<{
     >
       <UButton
         label="to Creatives Gallery"
-        to="/creatives"
+        :to="`${prefix}/creatives`"
       />
     </div>
   </div>

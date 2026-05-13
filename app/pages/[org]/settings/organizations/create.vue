@@ -1,0 +1,53 @@
+<script setup lang="ts">
+definePageMeta({
+  layout: 'default',
+  middleware: 'super-admin'
+})
+
+const route = useRoute()
+const org = computed(() => route.params.org as string)
+const prefix = computed(() => `/${org.value}`)
+
+const onCreated = async () => {
+  await navigateTo(`${prefix.value}/settings`)
+}
+</script>
+
+<template>
+  <div class="max-w-2xl">
+    <div class="mb-8">
+      <UButton
+        :to="`${prefix}/settings`"
+        variant="ghost"
+        color="neutral"
+        icon="i-lucide-arrow-left"
+        label="Back to Settings"
+        class="-ml-2 mb-4"
+      />
+      <h1 class="text-2xl font-bold">
+        Add New Organization
+      </h1>
+      <p class="text-sm text-zinc-500 mt-1">
+        Configure a new organization.
+      </p>
+    </div>
+
+    <UCard :ui="{ body: 'p-8' }">
+      <OrganizationCreateForm @success="onCreated">
+        <template #actions="{ loading }">
+          <UButton
+            :to="`${prefix}/settings`"
+            variant="ghost"
+            label="Cancel"
+          />
+          <UButton
+            type="submit"
+            label="Create Organization"
+            color="primary"
+            :loading="loading"
+          />
+        </template>
+      </OrganizationCreateForm>
+    </UCard>
+  </div>
+</template>

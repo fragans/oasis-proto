@@ -1,13 +1,14 @@
-import { getOrganizationId } from '../../utils/organization'
+import { getOrganizationId, requireAdmin } from '../../utils/organization'
 import { eq } from 'drizzle-orm'
 import { campaigns } from '../../database/schema'
 import { syncOrganizationCampaignsToKV } from '../../utils/kv-sync'
 
 export default defineEventHandler(async (event) => {
+  await requireAdmin(event)
   const db = useDB()
   const id = getRouterParam(event, 'id')!
 
-  const organizationId = getOrganizationId(event)
+  const organizationId = await getOrganizationId(event)
 
   const campaign = await db.query.campaigns.findFirst({
     where: eq(campaigns.id, id),
@@ -18,7 +19,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: `Campaign with ID ${id} not found.` })
   }
 
-  const isAdmin = isSuperAdmin(event)
+  const isAdmin = await isSuperAdmin(event)
   if (!isAdmin && organizationId && campaign.organizationId !== organizationId) {
     throw createError({
       statusCode: 403,

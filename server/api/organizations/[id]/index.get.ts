@@ -1,12 +1,13 @@
 import { eq } from 'drizzle-orm'
-import { organizations } from '../../../database/schema'
+import { organization as organizationTable } from '../../../database/schema'
+import { requireOrganizationId, isSuperAdmin } from '../../../utils/organization'
 
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id')
   const db = useDB()
 
-  if (!isSuperAdmin(event)) {
-    const contextOrgId = requireOrganizationId(event)
+  if (!await isSuperAdmin(event)) {
+    const contextOrgId = await requireOrganizationId(event)
     if (id !== contextOrgId) {
       throw createError({
         statusCode: 403,
@@ -22,7 +23,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const [organization] = await db.select().from(organizations).where(eq(organizations.id, id))
+  const [organization] = await db.select().from(organizationTable).where(eq(organizationTable.id, id))
 
   if (!organization) {
     throw createError({

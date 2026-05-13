@@ -1,4 +1,4 @@
-import { pgTable, pgEnum, uuid, varchar, text, integer, timestamp, boolean, jsonb, date } from 'drizzle-orm/pg-core'
+import { pgTable, pgEnum, uuid, varchar, text, integer, timestamp, boolean, jsonb, date, index } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 
 export const campaignStatusEnum = pgEnum('campaign_status', [
@@ -28,21 +28,10 @@ export const triggerModeEnum = pgEnum('trigger_mode', [
   'exit-intent'
 ])
 
-export const organizations = pgTable('organizations', {
-  id: varchar('id', { length: 255 }).primaryKey(), // e.g. 'kompasid'
-  hostname: varchar('hostname', { length: 255 }).notNull().unique(), // e.g. 'www.kompas.id'
-  cookieName: varchar('cookie_name', { length: 255 }).notNull().default('oasis_guid'),
-  apiUrl: text('api_url').notNull(),
-  authCookieNames: jsonb('auth_cookie_names').$type<string[]>().default([]),
-  isLive: boolean('is_live').default(false).notNull(),
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull()
-})
-
 export const campaigns = pgTable('campaigns', {
   id: uuid('id').primaryKey().defaultRandom(),
   // Multi-organization scope
-  organizationId: varchar('organization_id', { length: 255 }).references(() => organizations.id, { onDelete: 'cascade' }).notNull(),
+  organizationId: text('organization_id').references(() => organization.id, { onDelete: 'cascade' }).notNull(),
   // Basic metadata
   name: varchar('name', { length: 255 }).notNull(),
   description: text('description'),
@@ -69,7 +58,7 @@ export const campaigns = pgTable('campaigns', {
 export const creatives = pgTable('creatives', {
   id: uuid('id').primaryKey().defaultRandom(),
   campaignId: uuid('campaign_id').references(() => campaigns.id, { onDelete: 'set null' }),
-  organizationId: varchar('organization_id', { length: 255 }).references(() => organizations.id, { onDelete: 'cascade' }),
+  organizationId: text('organization_id').references(() => organization.id, { onDelete: 'cascade' }),
   type: varchar('type', { length: 50 }).notNull(),
   fileUrl: text('file_url').notNull(),
   fileName: varchar('file_name', { length: 255 }).notNull(),
@@ -83,14 +72,10 @@ export const creatives = pgTable('creatives', {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull()
 })
 
-export const organizationsRelations = relations(organizations, ({ many }) => ({
-  campaigns: many(campaigns)
-}))
-
 export const campaignsRelations = relations(campaigns, ({ one, many }) => ({
-  organization: one(organizations, {
+  organization: one(organization, {
     fields: [campaigns.organizationId],
-    references: [organizations.id]
+    references: [organization.id]
   }),
   creatives: many(creatives)
 }))
@@ -212,17 +197,6 @@ export const segmentContacts = pgTable('segment_contacts', {
 })
 
 // ─── CDP: API Tokens ────────────────────────────────────────
-
-export const apiTokens = pgTable('api_tokens', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  organizationId: varchar('organization_id', { length: 255 }).references(() => organizations.id, { onDelete: 'cascade' }).notNull(),
-  name: varchar('name', { length: 255 }).notNull(),
-  tokenHash: varchar('token_hash', { length: 255 }).notNull(),
-  prefix: varchar('prefix', { length: 32 }).notNull(),
-  lastUsedAt: timestamp('last_used_at', { withTimezone: true }),
-  expiresAt: timestamp('expires_at', { withTimezone: true }),
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull()
-})
 
 // ─── CDP Relations ──────────────────────────────────────────
 
@@ -401,4 +375,175 @@ export const journeyEnrollmentsRelations = relations(journeyEnrollments, ({ one,
 export const journeyExecutionsRelations = relations(journeyExecutions, ({ one }) => ({
   enrollment: one(journeyEnrollments, { fields: [journeyExecutions.enrollmentId], references: [journeyEnrollments.id] }),
   node: one(journeyNodes, { fields: [journeyExecutions.nodeId], references: [journeyNodes.id] })
+}))
+
+// ─── Authentication ──────────────────────────────────────────
+
+export const user = pgTable('user', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  email: text('email').notNull().unique(),
+  emailVerified: boolean('email_verified').default(false).notNull(),
+  image: text('image'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at')
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+  role: text('role').default('viewer'),
+  organizationId: text('organization_id').references(() => organization.id),
+  banned: boolean('banned').default(false),
+  banReason: text('ban_reason'),
+  banExpires: timestamp('ban_expires')
+})
+
+export const session = pgTable(
+  'session',
+  {
+    id: text('id').primaryKey(),
+    expiresAt: timestamp('expires_at').notNull(),
+    token: text('token').notNull().unique(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .$onUpdate(() => new Date())
+      .notNull(),
+    ipAddress: text('ip_address'),
+    userAgent: text('user_agent'),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    activeOrganizationId: text('active_organization_id')
+  },
+  table => [index('session_userId_idx').on(table.userId)]
+)
+
+export const account = pgTable(
+  'account',
+  {
+    id: text('id').primaryKey(),
+    accountId: text('account_id').notNull(),
+    providerId: text('provider_id').notNull(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    accessToken: text('access_token'),
+    refreshToken: text('refresh_token'),
+    idToken: text('id_token'),
+    accessTokenExpiresAt: timestamp('access_token_expires_at'),
+    refreshTokenExpiresAt: timestamp('refresh_token_expires_at'),
+    scope: text('scope'),
+    password: text('password'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .$onUpdate(() => new Date())
+      .notNull()
+  },
+  table => [index('account_userId_idx').on(table.userId)]
+)
+
+export const verification = pgTable(
+  'verification',
+  {
+    id: text('id').primaryKey(),
+    identifier: text('identifier').notNull(),
+    value: text('value').notNull(),
+    expiresAt: timestamp('expires_at').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull()
+  },
+  table => [index('verification_identifier_idx').on(table.identifier)]
+)
+
+export const organization = pgTable('organization', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  slug: text('slug').unique(),
+  logo: text('logo'),
+  metadata: text('metadata'),
+  createdAt: timestamp('created_at').notNull(),
+  hostname: text('hostname'),
+  cookieName: text('cookie_name'),
+  apiUrl: text('api_url'),
+  isLive: boolean('is_live').default(false)
+})
+
+export const member = pgTable('member', {
+  id: text('id').primaryKey(),
+  organizationId: text('organization_id')
+    .notNull()
+    .references(() => organization.id, { onDelete: 'cascade' }),
+  userId: text('user_id')
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' }),
+  role: text('role').notNull(),
+  createdAt: timestamp('created_at').notNull()
+})
+
+export const invitation = pgTable('invitation', {
+  id: text('id').primaryKey(),
+  organizationId: text('organization_id')
+    .notNull()
+    .references(() => organization.id, { onDelete: 'cascade' }),
+  email: text('email').notNull(),
+  role: text('role'),
+  status: text('status').notNull(),
+  expiresAt: timestamp('expires_at').notNull(),
+  inviterId: text('inviter_id')
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' })
+})
+
+export const userRelations = relations(user, ({ one, many }) => ({
+  sessions: many(session),
+  accounts: many(account),
+  organization: one(organization, {
+    fields: [user.organizationId],
+    references: [organization.id]
+  }),
+  memberships: many(member)
+}))
+
+export const sessionRelations = relations(session, ({ one }) => ({
+  user: one(user, {
+    fields: [session.userId],
+    references: [user.id]
+  })
+}))
+
+export const accountRelations = relations(account, ({ one }) => ({
+  user: one(user, {
+    fields: [account.userId],
+    references: [user.id]
+  })
+}))
+
+export const organizationRelations = relations(organization, ({ many }) => ({
+  members: many(member),
+  invitations: many(invitation),
+  campaigns: many(campaigns)
+}))
+
+export const memberRelations = relations(member, ({ one }) => ({
+  organization: one(organization, {
+    fields: [member.organizationId],
+    references: [organization.id]
+  }),
+  user: one(user, {
+    fields: [member.userId],
+    references: [user.id]
+  })
+}))
+
+export const invitationRelations = relations(invitation, ({ one }) => ({
+  organization: one(organization, {
+    fields: [invitation.organizationId],
+    references: [organization.id]
+  }),
+  inviter: one(user, {
+    fields: [invitation.inviterId],
+    references: [user.id]
+  })
 }))

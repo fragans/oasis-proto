@@ -1,4 +1,4 @@
-import { getOrganizationId } from '../../utils/organization'
+import { getOrganizationId, requireAdmin } from '../../utils/organization'
 import { eq } from 'drizzle-orm'
 import { campaigns } from '../../database/schema'
 import { updateCampaignSchema } from '~~/shared/types/campaign'
@@ -6,6 +6,7 @@ import { syncOrganizationCampaignsToKV } from '../../utils/kv-sync'
 import z from 'zod'
 
 export default defineEventHandler(async (event) => {
+  await requireAdmin(event)
   const db = useDB()
   const id = getRouterParam(event, 'id')!
   const body = await readBody(event)
@@ -20,7 +21,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const organizationId = getOrganizationId(event)
+  const organizationId = await getOrganizationId(event)
 
   const campaign = await db.query.campaigns.findFirst({
     where: eq(campaigns.id, id),
@@ -31,7 +32,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: `Campaign with ID ${id} not found.` })
   }
 
-  const isAdmin = isSuperAdmin(event)
+  const isAdmin = await isSuperAdmin(event)
   if (!isAdmin && organizationId && campaign.organizationId !== organizationId) {
     throw createError({
       statusCode: 403,
@@ -68,8 +69,7 @@ export default defineEventHandler(async (event) => {
     .returning()
 
   if (updated && (updated.status === 'active' || updated.status === 'scheduled')) {
-    const config = useRuntimeConfig()
-    const organizationId = (updated.organizationId as string | undefined) || campaign.organizationId || config.public.defaultOrganizationId
+    const organizationId = (updated.organizationId as string | undefined) || campaign.organizationId
     await syncOrganizationCampaignsToKV(organizationId as string)
   }
 

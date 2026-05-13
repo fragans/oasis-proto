@@ -1,18 +1,18 @@
 import { eq } from 'drizzle-orm'
-import { organizations } from '../../database/schema'
-import { getOrganizationId } from '../../utils/organization'
+import { organization } from '../../database/schema'
+import { getOrganizationId, isSuperAdmin } from '../../utils/organization'
 
 export default defineEventHandler(async (event) => {
   const db = useDB()
-  const organizationId = getOrganizationId(event)
+  const organizationId = await getOrganizationId(event)
 
-  if (isSuperAdmin(event)) {
-    const allOrganizations = await db.select().from(organizations)
+  if (await isSuperAdmin(event)) {
+    const allOrganizations = await db.select().from(organization)
     return { organizations: allOrganizations }
   }
 
   if (organizationId) {
-    const orgs = await db.select().from(organizations).where(eq(organizations.id, organizationId))
+    const orgs = await db.select().from(organization).where(eq(organization.id, organizationId))
     return { organizations: orgs }
   }
 

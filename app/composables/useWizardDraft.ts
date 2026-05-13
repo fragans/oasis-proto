@@ -1,28 +1,14 @@
 import type { Campaign } from '~~/shared/types/campaign'
 
 export function useWizardDraft(campaignId: string) {
-  const { activeOrgId } = useOrganization()
-
-  // Used for server-side fetching (SSR): forwards the cookie + org headers
-  // useRequestHeaders only has values in an SSR context; on the client it returns {}
-  const ssrHeaders = computed(() => ({
-    ...useRequestHeaders(['cookie', 'x-oasis-organization', 'x-oasis-super-admin']),
-    ...(activeOrgId.value ? { 'x-oasis-organization': activeOrgId.value } : {})
-  }))
-
-  // Used for client-side mutations: browser sends cookie automatically,
-  // we just need to pass the org context header
-  const clientHeaders = computed(() => ({
-    ...(activeOrgId.value ? { 'x-oasis-organization': activeOrgId.value } : {})
-  }))
+  const { session } = useUserSession()
+  const activeOrgId = computed(() => session.value?.activeOrganizationId)
 
   const { data: campaign, refresh, error } = useAsyncData(
     `campaign-${campaignId}`,
-    () => $fetch<Campaign>(`/api/campaigns/${campaignId}`, {
-      headers: ssrHeaders.value
-    }),
+    () => $fetch<Campaign>(`/api/campaigns/${campaignId}`),
     {
-      watch: [ssrHeaders]
+      watch: [activeOrgId]
     }
   )
 
@@ -33,8 +19,7 @@ export function useWizardDraft(campaignId: string) {
     try {
       const result = await $fetch(`/api/campaigns/${campaignId}`, {
         method: 'PUT',
-        body: partial,
-        headers: clientHeaders.value
+        body: partial
       })
       await refresh()
       return result

@@ -2,7 +2,8 @@
 const open = defineModel<boolean>('open', { default: false })
 
 const { createCampaign } = useCampaign()
-const { activeOrgId } = useOrganization()
+const { session } = useUserSession()
+const activeOrgId = computed(() => session.value?.activeOrganizationId)
 const router = useRouter()
 const toast = useToast()
 

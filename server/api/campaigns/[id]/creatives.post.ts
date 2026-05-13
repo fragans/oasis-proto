@@ -1,6 +1,7 @@
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { campaigns, creatives } from '../../../database/schema'
+import { requireAdmin } from '../../../utils/organization'
 
 const createCreativeSchema = z.object({
   fileUrl: z.string().url(),
@@ -10,6 +11,7 @@ const createCreativeSchema = z.object({
 })
 
 export default defineEventHandler(async (event) => {
+  await requireAdmin(event)
   const db = useDB()
   const campaignId = getRouterParam(event, 'id')!
   const body = await readBody(event)

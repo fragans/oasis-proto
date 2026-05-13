@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import type { Campaign } from '~~/shared/types/campaign'
 
+const { isAdmin: canEdit } = useRole()
+
 const props = defineProps<{
   open: boolean
   campaign: Campaign | null
 }>()
 
-const emit = defineEmits(['update:open'])
+const emit = defineEmits(['update:open', 'refresh'])
 
 function formatDate(date: string | null) {
   if (!date) return '—'
@@ -22,6 +24,47 @@ function formatDate(date: string | null) {
 const isOpen = computed({
   get: () => props.open,
   set: val => emit('update:open', val)
+})
+
+const updating = ref(false)
+const toast = useToast()
+
+async function updateStatus(status: CampaignStatus) {
+  if (!props.campaign) return
+  updating.value = true
+  try {
+    await $fetch(`/api/campaigns/${props.campaign.id}/status`, {
+      method: 'PATCH',
+      body: { status }
+    })
+    toast.add({
+      title: 'Success',
+      description: `Campaign status updated to ${status}`,
+      color: 'success'
+    })
+    emit('refresh')
+  } catch (e) {
+    toast.add({
+      title: 'Error',
+      description: e instanceof Error ? e.message : 'Failed to update status',
+      color: 'error'
+    })
+  } finally {
+    updating.value = false
+  }
+}
+
+const statusActions = computed(() => {
+  if (!props.campaign) return []
+  const currentStatus = props.campaign.status
+  const transitions = STATUS_TRANSITIONS[currentStatus] || []
+
+  return transitions.map(status => ({
+    label: status.charAt(0).toUpperCase() + status.slice(1),
+    color: STATUS_COLORS[status],
+    icon: STATUS_ICONS[status],
+    onSelect: () => updateStatus(status)
+  }))
 })
 </script>
 
@@ -254,7 +297,26 @@ const isOpen = computed({
     </template>
 
     <template #footer>
-      <div class="flex justify-end gap-3 w-full">
+      <div
+        v-if="canEdit"
+        class="flex justify-between items-center gap-3 w-full"
+      >
+        <div class="flex gap-2">
+          <UDropdownMenu
+            v-if="statusActions.length > 0"
+            :items="statusActions"
+            :content="{ align: 'start' }"
+          >
+            <UButton
+              label="Change Status"
+              color="neutral"
+              variant="outline"
+              icon="i-lucide-list-restart"
+              :loading="updating"
+            />
+          </UDropdownMenu>
+        </div>
+
         <UButton
           v-if="campaign"
           label="Edit Campaign"
