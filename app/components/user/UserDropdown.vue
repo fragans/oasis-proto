@@ -47,6 +47,7 @@ const items = computed(() => {
     <UDropdownMenu
       :items="items"
       :content="{ align: 'end' }"
+      :ui="{ content: 'min-w-(--reka-dropdown-menu-trigger-width)' }"
     >
       <UButton
         variant="ghost"
