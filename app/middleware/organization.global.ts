@@ -2,8 +2,13 @@ export default defineNuxtRouteMiddleware(async (to) => {
   // Only run on the client side to interact with the Better Auth client and session cookies
   const { user, session, client } = useUserSession()
 
-  // 1. Skip if not logged in or on public/infrastructure pages
+  // 1. Protect routes by redirecting unauthenticated users to login
   const publicPages = ['/login', '/no-organization', '/initiate-organization', '/organizations/select']
+  if (!user.value && !publicPages.includes(to.path)) {
+    return navigateTo('/login')
+  }
+
+  // 2. Skip further processing if not logged in or on public/infrastructure pages
   if (!user.value || publicPages.includes(to.path)) return
 
   const isSuperAdmin = user.value.role === 'super_admin'
