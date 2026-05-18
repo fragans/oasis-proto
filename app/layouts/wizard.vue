@@ -1,16 +1,21 @@
 <script setup lang="ts">
 const route = useRoute()
+const toast = useToast()
+
 const campaignId = computed(() => route.params.id as string)
 
 const { campaign, error } = useWizardDraft(campaignId.value)
 const orgSlug = computed(() => route.params.org as string)
 
 // Guard: if campaign not found, redirect to list
-watchEffect(() => {
-  if (error.value && error.value.status === 404) {
-    useRouter().push(`/${orgSlug.value}/campaigns/on-site-messages`)
+watch(
+  error,
+  (newValue) => {
+    toast.add({
+      title: newValue?.message
+    })
   }
-})
+)
 </script>
 
 <template>
