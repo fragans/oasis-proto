@@ -547,3 +547,19 @@ export const invitationRelations = relations(invitation, ({ one }) => ({
     references: [user.id]
   })
 }))
+
+// ─── Deployment Info ────────────────────────────────────────
+
+export const deploymentInfo = pgTable(
+  'deployment_info',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    commitShaShort: varchar('commit_sha_short', { length: 40 }).notNull(),
+    commitShaFull: varchar('commit_sha_full', { length: 40 }).notNull(),
+    branch: varchar('branch', { length: 255 }).notNull(),
+    environment: varchar('environment', { length: 50 }).notNull(),
+    pushedAt: timestamp('pushed_at').defaultNow().notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull()
+  },
+  table => [index('deployment_info_pushed_at_idx').on(table.pushedAt)]
+)

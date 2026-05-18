@@ -64,9 +64,12 @@ export async function syncOrganizationCampaignsToKV(organizationId: string): Pro
     })
 
     console.log(`[KV Sync] ✅ Wrote ${kvPayload.length} active/scheduled campaign(s) to KV key "${kvKey}"`)
-  } catch (err) {
+  } catch (err: unknown) {
     console.error(`[KV Sync] ❌ Failed to write to Cloudflare KV:`, err)
-    throw err
+    throw createError({
+      statusCode: 500,
+      message: `Failed to sync with Cloudflare KV: ${(err instanceof Error) ? err.message : 'Unknown error'}`
+    })
   }
 }
 
@@ -92,8 +95,12 @@ export async function removeOrganizationCampaignsFromKV(organizationId: string):
       headers: { Authorization: `Bearer ${apiToken}` }
     })
     console.log(`[KV Sync] 🗑️  Deleted KV key "${kvKey}"`)
-  } catch (err) {
+  } catch (err: unknown) {
     console.error(`[KV Sync] ❌ Failed to delete KV key "${kvKey}":`, err)
+    throw createError({
+      statusCode: 500,
+      message: `Failed to remove from Cloudflare KV: ${(err instanceof Error) ? err.message : 'Unknown error'}`
+    })
   }
 }
 
@@ -148,9 +155,12 @@ export async function syncOrganizationConfigToKV(organizationId: string): Promis
     })
 
     console.log(`[KV Sync] ✅ Wrote config for organization "${organization.id}" to KV key "${kvKey}"`)
-  } catch (err) {
+  } catch (err: unknown) {
     console.error(`[KV Sync] ❌ Failed to write organization config to Cloudflare KV:`, err)
-    throw err
+    throw createError({
+      statusCode: 500,
+      message: `Failed to sync config with Cloudflare KV: ${err instanceof Error ? err.message : 'Unknown error'}`
+    })
   }
 }
 
@@ -176,8 +186,12 @@ export async function removeOrganizationConfigFromKV(hostname: string): Promise<
       headers: { Authorization: `Bearer ${apiToken}` }
     })
     console.log(`[KV Sync] 🗑️ Removed config for organization hostname "${hostname}" from KV key "${kvKey}"`)
-  } catch (err) {
+  } catch (err: unknown) {
     console.error(`[KV Sync] ❌ Failed to delete organization config from Cloudflare KV:`, err)
+    throw createError({
+      statusCode: 500,
+      message: `Failed to remove config from Cloudflare KV: ${err instanceof Error ? err.message : 'Unknown error'}`
+    })
   }
 }
 
