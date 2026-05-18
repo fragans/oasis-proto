@@ -35,6 +35,7 @@ export default defineNuxtConfig({
     '/no-organization': { auth: 'user' },
     '/initiate-organization': { auth: 'user' },
     '/organizations/select': { auth: 'user' },
+    '/api/**': { auth: false },
     // All organization-context routes are protected
     '/[org]/**': { auth: 'user' },
     '/workflow': { auth: 'user' }

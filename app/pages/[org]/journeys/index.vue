@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Journey, JourneyStatus } from '~~/shared/types/journey'
+
 const route = useRoute()
 const org = computed(() => route.params.org as string)
 

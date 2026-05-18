@@ -14,7 +14,15 @@ interface Organization {
   name: string
 }
 
-const { data: orgsResponse } = await useAsyncData('organizations-list', () => $fetch<{ organizations: Organization[] }>('/api/organizations'))
+const { data: orgsResponse } = await useAsyncData(
+  'organizations-list',
+  () => $fetch<{ organizations: Organization[] }>('/api/organizations',
+    {
+      headers: useRequestHeaders(['cookie'])
+    }
+  )
+)
+
 const organizations = computed(() => orgsResponse.value?.organizations || [])
 
 const schema = z.object({
