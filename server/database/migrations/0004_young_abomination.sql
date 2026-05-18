@@ -6,5 +6,6 @@ CREATE TABLE "deployment_info" (
 	"environment" varchar(50) NOT NULL,
 	"pushed_at" timestamp DEFAULT now() NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL
-);--> statement-breakpoint
-CREATE INDEX "deployment_info_pushed_at_idx" on "deployment_info" ("pushed_at" DESC);
+);
+--> statement-breakpoint
+CREATE INDEX "deployment_info_pushed_at_idx" ON "deployment_info" USING btree ("pushed_at");
