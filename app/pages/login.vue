@@ -5,37 +5,39 @@ definePageMeta({
   layout: false
 })
 const schema = z.object({
-  email: z.string().email('Invalid email'),
+  email: z.email('Invalid email'),
   password: z.string().min(8, 'Must be at least 8 characters')
 })
 
 const state = reactive({ email: '', password: '' })
-const { signIn } = useUserSession()
+const { execute, status, error } = useSignIn('email')
+
 const toast = useToast()
-const loading = ref(false)
 
 async function onSubmit() {
-  loading.value = true
-  try {
-    await signIn.email({
-      email: state.email,
-      password: state.password
-    }, {
-      onSuccess: () => {
-        toast.add({ title: 'Welcome back!', color: 'success', icon: 'i-lucide-check-circle' })
-        navigateTo('/')
-      },
-      onError: (context) => {
-        toast.add({ title: 'Login failed', description: context.error.message, color: 'error', icon: 'i-lucide-x-circle' })
-      }
-    })
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Something went wrong'
-    toast.add({ title: 'An error occurred', description: message, color: 'error', icon: 'i-lucide-alert-triangle' })
-  } finally {
-    loading.value = false
-  }
+  console.log('onSubmit')
+
+  await execute({ email: state.email, password: state.password })
 }
+
+watch(error, (newError) => {
+  toast.add({
+    title: 'Login failed',
+    description: newError?.message,
+    color: 'error',
+    icon: 'i-lucide-x-circle'
+  })
+})
+
+watch(status, (newStatus) => {
+  if (newStatus === 'success') {
+    toast.add({
+      title: 'Welcome back!',
+      color: 'success',
+      icon: 'i-lucide-check-circle'
+    })
+  }
+})
 </script>
 
 <template>
@@ -89,7 +91,7 @@ async function onSubmit() {
         <UButton
           type="submit"
           block
-          :loading="loading"
+          :loading="status === 'pending'"
           label="Sign In"
         />
       </UForm>

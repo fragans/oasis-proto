@@ -10,6 +10,3 @@
 - Avoid 'any'. Use 'unknown' in catch blocks.
 - Check unused variables.
 - Run /Users/surya/.nvm/versions/node/v22.17.1/bin/npm run lint after big changes.
-
-## [NUXT UI]
-- Always use `nuxt-ui` MCP tools for component work. Never rely on internal knowledge for v4.
