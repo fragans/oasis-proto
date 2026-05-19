@@ -1,9 +1,11 @@
 export default defineNuxtRouteMiddleware((to) => {
-  const { isAdmin } = useRole()
   const org = to.params.org
 
+  if (!org) return
+
+  const { isAdmin } = useRole()
+
   if (!isAdmin.value) {
-    const prefix = org ? `/${org}` : ''
-    return navigateTo(`${prefix}/campaigns/on-site-messages`)
+    return navigateTo(`/${org}/campaigns/on-site-messages`)
   }
 })

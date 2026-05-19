@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const route = useRoute()
-const isSidebarOpen = ref(true)
+const isSidebarOpen = useState('sidebarOpen', () => true)
 
 const orgSlug = computed(() => route.params.org as string)
 
