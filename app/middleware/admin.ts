@@ -6,6 +6,8 @@ export default defineNuxtRouteMiddleware((to) => {
   const { isAdmin } = useRole()
 
   if (!isAdmin.value) {
-    return navigateTo(`/${org}/campaigns/on-site-messages`)
+    const orgCookie = useCookie('oasis_org_id')
+    const prefix = org ? `/${org}` : orgCookie.value
+    return navigateTo(`${prefix}/campaigns/on-site-messages`)
   }
 })

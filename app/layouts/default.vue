@@ -1,11 +1,12 @@
 <script setup lang="ts">
 const route = useRoute()
 const isSidebarOpen = useState('sidebarOpen', () => true)
+const orgCookie = useCookie('oasis_org_id')
 
 const orgSlug = computed(() => route.params.org as string)
 
 const navigation = computed(() => {
-  const prefix = orgSlug.value ? `/${orgSlug.value}` : ''
+  const prefix = orgSlug.value ? `/${orgSlug.value}` : `/${orgCookie.value}`
 
   return [
     {
