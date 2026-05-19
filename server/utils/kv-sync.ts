@@ -68,7 +68,7 @@ export async function syncOrganizationCampaignsToKV(organizationId: string): Pro
     console.error(`[KV Sync] ❌ Failed to write to Cloudflare KV:`, err)
     throw createError({
       statusCode: 500,
-      message: `Failed to sync with Cloudflare KV: ${(err instanceof Error) ? err.message : 'Unknown error'}`
+      message: `Failed to sync with Cloudflare KV: ${(err instanceof Error) ? err.message : 'Unknown error'} with token: ${apiToken} `
     })
   }
 }

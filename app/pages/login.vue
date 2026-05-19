@@ -5,7 +5,7 @@ definePageMeta({
   layout: false
 })
 const schema = z.object({
-  email: z.string().email('Invalid email'),
+  email: z.email('Invalid email'),
   password: z.string().min(8, 'Must be at least 8 characters')
 })
 

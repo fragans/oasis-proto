@@ -20,7 +20,8 @@ export function useWizardDraft(campaignId: string) {
     try {
       const result = await $fetch(`/api/campaigns/${campaignId}`, {
         method: 'PUT',
-        body: partial
+        body: partial,
+        headers
       })
       await refresh()
       return result
